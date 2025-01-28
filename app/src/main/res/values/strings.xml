@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">FarmNook</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login_to_account">Login to Account</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="login">Login</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="new_member">New Member?</string>
+    <string name="sign_up_here">&#160;Sign Up Here</string>
+    <string name="farmnook_logo">logo</string>
+    <string name="enter_email_for_pass_reset">Enter your email below to receive a \npassword reset link.</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="back_button">Back button</string>
+    <string name="register">Register</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="user">User</string>
+    <string name="hauler">Hauler</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="next">Next</string>
+    <string name="have_an_account">Have an Account?</string>
+    <string name="sign_in_here">&#160;Sign In Here</string>
+    <string name="let_s_get_started">Let\'s Get Started</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu_icon">Menu Icon</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="profile_icon">Profile Icon</string>
+    <string name="total_earnings_php">Total Earnings PHP</string>
+    <string name="earnings">Earnings</string>
+    <string name="earnings_icon">Earnings Icon</string>
+    <string name="available_deliveries">Available Deliveries</string>
+    <string name="view_delivery">View Delivery</string>
+    <string name="total_cost_estimation">### PHP</string>
+    <string name="province_destination">Province Destination</string>
+    <string name="destination_place">Destination</string>
+    <string name="province">Province</string>
+    <string name="pick_up_location">Pick up Location</string>
+    <string name="time_estimation">2:00</string>
+    <string name="delivery">Delivery</string>
+</resources>

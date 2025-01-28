@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="6dp"
+    app:cardBackgroundColor="@color/dark_green">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delivery"
+                android:textSize="18sp"
+                android:textColor="@color/white"
+                android:fontFamily="@font/poppins_bold" />
+
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/profile_white"
+                android:layout_marginHorizontal="8dp"
+                android:scaleType="centerCrop"
+                android:background="@color/dark_green" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/clock" />
+
+            <TextView
+                android:id="@+id/estimatedTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="@string/time_estimation"
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/yellow"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/circle_white" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="35dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/white" />
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/circle_black" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/pickUpLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pick_up_location"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/provincePickup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/province"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/destination"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/destination_place"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/provinceDestination"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/province_destination"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/totalCost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/total_cost_estimation"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="5dp"/>
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/view_delivery"
+            android:textColor="@color/black"
+            android:layout_marginHorizontal="60dp"
+            android:background="@drawable/white_rounded_button"
+            android:fontFamily="@font/poppins_semibold"
+            android:textAllCaps="false"
+            android:textSize="17sp"
+            android:drawableStart="@drawable/truck"
+            android:paddingStart="30dp"
+            android:paddingEnd="25dp"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
