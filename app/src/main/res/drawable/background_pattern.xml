@@ -1,0 +1,19 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/confetti"
+        android:left="10dp"
+        android:top="0dp" />
+
+    <item android:drawable="@drawable/confetti"
+        android:right="50dp"
+        android:top="50dp" />
+
+    <item android:drawable="@drawable/confetti"
+        android:left="30dp"
+        android:bottom="80dp" />
+
+    <item android:drawable="@drawable/confetti"
+        android:left="200dp"
+        android:top="100dp" />
+
+</layer-list>
