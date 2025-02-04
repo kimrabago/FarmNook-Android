@@ -18,7 +18,7 @@
             android:padding="10dp">
 
             <ImageView
-                android:id="@+id/menu_icon"
+                android:id="@+id/menu_burger"
                 android:layout_width="24dp"
                 android:layout_height="30dp"
                 android:src="@drawable/menu"
@@ -34,7 +34,7 @@
                 android:textColor="@color/dark_green"
                 android:textSize="20sp"
                 android:layout_marginStart="15dp"
-                android:layout_toEndOf="@id/menu_icon" />
+                android:layout_toEndOf="@id/menu_burger" />
 
             <ImageView
                 android:id="@+id/profile_icon"

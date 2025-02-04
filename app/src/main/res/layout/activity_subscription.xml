@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/cream"
+    tools:context=".views.settings.hauler.SubscriptionActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_marginTop="10dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="35dp"
+            android:background="@null"
+            android:src="@drawable/back_arrow"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:contentDescription="@string/back_button"/>
+
+        <TextView
+            android:id="@+id/subscription_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subscription"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/dark_green"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginVertical="70dp">
+
+    <TextView
+        android:id="@+id/user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_name"
+        android:textSize="30dp"
+        android:textColor="@color/dark_green"
+        android:fontFamily="@font/poppins_semibold"/>
+
+    <TextView
+        android:id="@+id/subscription_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/status"
+        android:textSize="15dp"
+        android:layout_below="@id/user_name"
+        android:textColor="@color/black"
+        android:fontFamily="@font/poppins_semibold"/>
+
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/profile_circle"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/subscription_btn"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="@string/one_time_subscription"
+        android:fontFamily="@font/poppins_semibold"
+        android:background="@drawable/rounded_button"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:padding="12dp"
+        android:textAllCaps="false"
+        android:layout_marginStart="60dp"
+        android:layout_marginEnd="60dp" />
+</LinearLayout>

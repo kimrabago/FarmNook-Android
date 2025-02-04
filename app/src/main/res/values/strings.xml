@@ -41,4 +41,33 @@
     <string name="pick_up_location">Pick up Location</string>
     <string name="time_estimation">2:00</string>
     <string name="delivery">Delivery</string>
+    <string name="delivery_details">Delivery Details</string>
+    <string name="user_name">User Name</string>
+    <string name="member_since">Member Since: January 2023</string>
+
+    <string name="navigation_drawer_open">Open Navigation</string>
+    <string name="navigation_drawer_close">Close Navigation</string>
+    <string name="profile">Profile</string>
+    <string name="date_joined">Date Joined</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="save">Save</string>
+    <string name="about">About</string>
+    <string name="about_farmNook">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Odio ut enim blandit volutpat maecenas volutpat blandit. Volutpat lacus laoreet non curabitur gravida arcu ac. Quam nulla porttitor massa id neque aliquam vestibulum morbi. Ipsum nunc aliquet bibendum enim facilisis gravida neque convallis a.</string>
+    <string name="faq">FAQ</string>
+    <string name="we_are_here_to_help_you">We are here to help you!</string>
+    <string name="how_to_use_the_app">How to use the app?</string>
+    <string name="update">Update</string>
+    <string name="re_enter_your_password">Re-enter your password</string>
+    <string name="enter_your_new_password">Enter your new password</string>
+    <string name="new_password">New Password</string>
+    <string name="enter_your_old_password">Enter your old password</string>
+    <string name="old_password">Old Password</string>
+    <string name="change_password">Change Password</string>
+    <string name="subscription">Subscription</string>
+    <string name="status">Unboosted</string>
+    <string name="one_time_subscription">One-Time \nSubscription</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="deleting_account">Deleting Account</string>
+    <string name="delete_account_description">Deleting your account will permanently remove all of your information from our database. This action cannot be undone.</string>
+    <string name="i_understand_delete_my_account">I understand, delete my account</string>
 </resources>

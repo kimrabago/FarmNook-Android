@@ -46,5 +46,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    //Font
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0") // For Circular Profile Image
 }
