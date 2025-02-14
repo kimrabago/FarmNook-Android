@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/white_rounded_button">
+
+    <ImageView
+        android:id="@+id/closeDialog"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="end"
+        android:src="@drawable/close_button"
+        android:padding="4dp"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/success_icon"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/transaction_successful"
+        android:textSize="20sp"
+        android:fontFamily="@font/poppins_bold"
+        android:textColor="@color/dark_green"
+        android:layout_margin="15dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/thank_you_for_using_our_application"
+        android:textSize="15sp"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/dark_green"
+        android:gravity="center"
+        android:layout_margin="15dp"/>
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="0.5"
+        android:rating="4.9"
+        android:isIndicator="true"
+        android:progressTint="@color/dark_green"
+        android:secondaryProgressTint="@color/dark_green"
+        android:layout_gravity="center"
+        android:theme="@style/Widget.AppCompat.RatingBar"
+        android:layout_margin="15dp"/>
+
+    <Button
+        android:id="@+id/rate_button"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/rate"
+        android:background="@drawable/green_rounded_button"
+        android:textColor="@android:color/white"
+        android:padding="8dp"
+        android:fontFamily="@font/poppins_bold"
+        android:textSize="14sp"
+        android:layout_gravity="center"/>
+
+</LinearLayout>

@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <meta-data
+        android:name="com.mapbox.token"
+        android:value="@string/mapbox_access_token" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +21,63 @@
         android:theme="@style/Theme.FarmNook"
         tools:targetApi="31">
         <activity
+            android:name=".views.farmer.HaulerToPickupActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".views.farmer.AcceptedDeliveryActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".views.farmer.WaitingDeliveryActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".views.farmer.DeliveryConfirmationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.farmer.SetScheduleActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".views.farmer.RecommendationActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".views.farmer.AddDeliveryActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".views.auth.DeleteAccountActivity"
             android:exported="true">
             <intent-filter>
@@ -22,7 +87,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".views.settings.hauler.AccountBoostedActivity"
+            android:name=".views.hauler.subscription.AccountBoostedActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,7 +120,7 @@
             android:name=".views.settings.ReportActivity"
             android:exported="true" />
         <activity
-            android:name=".views.settings.hauler.SubscriptionActivity"
+            android:name=".views.hauler.subscription.SubscriptionActivity"
             android:exported="true" />
         <activity
             android:name=".views.settings.AboutActivity"

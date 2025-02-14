@@ -1,4 +1,4 @@
-package com.ucb.eldroid.farmnook.views.settings.hauler
+package com.ucb.eldroid.farmnook.views.hauler.subscription
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

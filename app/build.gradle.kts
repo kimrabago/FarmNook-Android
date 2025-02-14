@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.ucb.eldroid.farmnook"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.ucb.eldroid.farmnook"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -46,6 +46,18 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    //Mapbox SDK
+    implementation("com.mapbox.maps:android:11.9.2")
+
+
+    implementation("androidx.annotation:annotation:1.9.1")
     implementation("de.hdodenhof:circleimageview:3.1.0") // For Circular Profile Image
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "com.mapbox.maps") {
+            useVersion("11.9.1")
+        }
+    }
 }
