@@ -9,7 +9,8 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.ucb.eldroid.farmnook.R
-import com.ucb.eldroid.farmnook.views.hauler.DashboardFragment
+import com.ucb.eldroid.farmnook.views.farmer.FarmerDashboardFragment
+import com.ucb.eldroid.farmnook.views.hauler.HaulerDashboardFragment
 
 class BottomNavigationBar : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -38,10 +39,10 @@ class BottomNavigationBar : AppCompatActivity() {
         // Handle Bottom Navigation
         bottomNavigationView.setOnItemSelectedListener { menu ->
             when (menu.itemId) {
-                R.id.home -> replaceFragment(DashboardFragment())
-                R.id.history -> replaceFragment(DashboardFragment())
-                R.id.delivery -> replaceFragment(DashboardFragment())
-                R.id.message -> replaceFragment(DashboardFragment())
+                R.id.home -> replaceFragment(HaulerDashboardFragment())
+                R.id.history -> replaceFragment(FarmerDashboardFragment())
+                R.id.delivery -> replaceFragment(HaulerDashboardFragment())
+                R.id.message -> replaceFragment(HaulerDashboardFragment())
                 else -> return@setOnItemSelectedListener false
             }
             true
@@ -50,7 +51,7 @@ class BottomNavigationBar : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.profile, R.id.notification, R.id.subscription, R.id.report, R.id.feedback -> {
-                    replaceFragment(DashboardFragment())
+                    replaceFragment(HaulerDashboardFragment())
                     drawerLayout.closeDrawer(GravityCompat.START)  // Ensure this line is present
                 }
             }
@@ -58,7 +59,7 @@ class BottomNavigationBar : AppCompatActivity() {
         }
 
         // Load default fragment
-        replaceFragment(DashboardFragment())
+        replaceFragment(HaulerDashboardFragment())
     }
 
     // Function to replace fragments

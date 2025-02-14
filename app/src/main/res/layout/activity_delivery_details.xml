@@ -15,12 +15,11 @@
 
         <ImageButton
             android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="35dp"
+            android:layout_width="45dp"
+            android:layout_height="40dp"
             android:background="@null"
             android:src="@drawable/back_arrow"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="10dp"
             android:contentDescription="@string/back_button"/>
 
         <TextView
@@ -35,10 +34,11 @@
             android:layout_toRightOf="@id/btn_back" />
     </RelativeLayout>
 
-    <com.google.android.gms.maps.MapView
+    <com.mapbox.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="300dp" /> <!-- Adjusted height for better space management -->
+        android:layout_height="320dp"/>
+    <!-- Adjusted height for better space management -->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -53,8 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
+            app:cardCornerRadius="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".views.farmer.SetScheduleActivity">
+
+    <!-- Header with Back Button and Title -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_marginTop="5dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:src="@drawable/back_arrow"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="5dp"
+            android:contentDescription="@string/back_button"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set Schedule"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/dark_green"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_toRightOf="@id/btn_back"
+            android:layout_marginStart="10dp"/>
+    </RelativeLayout>
+
+    <!-- Main Content Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/half_border"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set up a schedule to pick up and deliver your products."
+            android:textColor="@color/dark_green"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="17sp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_marginBottom="25dp"/>
+
+        <!-- Date Input -->
+        <EditText
+            android:id="@+id/dateInput"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="mm/dd/yyyy"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:background="@android:drawable/editbox_background"
+            android:drawableEnd="@android:drawable/ic_menu_my_calendar"
+            android:padding="10dp"
+            android:layout_marginBottom="15dp"/>
+
+        <!-- Time Input -->
+        <EditText
+            android:id="@+id/timeInput"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="08:00 AM"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:background="@android:drawable/editbox_background"
+            android:drawableEnd="@android:drawable/ic_menu_recent_history"
+            android:padding="10dp"
+            android:layout_marginBottom="25dp"/>
+
+        <!-- Button Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/setButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

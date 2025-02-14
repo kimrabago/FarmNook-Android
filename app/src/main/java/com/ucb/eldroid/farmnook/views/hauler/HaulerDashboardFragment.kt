@@ -15,7 +15,7 @@ import com.ucb.eldroid.farmnook.views.adapter.DeliveriesAdapter
 import com.ucb.eldroid.farmnook.model.data.DeliveryItem
 
 
-class DashboardFragment : Fragment() {
+class HaulerDashboardFragment : Fragment() {
 
     private lateinit var menuBurger: ImageView
     private lateinit var drawerLayout: DrawerLayout
@@ -25,7 +25,7 @@ class DashboardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val rootView = inflater.inflate(R.layout.fragment_dashboard, container, false)
+        val rootView = inflater.inflate(R.layout.fragment_hauler_dashboard, container, false)
 
         // Initialize the menu burger and drawer layout from rootView
         menuBurger = rootView.findViewById(R.id.menu_burger)
