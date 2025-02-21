@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:text="This Week"
             android:textColor="@color/dark_green"
-            android:fontFamily="@font/poppins_bold"
+            android:fontFamily="@font/poppins_bold"/>
     </LinearLayout>
 
 </FrameLayout>

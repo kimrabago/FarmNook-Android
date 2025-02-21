@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".views.message.NewMessageActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_marginTop="5dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:src="@drawable/back_arrow"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:contentDescription="@string/back_button"/>
+
+        <TextView
+            android:id="@+id/newMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/new_message"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/dark_green"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/half_border"
+        android:padding="30dp">
+
+        <TextView
+            android:id="@+id/toTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/to_txt_view"
+            android:textColor="@color/dark_green"
+            android:textSize="20sp"
+            android:fontFamily="@font/poppins"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="10dp"/>
+
+        <EditText
+            android:id="@+id/searchContact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/type_username"
+            android:background="@drawable/edit_text_border"
+            android:padding="15dp"
+            android:inputType="text"
+            android:autofillHints="name"
+            android:layout_toEndOf="@id/toTextView"/>
+
+        <TextView
+            android:id="@+id/contactTxtView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/contacts_txtview"
+            android:textSize="20sp"
+            android:layout_marginTop="15dp"
+            android:textColor="@color/dark_green"
+            android:fontFamily="@font/poppins_semibold"
+            android:layout_below="@id/searchContact"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/messagesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/message_item"
+            android:layout_below="@+id/contactTxtView"/>
+    </RelativeLayout>
+</LinearLayout>

@@ -8,7 +8,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -38,7 +39,8 @@
                     android:textColor="@color/dark_green"
                     android:textSize="20sp"
                     android:layout_marginStart="15dp"
-                    android:layout_toEndOf="@id/menu_burger" />
+                    android:layout_toEndOf="@id/menu_burger"
+                    tools:ignore="RelativeOverlap" />
 
                 <ImageView
                     android:id="@+id/profile_icon"
@@ -53,7 +55,7 @@
             <com.mapbox.maps.MapView
                 android:id="@+id/mapView"
                 android:layout_width="match_parent"
-                android:layout_height="400dp" />
+                android:layout_height="380dp" />
 
             <!-- Delivery Info Section -->
             <LinearLayout
@@ -131,8 +133,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
-                    android:layout_marginHorizontal="50dp">
+                    android:layout_marginHorizontal="70dp">
 
+                    <!-- Kilometer Icon -->
+                    <ImageView
+                        android:id="@+id/kilometerImage"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/km_icon"
+                        android:layout_centerHorizontal="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginStart="8dp"/>
+
+                    <!-- Kilometer Text (Below the Icon) -->
                     <TextView
                         android:id="@+id/totalKilometer"
                         android:layout_width="wrap_content"
@@ -140,8 +153,21 @@
                         android:text="40 km"
                         android:textSize="14sp"
                         android:textColor="@color/black"
-                        android:layout_alignParentStart="true"/>
+                        android:layout_below="@id/kilometerImage"
+                        android:layout_centerHorizontal="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginTop="4dp" />
 
+                    <!-- Duration Icon -->
+                    <ImageView
+                        android:id="@+id/durationImage"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/duration_icon"
+                        android:layout_centerHorizontal="true"
+                        android:layout_alignParentEnd="true" />
+
+                    <!-- Duration Text (Below the Icon) -->
                     <TextView
                         android:id="@+id/durationTime"
                         android:layout_width="wrap_content"
@@ -149,14 +175,18 @@
                         android:text="8 hr"
                         android:textSize="14sp"
                         android:textColor="@color/black"
-                        android:layout_alignParentEnd="true"/>
+                        android:layout_below="@id/durationImage"
+                        android:layout_marginTop="4dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_alignParentEnd="true"  />
+
                 </RelativeLayout>
 
                 <!-- Status Indicator -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="15dp"
+                    android:padding="10dp"
                     android:background="@drawable/green_rounded"
                     android:layout_marginHorizontal="80dp">
 
@@ -169,7 +199,7 @@
                             android:id="@+id/statusTxtview"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Status: "
+                            android:text="@string/statusTextView"
                             android:textStyle="bold"
                             android:textSize="16sp"
                             android:textColor="@color/white"
@@ -180,7 +210,7 @@
                             android:id="@+id/status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="On Route"
+                            android:text="@string/status_delivery"
                             android:textStyle="bold"
                             android:textSize="16sp"
                             android:textColor="@color/red"
@@ -190,7 +220,6 @@
                             android:padding="5dp"/>
                     </RelativeLayout>
                 </RelativeLayout>
-
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>

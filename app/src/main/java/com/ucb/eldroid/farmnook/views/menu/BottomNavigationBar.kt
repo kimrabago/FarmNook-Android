@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.ucb.eldroid.farmnook.R
+import com.ucb.eldroid.farmnook.views.farmer.DeliveryStatusFragment
 import com.ucb.eldroid.farmnook.views.farmer.FarmerDashboardFragment
 import com.ucb.eldroid.farmnook.views.hauler.HaulerDashboardFragment
 
@@ -41,7 +42,7 @@ class BottomNavigationBar : AppCompatActivity() {
             when (menu.itemId) {
                 R.id.home -> replaceFragment(HaulerDashboardFragment())
                 R.id.history -> replaceFragment(FarmerDashboardFragment())
-                R.id.delivery -> replaceFragment(HaulerDashboardFragment())
+                R.id.delivery -> replaceFragment(DeliveryStatusFragment())
                 R.id.message -> replaceFragment(HaulerDashboardFragment())
                 else -> return@setOnItemSelectedListener false
             }
