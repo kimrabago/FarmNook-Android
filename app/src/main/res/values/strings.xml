@@ -116,5 +116,15 @@
     <string name="plate_no_textview">Plate No:</string>
     <string name="plate_num">GAR905</string>
     <string name="delivery_status">Delivery Status</string>
+    <string name="statusTextView">Status:</string>
+    <string name="status_delivery">On Route</string>
+    <string name="new_message">New Message</string>
+    <string name="to_txt_view">To:</string>
+    <string name="type_username">Type Username</string>
+    <string name="contacts_txtview">Contacts</string>
+    <string name="inbox">Inbox</string>
+    <string name="receiver_name">Michael Chu</string>
+    <string name="type_your_reply_here">Type your reply here</string>
+    <string name="send_button">Send Button</string>
 
 </resources>
