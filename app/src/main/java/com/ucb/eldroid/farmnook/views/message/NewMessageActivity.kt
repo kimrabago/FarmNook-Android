@@ -1,10 +1,8 @@
 package com.ucb.eldroid.farmnook.views.message
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.ucb.eldroid.farmnook.R
 
 class NewMessageActivity : AppCompatActivity() {
@@ -12,5 +10,9 @@ class NewMessageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_message)
 
+        val btnBack: ImageButton = findViewById(R.id.btn_back)
+        btnBack.setOnClickListener {
+            finish()  // Closes this activity and returns to the previous screen
+        }
     }
 }
