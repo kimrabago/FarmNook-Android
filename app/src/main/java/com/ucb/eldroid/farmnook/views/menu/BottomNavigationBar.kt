@@ -1,5 +1,6 @@
 package com.ucb.eldroid.farmnook.views.menu
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,7 @@ import com.ucb.eldroid.farmnook.R
 import com.ucb.eldroid.farmnook.views.farmer.DeliveryStatusFragment
 import com.ucb.eldroid.farmnook.views.farmer.FarmerDashboardFragment
 import com.ucb.eldroid.farmnook.views.hauler.HaulerDashboardFragment
+import com.ucb.eldroid.farmnook.views.message.NewMessageActivity  // Import NewMessageActivity
 
 class BottomNavigationBar : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -37,23 +39,29 @@ class BottomNavigationBar : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable Hamburger Icon
 
-        // Handle Bottom Navigation
+        // Handle Bottom Navigation Clicks
         bottomNavigationView.setOnItemSelectedListener { menu ->
             when (menu.itemId) {
                 R.id.home -> replaceFragment(HaulerDashboardFragment())
                 R.id.history -> replaceFragment(FarmerDashboardFragment())
                 R.id.delivery -> replaceFragment(DeliveryStatusFragment())
-                R.id.message -> replaceFragment(HaulerDashboardFragment())
+                R.id.message -> {
+                    // Open NewMessageActivity instead of replacing a fragment
+                    val intent = Intent(this, NewMessageActivity::class.java)
+                    startActivity(intent)
+                    return@setOnItemSelectedListener true
+                }
                 else -> return@setOnItemSelectedListener false
             }
             true
         }
 
+        // Handle Navigation Drawer Menu Clicks
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.profile, R.id.notification, R.id.subscription, R.id.report, R.id.feedback -> {
                     replaceFragment(HaulerDashboardFragment())
-                    drawerLayout.closeDrawer(GravityCompat.START)  // Ensure this line is present
+                    drawerLayout.closeDrawer(GravityCompat.START)  // Close drawer
                 }
             }
             true
@@ -73,13 +81,12 @@ class BottomNavigationBar : AppCompatActivity() {
         }
     }
 
-    // Handle the Drawer Toggle click
+    // Handle Drawer Toggle Click
     override fun onSupportNavigateUp(): Boolean {
         return if (drawerLayout.isDrawerOpen(navigationView)) {
             drawerLayout.closeDrawers()
             true
         } else {
-            // Pass the correct MenuItem (which would be typically passed in onOptionsItemSelected)
             super.onSupportNavigateUp()
         }
     }
