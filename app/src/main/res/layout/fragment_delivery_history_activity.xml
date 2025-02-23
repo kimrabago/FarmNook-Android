@@ -35,12 +35,30 @@
                 android:layout_toEndOf="@id/menu_burger" />
         </RelativeLayout>
 
-        <TextView
+
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="This Week"
-            android:textColor="@color/dark_green"
-            android:fontFamily="@font/poppins_bold"/>
+            android:layout_height="match_parent"
+            android:background="@drawable/half_border"
+            android:padding="30dp">
+
+            <TextView
+                android:id="@+id/this_week_txtView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="This Week"
+                android:textColor="@color/dark_green"
+                android:fontFamily="@font/poppins_bold"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/messagesRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:listitem="@layout/message_item"
+                android:layout_below="@+id/this_week_txtView"/>
+        </RelativeLayout>
     </LinearLayout>
+
 
 </FrameLayout>
