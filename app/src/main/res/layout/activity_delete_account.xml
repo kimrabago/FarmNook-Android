@@ -27,9 +27,11 @@
         android:fontFamily="@font/poppins"
         android:paddingHorizontal="30dp"
         android:justificationMode="inter_word"
-        android:textSize="15dp"/>
+        android:textSize="15sp"/>
 
+    <!-- Confirm Delete Button with an ID -->
     <Button
+        android:id="@+id/btn_confirm_delete"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:text="@string/i_understand_delete_my_account"
@@ -40,7 +42,9 @@
         android:textColor="@color/white"
         android:layout_marginTop="25dp"/>
 
+    <!-- Cancel Button with an ID -->
     <Button
+        android:id="@+id/btn_cancel_delete"
         android:layout_width="325dp"
         android:layout_height="wrap_content"
         android:text="Cancel"
