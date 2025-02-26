@@ -4,36 +4,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:orientation="vertical"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".views.settings.EditProfileActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:padding="8dp">
 
         <ImageButton
             android:id="@+id/btn_back"
             android:layout_width="40dp"
             android:layout_height="35dp"
-            android:background="@null"
-            android:src="@drawable/back_arrow"
             android:layout_alignParentStart="true"
             android:layout_marginStart="10dp"
-            android:contentDescription="@string/back_button"/>
+            android:background="@null"
+            android:contentDescription="@string/back_button"
+            android:src="@drawable/back_arrow" />
 
         <TextView
             android:id="@+id/edit_profile_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/edit_profile"
+            android:layout_centerInParent="true"
             android:fontFamily="@font/poppins_bold"
+            android:text="@string/edit_profile"
             android:textColor="@color/dark_green"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_centerInParent="true"/>
+            android:textStyle="bold" />
     </RelativeLayout>
 
     <androidx.cardview.widget.CardView
@@ -54,103 +54,108 @@
             <ImageView
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:src="@drawable/profile_circle"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:src="@drawable/profile_circle" />
 
             <EditText
                 android:id="@+id/first_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/register_rounded_box"
-                android:drawableStart="@drawable/user_icon"
                 android:drawablePadding="25dp"
+                android:drawableStart="@drawable/user_icon"
                 android:fontFamily="@font/dm_sans_medium"
                 android:hint="@string/first_name"
                 android:padding="12dp"
-                android:layout_marginTop="20dp"
                 android:textColorHint="@color/dark_green" />
 
             <EditText
                 android:id="@+id/last_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/last_name"
-                android:fontFamily="@font/dm_sans_medium"
-                android:textColorHint="@color/dark_green"
-                android:drawableStart="@drawable/user_icon"
-                android:drawablePadding="25dp"
-                android:padding="12dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:drawablePadding="25dp"
+                android:drawableStart="@drawable/user_icon"
+                android:fontFamily="@font/dm_sans_medium"
+                android:hint="@string/last_name"
+                android:padding="12dp"
+                android:textColorHint="@color/dark_green" />
 
             <EditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/email"
-                android:fontFamily="@font/dm_sans_medium"
-                android:textColorHint="@color/dark_green"
-                android:drawableStart="@drawable/email_icon"
-                android:drawablePadding="24dp"
-                android:padding="12dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:drawablePadding="24dp"
+                android:drawableStart="@drawable/email_icon"
+                android:fontFamily="@font/dm_sans_medium"
+                android:hint="@string/email"
+                android:padding="12dp"
+                android:textColorHint="@color/dark_green" />
 
             <EditText
                 android:id="@+id/phone_num"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/phone_number"
-                android:fontFamily="@font/dm_sans_medium"
-                android:textColorHint="@color/dark_green"
-                android:drawableStart="@drawable/number_icon"
-                android:drawablePadding="25dp"
-                android:padding="12dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:drawablePadding="25dp"
+                android:drawableStart="@drawable/number_icon"
+                android:fontFamily="@font/dm_sans_medium"
+                android:hint="@string/phone_number"
+                android:padding="12dp"
+                android:textColorHint="@color/dark_green" />
 
-
-            <EditText
+            <!-- Change Password as Button -->
+            <Button
                 android:id="@+id/change_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/change_password"
-                android:fontFamily="@font/dm_sans_medium"
-                android:textColorHint="@color/dark_green"
-                android:drawableEnd="@drawable/right_arrow"
-                android:drawableTint="@color/dark_green"
-                android:drawablePadding="20dp"
-                android:padding="12dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:drawableEnd="@drawable/right_arrow"
+                android:drawablePadding="20dp"
+                android:drawableTint="@color/dark_green"
+                android:fontFamily="@font/dm_sans_medium"
+                android:padding="12dp"
+                android:textSize="18sp"
+                android:text="@string/change_password"
+                android:textAllCaps="false"
+                android:textColor="@color/dark_green" />
 
-            <EditText
+            <!-- Delete Account as Button -->
+            <Button
                 android:id="@+id/delete_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/delete_account"
-                android:fontFamily="@font/dm_sans_medium"
-                android:textColorHint="@color/red"
-                android:drawableTint="@color/dark_green"
-                android:drawablePadding="20dp"
-                android:padding="12dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:drawablePadding="20dp"
+                android:drawableTint="@color/dark_green"
+                android:fontFamily="@font/dm_sans_medium"
+                android:padding="12dp"
+                android:textSize="18sp"
+                android:text="@string/delete_account"
+                android:textAllCaps="false"
+                android:textColor="@color/red" />
 
             <Button
                 android:id="@+id/save_profile_btn"
                 android:layout_width="130dp"
                 android:layout_height="wrap_content"
-                android:text="@string/save"
-                android:fontFamily="@font/poppins"
-                android:background="@drawable/green_rounded"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:padding="5dp"
+                android:layout_gravity="end"
                 android:layout_marginStart="150dp"
                 android:layout_marginTop="20dp"
-                android:layout_gravity="end"
-                android:textAllCaps="false"/>
+                android:background="@drawable/green_rounded"
+                android:fontFamily="@font/poppins"
+                android:padding="5dp"
+                android:text="@string/save"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
