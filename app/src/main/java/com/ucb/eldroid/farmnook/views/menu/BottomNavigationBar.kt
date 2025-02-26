@@ -1,6 +1,5 @@
 package com.ucb.eldroid.farmnook.views.menu
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +12,7 @@ import com.ucb.eldroid.farmnook.R
 import com.ucb.eldroid.farmnook.views.farmer.DeliveryStatusFragment
 import com.ucb.eldroid.farmnook.views.farmer.FarmerDashboardFragment
 import com.ucb.eldroid.farmnook.views.hauler.HaulerDashboardFragment
-import com.ucb.eldroid.farmnook.views.message.NewMessageActivity  // Import NewMessageActivity
+import com.ucb.eldroid.farmnook.views.message.InboxFragment  // Import InboxFragment
 
 class BottomNavigationBar : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -45,12 +44,7 @@ class BottomNavigationBar : AppCompatActivity() {
                 R.id.home -> replaceFragment(HaulerDashboardFragment())
                 R.id.history -> replaceFragment(FarmerDashboardFragment())
                 R.id.delivery -> replaceFragment(DeliveryStatusFragment())
-                R.id.message -> {
-                    // Open NewMessageActivity instead of replacing a fragment
-                    val intent = Intent(this, NewMessageActivity::class.java)
-                    startActivity(intent)
-                    return@setOnItemSelectedListener true
-                }
+                R.id.message -> replaceFragment(InboxFragment()) // Open InboxFragment
                 else -> return@setOnItemSelectedListener false
             }
             true
@@ -77,6 +71,7 @@ class BottomNavigationBar : AppCompatActivity() {
         val fragmentTag = fragment.javaClass.simpleName
         if (supportFragmentManager.findFragmentByTag(fragmentTag) == null) {
             transaction.replace(R.id.navHost, fragment, fragmentTag)
+            transaction.addToBackStack(null) // Ensure back button works
             transaction.commit()
         }
     }
