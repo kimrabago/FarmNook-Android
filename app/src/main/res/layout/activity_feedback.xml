@@ -17,6 +17,7 @@
             android:id="@+id/btn_back"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_marginTop="20dp"
             android:background="@null"
             android:src="@drawable/back_arrow"
             android:layout_alignParentStart="true"
@@ -31,6 +32,7 @@
             android:fontFamily="@font/poppins_bold"
             android:textColor="@color/dark_green"
             android:textSize="24sp"
+            android:layout_marginTop="30dp"
             android:textStyle="bold"
             android:layout_centerInParent="true"/>
     </RelativeLayout>
