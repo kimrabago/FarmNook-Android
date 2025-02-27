@@ -6,39 +6,43 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/cream"
     tools:context=".views.settings.HaulerProfileActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    <ImageButton
-        android:id="@+id/btn_back"
-        android:layout_width="40dp"
-        android:layout_height="20dp"
-        android:background="@null"
-        android:src="@drawable/back_arrow"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="10dp"
-        android:contentDescription="@string/back_button"/>
-
-    <TextView
-        android:id="@+id/profile_title"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/profile"
-        android:fontFamily="@font/poppins_semibold"
-        android:textColor="@color/dark_green"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:gravity="center" />
-    </LinearLayout>
+        android:padding="8dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="30dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="35dp"
+            android:background="@null"
+            android:src="@drawable/back_arrow"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:contentDescription="@string/back_button"/>
+
+        <TextView
+            android:id="@+id/profile_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:fontFamily="@font/poppins_bold"
+            android:text="@string/profile"
+            android:textColor="@color/dark_green"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginVertical="10dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="20dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="20dp">
 
@@ -50,8 +54,10 @@
             android:padding="30dp">
 
             <ImageView
+                android:id="@+id/profileImage"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
+                android:contentDescription="@string/profile_icon"
                 android:src="@drawable/profile_circle"
                 android:layout_gravity="center"/>
 
@@ -73,7 +79,7 @@
                 android:id="@+id/ratingValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="4.9"
+                android:text="@string/ratings_count"
                 android:textSize="30sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
@@ -84,8 +90,8 @@
                 android:id="@+id/ratingLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rating"
-                android:textSize="13sp"
+                android:text="@string/rating"
+                android:textSize="15sp"
                 android:fontFamily="@font/poppins"
                 android:textColor="@android:color/black"
                 android:layout_gravity="center"/>
@@ -94,6 +100,8 @@
                 android:id="@+id/first_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autofillHints="name"
+                android:inputType="text"
                 android:background="@drawable/register_rounded_box"
                 android:drawableStart="@drawable/user_icon"
                 android:drawablePadding="25dp"
@@ -108,6 +116,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/last_name"
+                android:autofillHints="name"
+                android:inputType="text"
                 android:fontFamily="@font/dm_sans_medium"
                 android:textColorHint="@color/dark_green"
                 android:drawableStart="@drawable/user_icon"
@@ -121,6 +131,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/email"
+                android:inputType="textEmailAddress"
+                android:autofillHints="emailAddress"
                 android:fontFamily="@font/dm_sans_medium"
                 android:textColorHint="@color/dark_green"
                 android:drawableStart="@drawable/email_icon"
@@ -134,6 +146,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/phone_number"
+                android:autofillHints="phone"
+                android:inputType="phone"
                 android:fontFamily="@font/dm_sans_medium"
                 android:textColorHint="@color/dark_green"
                 android:drawableStart="@drawable/number_icon"
@@ -143,10 +157,12 @@
                 android:layout_marginTop="8dp" />
 
             <EditText
-                android:id="@+id/calendar"
+                android:id="@+id/dateJoined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/date_joined"
+                android:autofillHints="calendar"
+                android:inputType="date"
                 android:fontFamily="@font/dm_sans_medium"
                 android:textColorHint="@color/dark_green"
                 android:drawableStart="@drawable/calendar"
