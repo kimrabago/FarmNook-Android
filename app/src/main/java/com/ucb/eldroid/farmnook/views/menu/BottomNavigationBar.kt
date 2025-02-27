@@ -12,6 +12,7 @@ import com.ucb.eldroid.farmnook.R
 import com.ucb.eldroid.farmnook.views.farmer.DeliveryStatusFragment
 import com.ucb.eldroid.farmnook.views.farmer.FarmerDashboardFragment
 import com.ucb.eldroid.farmnook.views.hauler.HaulerDashboardFragment
+import com.ucb.eldroid.farmnook.views.message.InboxFragment
 
 class BottomNavigationBar : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -28,38 +29,36 @@ class BottomNavigationBar : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation_view)
 
-        // DrawerToggle setup
+        // Drawer Toggle setup
         drawerToggle = ActionBarDrawerToggle(
             this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable Hamburger Icon
+        supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button in toolbar
 
-        // Handle Bottom Navigation
+        // Handle Bottom Navigation Clicks
         bottomNavigationView.setOnItemSelectedListener { menu ->
             when (menu.itemId) {
-                R.id.home -> replaceFragment(HaulerDashboardFragment())
+                R.id.home -> resetToDashboard() // Always reset dashboard
                 R.id.history -> replaceFragment(FarmerDashboardFragment())
                 R.id.delivery -> replaceFragment(DeliveryStatusFragment())
-                R.id.message -> replaceFragment(HaulerDashboardFragment())
+                R.id.message -> replaceFragment(InboxFragment())
                 else -> return@setOnItemSelectedListener false
             }
             true
         }
 
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.profile, R.id.notification, R.id.subscription, R.id.report, R.id.feedback -> {
-                    replaceFragment(HaulerDashboardFragment())
-                    drawerLayout.closeDrawer(GravityCompat.START)  // Ensure this line is present
-                }
-            }
-            true
-        }
-
         // Load default fragment
+        if (savedInstanceState == null) {
+            resetToDashboard()
+        }
+    }
+
+    // Function to reset to dashboard (Home)
+    private fun resetToDashboard() {
+        supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE) // Clear back stack
         replaceFragment(HaulerDashboardFragment())
     }
 
@@ -67,20 +66,30 @@ class BottomNavigationBar : AppCompatActivity() {
     private fun replaceFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         val fragmentTag = fragment.javaClass.simpleName
-        if (supportFragmentManager.findFragmentByTag(fragmentTag) == null) {
-            transaction.replace(R.id.navHost, fragment, fragmentTag)
-            transaction.commit()
+        transaction.replace(R.id.navHost, fragment, fragmentTag)
+        transaction.addToBackStack(null) // Ensures back navigation works
+        transaction.commit()
+    }
+
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        if (supportFragmentManager.backStackEntryCount > 1) {
+            supportFragmentManager.popBackStack() // Go to previous fragment
+        } else {
+            finish() // Exit app if already on Home
         }
     }
 
-    // Handle the Drawer Toggle click
+
+    // Handle Drawer Back Button
     override fun onSupportNavigateUp(): Boolean {
-        return if (drawerLayout.isDrawerOpen(navigationView)) {
+        return if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawers()
             true
         } else {
-            // Pass the correct MenuItem (which would be typically passed in onOptionsItemSelected)
-            super.onSupportNavigateUp()
+            onBackPressed()
+            true
         }
     }
 }

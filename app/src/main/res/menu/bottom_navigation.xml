@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:title="Home"
+    <item
         android:id="@+id/home"
-        android:icon="@drawable/home"/>
-    <item android:title="History"
+        android:title="Home"
+        android:icon="@drawable/home"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/history"
-        android:icon="@drawable/history"/>
-    <item android:title="Delivery"
+        android:title="History"
+        android:icon="@drawable/history"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/delivery"
-        android:icon="@drawable/delivery"/>
-    <item android:title="Message"
+        android:title="Delivery"
+        android:icon="@drawable/delivery"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/message"
-        android:icon="@drawable/message"/>
+        android:title="Message"
+        android:icon="@drawable/message"
+        app:showAsAction="ifRoom"/>
 </menu>
