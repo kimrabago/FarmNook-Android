@@ -59,10 +59,10 @@
             android:layout_marginBottom="20dp"/>
 
         <Button
-            android:id="@+id/btn_next"
+            android:id="@+id/submit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/next"
+            android:text="@string/submit"
             android:fontFamily="@font/poppins"
             android:background="@drawable/rounded_button"
             android:textColor="@color/white"

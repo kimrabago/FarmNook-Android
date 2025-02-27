@@ -200,7 +200,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/statusTextView"
-                            android:textStyle="bold"
                             android:textSize="16sp"
                             android:textColor="@color/white"
                             android:layout_marginTop="5dp"
@@ -208,16 +207,18 @@
 
                         <TextView
                             android:id="@+id/status"
-                            android:layout_width="wrap_content"
+                            android:layout_width="100dp"
                             android:layout_height="wrap_content"
                             android:text="@string/status_delivery"
                             android:textStyle="bold"
                             android:textSize="16sp"
-                            android:textColor="@color/red"
+                            android:textColor="@color/dark_green"
+                            android:fontFamily="@font/dm_sans"
                             android:layout_toEndOf="@id/statusTxtview"
-                            android:layout_marginStart="4dp"
-                            android:background="@color/yellow_green"
-                            android:padding="5dp"/>
+                            android:layout_marginStart="8dp"
+                            android:background="@color/cream"
+                            android:padding="5dp"
+                            android:textAlignment="center"/>
                     </RelativeLayout>
                 </RelativeLayout>
             </LinearLayout>

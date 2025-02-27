@@ -126,5 +126,18 @@
     <string name="receiver_name">Michael Chu</string>
     <string name="type_your_reply_here">Type your reply here</string>
     <string name="send_button">Send Button</string>
+    <string name="we_recommend_these_based_on_your_preferences">We recommend these based on your preferences</string>
+    <string name="mm_dd_yyyy">mm/dd/yyyy</string>
+    <string name="_08_00_am">08:00 AM</string>
+    <string name="set">Set</string>
+    <string name="set_sched_definition">Set up a schedule to pick up and deliver your products.</string>
+    <string name="enter_date_and_time">Enter date and time</string>
+    <string name="your_hauler_is_here">Your Hauler is here!</string>
+    <string name="delivery_history">Delivery History</string>
+    <string name="ratings_count">4.9</string>
+    <string name="rating">Rating</string>
+    <string name="feedback">Feedback</string>
+    <string name="give_feedback">Give feedback about our FarmNook App and share your thoughts!</string>
+    <string name="submit">Submit</string>
 
 </resources>

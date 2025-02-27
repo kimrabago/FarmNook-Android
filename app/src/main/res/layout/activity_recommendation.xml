@@ -28,7 +28,7 @@
             android:id="@+id/recommendation_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="We recommend theses based on your preferences"
+            android:text="@string/we_recommend_these_based_on_your_preferences"
             android:fontFamily="@font/poppins_bold"
             android:textColor="@color/dark_green"
             android:textSize="20sp"

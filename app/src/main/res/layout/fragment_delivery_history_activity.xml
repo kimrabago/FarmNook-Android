@@ -8,57 +8,94 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp">
+            android:padding="5dp">
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/menu_burger"
-                android:layout_width="24dp"
-                android:layout_height="30dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@null"
                 android:src="@drawable/menu"
-                android:contentDescription="@string/menu_icon"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="5dp"
+                android:contentDescription="@string/back_button"/>
 
             <TextView
-                android:id="@+id/deliveryHistory"
+                android:id="@+id/notification_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delivery History"
-                android:fontFamily="@font/poppins_semibold"
+                android:text="@string/delivery_history"
+                android:fontFamily="@font/poppins_bold"
                 android:textColor="@color/dark_green"
-                android:textSize="20sp"
-                android:layout_marginStart="15dp"
-                android:layout_toEndOf="@id/menu_burger" />
+                android:textSize="27sp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_toEndOf="@id/menu_burger"
+                android:layout_centerVertical="true"/>
         </RelativeLayout>
-
-
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/half_border"
             android:padding="30dp">
 
-            <TextView
-                android:id="@+id/this_week_txtView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="This Week"
-                android:textColor="@color/dark_green"
-                android:fontFamily="@font/poppins_bold"/>
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/messagesRecyclerView"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:listitem="@layout/message_item"
-                android:layout_below="@+id/this_week_txtView"/>
+                android:orientation="vertical">
+
+                <!-- This Week Section -->
+                <TextView
+                    android:id="@+id/this_week_txtView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="This Week"
+                    android:textSize="18sp"
+                    android:textColor="@color/dark_green"
+                    android:fontFamily="@font/poppins_bold"
+                    android:paddingVertical="8dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/this_week_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:listitem="@layout/message_item"
+                    android:nestedScrollingEnabled="false"/>
+
+                <!-- This Month Section -->
+                <TextView
+                    android:id="@+id/this_month_txtView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="This Month"
+                    android:textSize="18sp"
+                    android:textColor="@color/dark_green"
+                    android:fontFamily="@font/poppins_bold"
+                    android:paddingVertical="8dp"
+                    android:layout_marginTop="10dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/this_month_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:listitem="@layout/message_item"
+                    android:nestedScrollingEnabled="false"/>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
         </RelativeLayout>
     </LinearLayout>
-
-
 </FrameLayout>

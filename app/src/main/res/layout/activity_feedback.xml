@@ -24,10 +24,10 @@
             android:contentDescription="@string/back_button"/>
 
         <TextView
-            android:id="@+id/faq"
+            android:id="@+id/feedback_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/faq"
+            android:text="@string/feedback"
             android:fontFamily="@font/poppins_bold"
             android:textColor="@color/dark_green"
             android:textSize="24sp"
@@ -42,14 +42,33 @@
         android:orientation="vertical">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/we_are_here_to_help_you"
-            android:textColor="@color/black"
+            android:text="@string/give_feedback"
+            android:textColor="@color/dark_green"
             android:fontFamily="@font/poppins_semibold"
             android:textSize="20sp"
-            android:layout_gravity="center"
-            android:layout_margin="35dp"/>
+            android:gravity="center"
+            android:layout_margin="25dp"/>
+
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="400dp"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginBottom="20dp"/>
+
+        <Button
+            android:id="@+id/submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/submit"
+            android:fontFamily="@font/poppins"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:layout_marginStart="60dp"
+            android:layout_marginEnd="60dp" />
 
     </LinearLayout>
 </LinearLayout>

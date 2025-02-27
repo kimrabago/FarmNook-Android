@@ -32,15 +32,17 @@
                 android:textColor="@color/dark_green"
                 android:textSize="20sp"
                 android:layout_marginStart="15dp"
-                android:layout_toEndOf="@id/menu_burger" />
+                android:layout_toEndOf="@id/menu_burger"
+                tools:ignore="RelativeOverlap" />
 
-            <ImageView
-                android:id="@+id/profile_icon"
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImage"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:layout_gravity="center"
                 android:src="@drawable/profile_circle"
                 android:contentDescription="@string/profile_icon"
-                android:layout_alignParentEnd="true" />
+                android:layout_alignParentEnd="true"/>
         </RelativeLayout>
 
         <com.mapbox.maps.MapView
@@ -48,4 +50,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/add_delivery_button"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/add_button"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:padding="8dp"
+        android:layout_gravity="bottom|start"
+        android:contentDescription="@string/add_delivery"
+        android:layout_margin="16dp"/>
 </FrameLayout>

@@ -9,8 +9,8 @@
 
     <ImageView
         android:id="@+id/closeDialog"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="end"
         android:src="@drawable/close_button"
         android:padding="4dp"/>
@@ -23,7 +23,6 @@
         android:src="@drawable/profile_circle"
         android:layout_marginEnd="8dp"/>
 
-    <!-- Hauler Name -->
     <TextView
         android:id="@+id/haulerName"
         android:layout_width="wrap_content"
