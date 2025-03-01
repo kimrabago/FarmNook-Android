@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.hauler.DeliveryHistoryActivity">
+    tools:context=".views.hauler.DeliveryHistoryFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,7 +14,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp">
+            android:padding="10dp">
 
             <ImageButton
                 android:id="@+id/menu_burger"
@@ -27,16 +27,16 @@
                 android:contentDescription="@string/back_button"/>
 
             <TextView
-                android:id="@+id/notification_title"
+                android:id="@+id/delHistoryTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/delivery_history"
                 android:fontFamily="@font/poppins_bold"
                 android:textColor="@color/dark_green"
-                android:textSize="27sp"
+                android:textSize="25sp"
                 android:textStyle="bold"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="10dp"
                 android:layout_toEndOf="@id/menu_burger"
                 android:layout_centerVertical="true"/>
         </RelativeLayout>

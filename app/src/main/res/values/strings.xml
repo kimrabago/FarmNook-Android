@@ -139,5 +139,7 @@
     <string name="feedback">Feedback</string>
     <string name="give_feedback">Give feedback about our FarmNook App and share your thoughts!</string>
     <string name="submit">Submit</string>
+    <string name="farmer">Farmer</string>
+    <string name="accept_delivery">Accept Delivery</string>
 
 </resources>
