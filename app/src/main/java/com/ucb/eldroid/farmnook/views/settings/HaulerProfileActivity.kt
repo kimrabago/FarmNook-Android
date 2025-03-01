@@ -31,7 +31,7 @@ class HaulerProfileActivity : AppCompatActivity() {
         }
 
         // Setup the real-time calendar for the "Date Joined" field
-        calendarEditText = findViewById(R.id.calendar)
+        calendarEditText = findViewById(R.id.dateJoined)
         // Disable keyboard input for this field
         calendarEditText.inputType = InputType.TYPE_NULL
 

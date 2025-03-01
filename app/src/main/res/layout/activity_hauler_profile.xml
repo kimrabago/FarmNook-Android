@@ -18,8 +18,8 @@
 
         <ImageButton
             android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="35dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:background="@null"
             android:src="@drawable/back_arrow"
             android:layout_alignParentStart="true"
@@ -41,17 +41,17 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="40dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="10dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="20dp">
 
         <LinearLayout
-            android:id="@+id/ll_input_fields"
+            android:id="@+id/input_fields"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="30dp">
+            android:padding="25dp">
 
             <ImageView
                 android:id="@+id/profileImage"

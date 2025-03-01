@@ -188,16 +188,16 @@
                 <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/view_delivery"
+                    android:text="@string/accept_delivery"
                     android:textColor="@color/white"
-                    android:layout_marginHorizontal="60dp"
+                    android:layout_marginHorizontal="50dp"
                     android:background="@drawable/green_rounded_button"
                     android:fontFamily="@font/poppins_semibold"
                     android:textAllCaps="false"
                     android:textSize="17sp"
                     android:drawableStart="@drawable/truck"
                     android:paddingStart="30dp"
-                    android:paddingEnd="25dp"
+                    android:paddingEnd="20dp"
                     android:layout_marginTop="5dp"
                     android:drawableTint="@color/white"/>
             </LinearLayout>

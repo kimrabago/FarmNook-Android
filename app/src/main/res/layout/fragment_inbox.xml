@@ -17,16 +17,6 @@
             android:padding="5dp"
             android:layout_marginTop="5dp">
 
-            <ImageButton
-                android:id="@+id/btn_back"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@null"
-                android:src="@drawable/back_arrow"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="10dp"
-                android:contentDescription="@string/back_button"/>
-
             <TextView
                 android:id="@+id/inbox"
                 android:layout_width="wrap_content"
@@ -34,14 +24,17 @@
                 android:text="@string/inbox"
                 android:fontFamily="@font/poppins_bold"
                 android:textColor="@color/dark_green"
-                android:textSize="24sp"
+                android:textSize="25sp"
                 android:textStyle="bold"
-                android:layout_centerInParent="true"/>
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_centerVertical="true"
+                tools:ignore="RelativeOverlap" />
 
             <ImageButton
                 android:id="@+id/new_message_btn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:background="@null"
                 android:src="@drawable/new_msg"
                 android:layout_alignParentEnd="true"
@@ -58,7 +51,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/messagesRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_margin="10dp"
                 tools:listitem="@layout/message_item"/>
         </RelativeLayout>

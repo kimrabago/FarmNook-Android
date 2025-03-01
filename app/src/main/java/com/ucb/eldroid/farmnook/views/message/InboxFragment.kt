@@ -16,17 +16,10 @@ class InboxFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_inbox, container, false)
 
-        // Initialize Views
-        val btnBack: ImageButton = view.findViewById(R.id.btn_back)
         val btnNewMessage: ImageButton = view.findViewById(R.id.new_message_btn)
         val recyclerView: RecyclerView = view.findViewById(R.id.messagesRecyclerView)
 
-        // Handle Back Button Click
-        btnBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
 
-        // Handle New Message Button Click (Open NewMessageActivity)
         btnNewMessage.setOnClickListener {
             val intent = Intent(requireContext(), NewMessageActivity::class.java)
             startActivity(intent)
