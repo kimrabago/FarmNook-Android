@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -22,7 +23,7 @@
             android:src="@drawable/back_arrow"
             android:layout_alignParentStart="true"
             android:layout_marginStart="5dp"
-            android:contentDescription="@string/back_button"/>
+            android:contentDescription="@string/back_button" />
 
         <TextView
             android:id="@+id/receiverName"
@@ -33,7 +34,7 @@
             android:textColor="@color/dark_green"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true" />
 
         <ImageButton
             android:id="@+id/three_dots"
@@ -43,24 +44,25 @@
             android:src="@drawable/new_msg"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="10dp"
-            android:contentDescription="@string/back_button"/>
-
+            android:contentDescription="@string/back_button" />
     </RelativeLayout>
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/half_border">
+    <!-- ScrollView with id -->
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/half_border">
 
-            <LinearLayout
-                android:id="@+id/repliesContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp" />
-        </ScrollView>
+        <LinearLayout
+            android:id="@+id/repliesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp" />
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -81,13 +83,13 @@
             android:inputType="textMultiLine"
             android:maxLines="5"
             android:padding="20dp"
-            android:background="@color/dark_cream"/>
+            android:background="@color/dark_cream" />
 
         <Button
             android:id="@+id/sendButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@drawable/send_icon"
-            android:contentDescription="@string/send_button"/>
+            android:contentDescription="@string/send_button" />
     </LinearLayout>
 </LinearLayout>
