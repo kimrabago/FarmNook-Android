@@ -4,20 +4,32 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.eldroid.farmnook.R
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class HaulerProfileActivity : AppCompatActivity() {
 
-    private lateinit var calendarEditText: EditText
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var database: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hauler_profile)
+
+        firebaseAuth = FirebaseAuth.getInstance()
+        database = FirebaseFirestore.getInstance()
 
         val backButton = findViewById<ImageButton>(R.id.btn_back)
         backButton.setOnClickListener {
@@ -28,47 +40,55 @@ class HaulerProfileActivity : AppCompatActivity() {
         editProfileButton.setOnClickListener {
             val intent = Intent(this, EditProfileActivity::class.java)
             startActivity(intent)
+            editProfileLauncher.launch(intent)
         }
 
-        // Setup the real-time calendar for the "Date Joined" field
-        calendarEditText = findViewById(R.id.dateJoined)
-        // Disable keyboard input for this field
-        calendarEditText.inputType = InputType.TYPE_NULL
+        fetchUserData()
+    }
 
-        // Set the current date as default
-        val currentCalendar = Calendar.getInstance()
-        updateDateInView(currentCalendar)
+    private val editProfileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        fetchUserData() // Refresh profile data after returning from EditProfileActivity
+    }
 
-        // Open DatePickerDialog when the EditText is clicked
-        calendarEditText.setOnClickListener {
-            showDatePickerDialog()
+    override fun onResume() {
+        super.onResume()
+        fetchUserData() // Ensures profile data refreshes when activity resumes
+    }
+
+    private fun fetchUserData() {
+        val userId = firebaseAuth.currentUser?.uid
+
+        if (userId != null) {
+            database.collection("users").document(userId).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val firstName = document.getString("firstName") ?: "User"
+                        val lastName = document.getString("lastName") ?: ""
+                        val email = document.getString("email") ?: ""
+                        val phoneNumber = document.getString("phoneNum") ?: ""
+
+                        // ✅ Get dateJoined and format it
+                        val dateJoined = document.getString("dateJoined") ?: ""
+
+                        // ✅ Update the UI in hauler_profile layout
+                        val firstNameTextView : TextView = findViewById(R.id.first_name)
+                        val lastNameTextView : TextView = findViewById(R.id.last_name)
+                        val emailTextView : TextView = findViewById(R.id.email)
+                        val phoneNumTextView : TextView = findViewById(R.id.phone_num)
+                        val dateJoinedTextView : TextView = findViewById(R.id.dateJoined)
+
+
+                        firstNameTextView.text = firstName
+                        lastNameTextView.text = lastName
+                        emailTextView.text = email
+                        phoneNumTextView.text = phoneNumber
+                        dateJoinedTextView.text  = dateJoined
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    exception.printStackTrace()
+                }
         }
     }
 
-    private fun showDatePickerDialog() {
-        // Get current date
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-        // Create DatePickerDialog
-        val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-            val selectedCalendar = Calendar.getInstance().apply {
-                set(selectedYear, selectedMonth, selectedDay)
-            }
-            updateDateInView(selectedCalendar)
-        }, year, month, day)
-
-        datePickerDialog.show()
-    }
-
-    // Update the EditText with the formatted date
-    private fun updateDateInView(calendar: Calendar) {
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-        val month = calendar.get(Calendar.MONTH) + 1 // Calendar.MONTH is zero-based
-        val year = calendar.get(Calendar.YEAR)
-        val formattedDate = "$day/$month/$year"
-        calendarEditText.setText(formattedDate)
-    }
 }

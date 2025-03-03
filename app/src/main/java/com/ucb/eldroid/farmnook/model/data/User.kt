@@ -6,7 +6,6 @@ class User(
     val lastName: String = "",
     val email: String = "",
     val pass: String = "",
-    val confirmPass: String = "",
     val userType: String = "",
     val phoneNum: String = "",
     val dateJoined: String = "",

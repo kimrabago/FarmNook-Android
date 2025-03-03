@@ -13,8 +13,7 @@
    <ImageView
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
-       android:src="@drawable/farmnook_logo"
-       android:layout_marginBottom="20dp"/>
+       android:src="@drawable/farmnook_logo"/>
 
    <Button
        android:id="@+id/startButton"
@@ -29,5 +28,5 @@
        android:textColor="@color/white"
        android:drawablePadding="60dp"
        android:padding="12dp"
-       android:layout_marginTop="2dp" />
+       android:layout_marginTop="100dp" />
 </LinearLayout>

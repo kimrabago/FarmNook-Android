@@ -141,5 +141,12 @@
     <string name="submit">Submit</string>
     <string name="farmer">Farmer</string>
     <string name="accept_delivery">Accept Delivery</string>
+    <string name="enter_verification_code">Enter Verification Code</string>
+    <string name="_6_digit_code">6-digit code</string>
+    <string name="verify">Verify</string>
+    <string name="enter_password_to_delete_your_account">Enter password to delete your account</string>
+
+
+    <string name="default_web_client_id">517240344964-v6i37c6bur0gaitdr0igiv363e0k4ppr.apps.googleusercontent.com</string>
 
 </resources>

@@ -96,80 +96,71 @@
                 android:textColor="@android:color/black"
                 android:layout_gravity="center"/>
 
-            <EditText
+            <TextView
                 android:id="@+id/first_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="name"
-                android:inputType="text"
                 android:background="@drawable/register_rounded_box"
-                android:drawableStart="@drawable/user_icon"
                 android:drawablePadding="25dp"
                 android:fontFamily="@font/dm_sans_medium"
                 android:hint="@string/first_name"
                 android:padding="12dp"
                 android:layout_marginTop="10dp"
-                android:textColorHint="@color/dark_green" />
+                android:textSize="18sp"
+                app:drawableStartCompat="@drawable/user_icon" />
 
-            <EditText
+            <TextView
                 android:id="@+id/last_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/last_name"
-                android:autofillHints="name"
-                android:inputType="text"
+                android:textSize="18sp"
                 android:fontFamily="@font/dm_sans_medium"
-                android:textColorHint="@color/dark_green"
-                android:drawableStart="@drawable/user_icon"
                 android:drawablePadding="25dp"
                 android:padding="12dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                app:drawableStartCompat="@drawable/user_icon" />
 
-            <EditText
+            <TextView
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/email"
-                android:inputType="textEmailAddress"
-                android:autofillHints="emailAddress"
+                android:textSize="18sp"
                 android:fontFamily="@font/dm_sans_medium"
-                android:textColorHint="@color/dark_green"
-                android:drawableStart="@drawable/email_icon"
-                android:drawablePadding="25dp"
+                android:drawablePadding="23dp"
                 android:padding="12dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                app:drawableStartCompat="@drawable/email_icon" />
 
-            <EditText
+            <TextView
                 android:id="@+id/phone_num"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/phone_number"
-                android:autofillHints="phone"
-                android:inputType="phone"
+                android:textSize="18sp"
                 android:fontFamily="@font/dm_sans_medium"
-                android:textColorHint="@color/dark_green"
-                android:drawableStart="@drawable/number_icon"
-                android:drawablePadding="25dp"
+                android:drawablePadding="24dp"
                 android:padding="12dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                app:drawableStartCompat="@drawable/number_icon" />
 
-            <EditText
+            <TextView
                 android:id="@+id/dateJoined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/date_joined"
-                android:autofillHints="calendar"
-                android:inputType="date"
+                android:textSize="18sp"
                 android:fontFamily="@font/dm_sans_medium"
-                android:textColorHint="@color/dark_green"
-                android:drawableStart="@drawable/calendar"
                 android:drawablePadding="20dp"
                 android:padding="12dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                app:drawableStartCompat="@drawable/calendar" />
 
             <Button
                 android:id="@+id/edit_profile_btn"
