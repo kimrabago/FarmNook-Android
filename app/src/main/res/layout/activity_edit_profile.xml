@@ -118,14 +118,13 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/register_rounded_box"
                 android:drawableEnd="@drawable/right_arrow"
-                android:drawablePadding="20dp"
                 android:drawableTint="@color/dark_green"
                 android:fontFamily="@font/dm_sans_medium"
-                android:padding="12dp"
                 android:textSize="18sp"
                 android:text="@string/change_password"
                 android:textAllCaps="false"
-                android:textColor="@color/dark_green" />
+                android:textColor="@color/dark_green"
+                android:textAlignment="textStart"/>
 
             <!-- Delete Account as Button -->
             <Button
@@ -140,8 +139,10 @@
                 android:padding="12dp"
                 android:textSize="18sp"
                 android:text="@string/delete_account"
+                android:drawableEnd="@drawable/right_arrow"
                 android:textAllCaps="false"
-                android:textColor="@color/red" />
+                android:textColor="@color/red"
+                android:textAlignment="textStart"/>
 
             <Button
                 android:id="@+id/save_profile_btn"
