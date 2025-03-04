@@ -1,4 +1,4 @@
-package com.ucb.eldroid.farmnook.views.adapter
+package com.ucb.eldroid.farmnook.views.settings
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ucb.eldroid.farmnook.R
-import com.ucb.eldroid.farmnook.views.settings.NotificationItem
+import com.ucb.eldroid.farmnook.model.data.NotificationItem
 
 class NotificationAdapter(private val notifications: List<NotificationItem>) :
     RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
@@ -19,8 +19,7 @@ class NotificationAdapter(private val notifications: List<NotificationItem>) :
     }
 
     override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
-        val item = notifications[position]
-        holder.bind(item)
+        holder.bind(notifications[position])
     }
 
     override fun getItemCount(): Int = notifications.size
@@ -35,7 +34,7 @@ class NotificationAdapter(private val notifications: List<NotificationItem>) :
             haulerName.text = item.userName
             notifMessage.text = item.notifMessage
             dateTime.text = item.dateTime
-            // Optionally load an image into profileImage if needed.
+            // Optionally, load an image into profileImage if needed.
         }
     }
 }

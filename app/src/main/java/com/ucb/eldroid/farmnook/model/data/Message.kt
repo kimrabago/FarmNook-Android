@@ -1,4 +1,4 @@
-package com.ucb.eldroid.farmnook.views.message
+package com.ucb.eldroid.farmnook.model.data
 
 data class Message(
     val senderName: String,
