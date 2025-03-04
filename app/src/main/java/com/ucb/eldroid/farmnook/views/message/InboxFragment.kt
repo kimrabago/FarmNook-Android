@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ucb.eldroid.farmnook.R
+import com.ucb.eldroid.farmnook.model.data.Message
 import com.ucb.eldroid.farmnook.views.adapter.InboxAdapter
 
 class InboxFragment : Fragment() {
