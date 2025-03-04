@@ -10,6 +10,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.eldroid.farmnook.R
+import java.text.SimpleDateFormat
+import java.util.*
 
 class SubscriptionActivity : AppCompatActivity() {
 
@@ -44,7 +46,13 @@ class SubscriptionActivity : AppCompatActivity() {
 
         // Handle subscription button click
         subscriptionButton.setOnClickListener {
-            // Update the UI to show the new status
+            // If already boosted, no further action is required
+            if (subscriptionStatusTextView.text.toString() == "Boosted") {
+                Toast.makeText(this, "Already boosted", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Update the UI to show the new status and notify the user
             subscriptionStatusTextView.text = "Boosted"
             Toast.makeText(this, "Subscription successful! You are now boosted.", Toast.LENGTH_SHORT).show()
 
@@ -55,48 +63,47 @@ class SubscriptionActivity : AppCompatActivity() {
                 db.collection("users").document(userId)
                     .update("subscriptionStatus", "Boosted")
                     .addOnSuccessListener {
-                        // Optionally log success or update further UI if needed
+                        // Optionally log success here
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Error updating user status: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
 
-                // Prepare a subscription record to log in the database
-                val subscriptionRecord = hashMapOf(
+                // Log the subscription event in the "notifications" collection
+                val notificationRecord = hashMapOf(
                     "userId" to userId,
                     "userName" to userNameTextView.text.toString(),
-                    "subscriptionStatus" to "Boosted",
+                    "notifMessage" to "Your subscription has been activated!",
+                    "dateTime" to getCurrentTime(),
                     "timestamp" to FieldValue.serverTimestamp()
                 )
 
-                // Add the subscription record to the "subscriptions" collection
-                db.collection("subscriptions")
-                    .add(subscriptionRecord)
+                db.collection("notifications")
+                    .add(notificationRecord)
                     .addOnSuccessListener {
-                        // Optionally inform the user or log success
-                        Toast.makeText(this, "Subscription logged in database.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Notification logged in database.", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(this, "Failed to log subscription: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Failed to log notification: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
             }
         }
     }
 
-    // Fetch the current user's first and last name and subscription status from Firestore
+    // Fetch the current user's full name and subscription status from Firestore
     private fun fetchUserData() {
         val userId = firebaseAuth.currentUser?.uid
         if (userId != null) {
             db.collection("users").document(userId).get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
-                        // Fetch and display full name
+                        // Combine first and last name for display
                         val firstName = document.getString("firstName") ?: ""
                         val lastName = document.getString("lastName") ?: ""
                         val fullName = "$firstName $lastName"
                         userNameTextView.text = fullName
 
-                        // Fetch subscription status (default to "Unboosted" if not set)
+                        // Fetch subscription status (defaulting to "Unboosted" if not set)
                         val status = document.getString("subscriptionStatus") ?: "Unboosted"
                         subscriptionStatusTextView.text = status
                     } else {
@@ -111,5 +118,12 @@ class SubscriptionActivity : AppCompatActivity() {
             userNameTextView.text = "User"
             subscriptionStatusTextView.text = "Unboosted"
         }
+    }
+
+    // Helper function to get current time as a formatted string (e.g., "03:45 PM")
+    private fun getCurrentTime(): String {
+        val currentTime = Calendar.getInstance().time
+        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        return formatter.format(currentTime)
     }
 }
