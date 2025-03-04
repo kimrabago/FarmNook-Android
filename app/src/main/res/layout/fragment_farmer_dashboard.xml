@@ -52,14 +52,14 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/add_delivery_button"
+        android:id="@+id/addDeliveryBtn"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:background="@drawable/add_button"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:padding="8dp"
-        android:layout_gravity="bottom|start"
+        android:layout_gravity="bottom|end"
         android:contentDescription="@string/add_delivery"
         android:layout_margin="16dp"/>
 </FrameLayout>
