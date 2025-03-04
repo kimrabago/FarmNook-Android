@@ -8,7 +8,6 @@ import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import com.google.firebase.auth.FirebaseUser
 import com.ucb.eldroid.farmnook.R
 import com.ucb.eldroid.farmnook.databinding.ActivityLoginBinding
@@ -99,23 +98,22 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-
     private fun navigateToDashboard(user: FirebaseUser?) {
         loginViewModel.getUserData(user) { firstName, lastName, email, userType ->
-            if (firstName != null && lastName != null && email != null) {
-                val intent = Intent(this, BottomNavigationBar::class.java).apply {
-                    putExtra("USER_NAME", "$firstName $lastName")
-                    putExtra("USER_EMAIL", email)
-                    putExtra("USER_TYPE", userType) // Pass userType
-                }
-                startActivity(intent)
-                finish()
-            } else {
-                Toast.makeText(this, "User data not found", Toast.LENGTH_SHORT).show()
+            if (firstName.isNullOrEmpty() || lastName.isNullOrEmpty() || email.isNullOrEmpty()) {
+                Toast.makeText(this, "User data retrieval failed. Please try again.", Toast.LENGTH_SHORT).show()
+                return@getUserData
             }
+
+            val intent = Intent(this, BottomNavigationBar::class.java).apply {
+                putExtra("USER_NAME", "$firstName $lastName")
+                putExtra("USER_EMAIL", email)
+                putExtra("USER_TYPE", userType)
+            }
+            startActivity(intent)
+            finish()
         }
     }
-
 
     private fun setupGoogleSignIn() {
         googleSignInClient = GoogleSignIn.getClient(
