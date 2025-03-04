@@ -1,6 +1,7 @@
 package com.ucb.eldroid.farmnook.views.hauler
 
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
@@ -27,6 +28,10 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         // Load Mapbox style and setup plugins
         mapView.getMapboxMap().loadStyleUri(Style.MAPBOX_STREETS) { style ->
 
+            val backButton = findViewById<ImageButton>(R.id.btn_back)
+            backButton.setOnClickListener {
+                finish()
+            }
             // Initialize gestures plugin
 //            gesturesPlugin = mapView.gestures
 //

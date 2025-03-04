@@ -10,7 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.ucb.eldroid.farmnook.R
-import com.ucb.eldroid.farmnook.views.adapter.NotificationAdapter
+import com.ucb.eldroid.farmnook.model.data.NotificationItem
 
 class NotificationActivity : AppCompatActivity() {
 
@@ -26,11 +26,9 @@ class NotificationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notification)
 
-        // Set up the back button to finish the activity when clicked
+        // Back button for notifications
         val backButton = findViewById<ImageButton>(R.id.btn_back)
-        backButton.setOnClickListener {
-            finish()
-        }
+        backButton.setOnClickListener { finish() }
 
         recyclerView = findViewById(R.id.notification_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -48,7 +46,6 @@ class NotificationActivity : AppCompatActivity() {
                 if (snapshots != null) {
                     notificationList.clear()
                     for (doc in snapshots) {
-                        // Use "FarmNook" as default username if the field is missing
                         val userName = doc.getString("userName") ?: "FarmNook"
                         val notifMessage = doc.getString("notifMessage") ?: ""
                         val dateTime = doc.getString("dateTime") ?: ""
@@ -62,7 +59,6 @@ class NotificationActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Clean up the Firestore listener when the activity is destroyed
         notificationListener?.remove()
     }
 }

@@ -1,4 +1,4 @@
-package com.ucb.eldroid.farmnook.views.settings
+package com.ucb.eldroid.farmnook.model.data
 
 data class NotificationItem(
     val userName: String,
