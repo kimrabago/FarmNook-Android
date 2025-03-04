@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.eldroid.farmnook.R
 import com.ucb.eldroid.farmnook.views.auth.LoginActivity
 import com.ucb.eldroid.farmnook.views.farmer.DeliveryStatusFragment
+import com.ucb.eldroid.farmnook.views.farmer.FarmerDashboardFragment
 import com.ucb.eldroid.farmnook.views.hauler.DeliveryHistoryFragment
 import com.ucb.eldroid.farmnook.views.hauler.HaulerDashboardFragment
 import com.ucb.eldroid.farmnook.views.hauler.subscription.SubscriptionActivity
@@ -37,6 +38,8 @@ class BottomNavigationBar : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var drawerToggle: ActionBarDrawerToggle
+
+    private var userType: String = "farmer"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +67,7 @@ class BottomNavigationBar : AppCompatActivity() {
         // Handle Bottom Navigation Clicks
         bottomNavigationView.setOnItemSelectedListener { menu ->
             when (menu.itemId) {
-                R.id.home -> resetToDashboard() // Always reset dashboard
+                R.id.home -> resetToDashboard()
                 R.id.history -> replaceFragment(DeliveryHistoryFragment())
                 R.id.delivery -> replaceFragment(DeliveryStatusFragment())
                 R.id.message -> replaceFragment(InboxFragment())
@@ -100,8 +103,13 @@ class BottomNavigationBar : AppCompatActivity() {
 
     // Function to reset to dashboard (Home)
     private fun resetToDashboard() {
-        supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE) // Clear back stack
-        replaceFragment(HaulerDashboardFragment())
+        supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        val dashboardFragment: Fragment = if (userType == "hauler") {
+            HaulerDashboardFragment()
+        } else {
+            FarmerDashboardFragment()
+        }
+        replaceFragment(dashboardFragment)
     }
 
     // Function to replace fragments
