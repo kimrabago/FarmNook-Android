@@ -63,6 +63,9 @@ dependencies {
     implementation("com.mapbox.maps:android:11.9.2")
     implementation("androidx.annotation:annotation:1.9.1")
     implementation("de.hdodenhof:circleimageview:3.1.0") // For Circular Profile Image
+
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
 }
 
 configurations.all {

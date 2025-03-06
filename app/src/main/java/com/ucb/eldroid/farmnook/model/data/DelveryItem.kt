@@ -1,12 +1,17 @@
 package com.ucb.eldroid.farmnook.model.data
 
+import com.google.firebase.Timestamp
+
 data class DeliveryItem(
-    val id: Int,  // Unique identifier for the delivery
-    val pickupLocation: String,
-    val provincePickup: String,  // Additional field for the pickup province
-    val destination: String,
-    val provinceDestination: String,  // Additional field for the destination province
-    val estimatedTime: String,
-    val totalCost: String,
-    val profileImage: String  // URL or path to the profile image
-)
+    var id: String? = null,
+    var pickupLocation: String? = null,
+    var provincePickup: String? = null,
+    var destination: String? = null,
+    var provinceDestination: String? = null,
+    var estimatedTime: String? = null,
+    var totalCost: String? = null,
+    var profileImage: String? = null,
+    var timestamp: Timestamp? = null
+) {
+    constructor() : this(null, null, null, null, null, null, null, null, null)
+}

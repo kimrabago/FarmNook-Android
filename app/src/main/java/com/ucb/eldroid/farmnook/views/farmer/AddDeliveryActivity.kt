@@ -1,37 +1,35 @@
 package com.ucb.eldroid.farmnook.views.farmer
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.eldroid.farmnook.R
+import com.ucb.eldroid.farmnook.model.data.DeliveryItem
 
 class AddDeliveryActivity : AppCompatActivity() {
+
+    private lateinit var firestore: FirebaseFirestore
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_delivery)
 
-        // Initialize Spinners
+        firestore = FirebaseFirestore.getInstance()
+
         val vehicleTypeSpinner: Spinner = findViewById(R.id.vehicle_type_spinner)
         val productTypeSpinner: Spinner = findViewById(R.id.product_type_spinner)
         val weightSpinner: Spinner = findViewById(R.id.weight_spinner)
 
-        // Define selection options
         val vehicleTypes = arrayOf("Select Vehicle Type", "Small Truck", "Medium Truck", "Large Truck")
         val productTypes = arrayOf("Select Product Type", "Livestock", "Vegetables/Fruits", "Grains")
         val weights = arrayOf("Select Weight", "Less than 1 Ton", "1-5 Tons", "More than 5 Tons")
 
-        // Create adapters
-        val vehicleAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vehicleTypes)
-        val productAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, productTypes)
-        val weightAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, weights)
+        vehicleTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vehicleTypes)
+        productTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, productTypes)
+        weightSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, weights)
 
-        // Set adapters to Spinners
-        vehicleTypeSpinner.adapter = vehicleAdapter
-        productTypeSpinner.adapter = productAdapter
-        weightSpinner.adapter = weightAdapter
-
-        // Search button action
         findViewById<Button>(R.id.search_button).setOnClickListener {
             val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
             val selectedProduct = productTypeSpinner.selectedItem.toString()
@@ -40,18 +38,37 @@ class AddDeliveryActivity : AppCompatActivity() {
             if (selectedVehicle.contains("Select") || selectedProduct.contains("Select") || selectedWeight.contains("Select")) {
                 Toast.makeText(this, "Please select all options", Toast.LENGTH_SHORT).show()
             } else {
-                // Navigate to RecommendationActivity
-                val intent = Intent(this, RecommendationActivity::class.java)
-                intent.putExtra("vehicleType", selectedVehicle)
-                intent.putExtra("productType", selectedProduct)
-                intent.putExtra("weight", selectedWeight)
-                startActivity(intent)
+                saveDeliveryToFirestore(selectedVehicle, selectedProduct, selectedWeight)
             }
         }
 
-        // Cancel button action
         findViewById<Button>(R.id.cancel_button).setOnClickListener {
-            finish() // Closes activity
+            finish()
         }
+    }
+
+    private fun saveDeliveryToFirestore(vehicleType: String, productType: String, weight: String) {
+        val deliveryId = firestore.collection("deliveries").document().id
+
+        val deliveryItem = DeliveryItem(
+            id = deliveryId,
+            pickupLocation = "Unknown",
+            provincePickup = "Unknown",
+            destination = "Unknown",
+            provinceDestination = "Unknown",
+            estimatedTime = "Unknown",
+            totalCost = "₱0",
+            profileImage = "",
+            timestamp = Timestamp.now()
+        )
+
+        firestore.collection("deliveries").document(deliveryId)
+            .set(deliveryItem)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Delivery Added Successfully!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to Add Delivery", Toast.LENGTH_SHORT).show()
+            }
     }
 }
