@@ -22,9 +22,46 @@ class AddDeliveryActivity : AppCompatActivity() {
         val productTypeSpinner: Spinner = findViewById(R.id.product_type_spinner)
         val weightSpinner: Spinner = findViewById(R.id.weight_spinner)
 
-        val vehicleTypes = arrayOf("Select Vehicle Type", "Small Truck", "Medium Truck", "Large Truck")
-        val productTypes = arrayOf("Select Product Type", "Livestock", "Vegetables/Fruits", "Grains")
-        val weights = arrayOf("Select Weight", "Less than 1 Ton", "1-5 Tons", "More than 5 Tons")
+        val vehicleTypes = arrayOf(
+            "Select Vehicle Type",
+            "Small Farm Truck",
+            "Medium Farm Truck",
+            "Large Farm Truck",
+            "Tractor with Trailer",
+            "Pickup Truck",
+            "Refrigerated Truck",
+            "Livestock Transport Truck",
+            "Grain Hauler",
+            "Flatbed Truck"
+        )
+
+        val productTypes = arrayOf(
+            "Select Product Type",
+            "Livestock",
+            "Vegetables",
+            "Fruits",
+            "Grains",
+            "Dairy Products",
+            "Poultry",
+            "Fishery Products",
+            "Sugarcane",
+            "Cotton",
+            "Fertilizers & Seeds",
+            "Agro-Chemicals",
+            "Animal Feed"
+        )
+
+        val weights = arrayOf(
+            "Select Weight",
+            "Less than 500 kg",
+            "500 kg - 1 Ton",
+            "1-3 Tons",
+            "3-5 Tons",
+            "5-10 Tons",
+            "10-20 Tons",
+            "More than 20 Tons"
+        )
+
 
         vehicleTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vehicleTypes)
         productTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, productTypes)
