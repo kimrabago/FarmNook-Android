@@ -190,6 +190,12 @@
                         android:textColor="@color/dark_green"
                         android:fontFamily="@font/dm_sans_bold"/>
 
+                    <Spinner
+                        android:id="@+id/vehicle_type_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"/>
+
                     <TextView
                         android:id="@+id/vehicle_type"
                         android:layout_width="match_parent"
@@ -242,6 +248,12 @@
                         android:textColor="@color/dark_green"
                         android:fontFamily="@font/dm_sans_bold"/>
 
+                    <Spinner
+                        android:id="@+id/product_type_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"/>
+
                     <TextView
                         android:id="@+id/product_type"
                         android:layout_width="match_parent"
@@ -250,6 +262,7 @@
                         android:textSize="12sp"
                         android:textColor="@color/dark_green"
                         android:fontFamily="@font/dm_sans"/>
+
                 </LinearLayout>
             </LinearLayout>
 
@@ -295,6 +308,12 @@
                         android:textColor="@color/dark_green"
                         android:fontFamily="@font/dm_sans_bold"/>
 
+                    <Spinner
+                        android:id="@+id/weight_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"/>
+
                     <EditText
                         android:id="@+id/weight"
                         android:layout_width="match_parent"
@@ -303,6 +322,7 @@
                         android:textSize="12sp"
                         android:textColor="@color/dark_green"
                         android:fontFamily="@font/dm_sans"/>
+
                 </LinearLayout>
             </LinearLayout>
 
