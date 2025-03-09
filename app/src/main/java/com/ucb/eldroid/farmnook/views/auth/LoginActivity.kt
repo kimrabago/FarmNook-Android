@@ -2,6 +2,7 @@ package com.ucb.eldroid.farmnook.views.auth
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Patterns
 import android.view.MotionEvent
@@ -9,14 +10,14 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseUser
-import com.ucb.eldroid.farmnook.R
-import com.ucb.eldroid.farmnook.databinding.ActivityLoginBinding
-import com.ucb.eldroid.farmnook.views.menu.BottomNavigationBar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.ucb.eldroid.farmnook.R
+import com.ucb.eldroid.farmnook.databinding.ActivityLoginBinding
 import com.ucb.eldroid.farmnook.viewmodel.LoginViewModel
+import com.ucb.eldroid.farmnook.views.menu.BottomNavigationBar
 
 class LoginActivity : AppCompatActivity() {
 
@@ -27,13 +28,23 @@ class LoginActivity : AppCompatActivity() {
 
     private var isPasswordVisible = false
 
+    // SharedPreferences for Remember Me
+    private lateinit var sharedPreferences: SharedPreferences
+    private val PREF_NAME = "LoginPrefs"
+    private val KEY_REMEMBER = "remember"
+    private val KEY_EMAIL = "email"
+    private val KEY_PASSWORD = "password"
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+
         setupGoogleSignIn()
+        loadRememberedLogin() // Load saved credentials if checked
 
         binding.tvForgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
@@ -79,6 +90,7 @@ class LoginActivity : AppCompatActivity() {
     private fun observeViewModel() {
         loginViewModel.loginResult.observe(this) { result ->
             result.onSuccess { user ->
+                saveLoginState() // Save login state when successful
                 navigateToDashboard(user)
             }.onFailure {
                 Toast.makeText(
@@ -100,18 +112,17 @@ class LoginActivity : AppCompatActivity() {
 
     private fun navigateToDashboard(user: FirebaseUser?) {
         loginViewModel.getUserData(user) { firstName, lastName, email, userType ->
-            if (firstName.isNullOrEmpty() || lastName.isNullOrEmpty() || email.isNullOrEmpty()) {
-                Toast.makeText(this, "User data retrieval failed. Please try again.", Toast.LENGTH_SHORT).show()
-                return@getUserData
+            if (firstName != null && lastName != null && email != null) {
+                val intent = Intent(this, BottomNavigationBar::class.java).apply {
+                    putExtra("USER_NAME", "$firstName $lastName")
+                    putExtra("USER_EMAIL", email)
+                    putExtra("USER_TYPE", userType) // Pass userType
+                }
+                startActivity(intent)
+                finish()
+            } else {
+                Toast.makeText(this, "User data not found", Toast.LENGTH_SHORT).show()
             }
-
-            val intent = Intent(this, BottomNavigationBar::class.java).apply {
-                putExtra("USER_NAME", "$firstName $lastName")
-                putExtra("USER_EMAIL", email)
-                putExtra("USER_TYPE", userType)
-            }
-            startActivity(intent)
-            finish()
         }
     }
 
@@ -153,5 +164,34 @@ class LoginActivity : AppCompatActivity() {
         }
         isPasswordVisible = !isPasswordVisible
         binding.password.setSelection(binding.password.text.length)
+    }
+
+    // Load saved email & password if Remember Me is checked
+    private fun loadRememberedLogin() {
+        if (sharedPreferences.getBoolean(KEY_REMEMBER, false)) {
+            binding.email.setText(sharedPreferences.getString(KEY_EMAIL, ""))
+            binding.password.setText(sharedPreferences.getString(KEY_PASSWORD, ""))
+            binding.checkboxRememberMe.isChecked = true
+        }
+    }
+
+    // Save email & password when user logs in
+    private fun saveLoginState() {
+        val email = binding.email.text.toString()
+        val password = binding.password.text.toString()
+        val isChecked = binding.checkboxRememberMe.isChecked
+
+        val editor = sharedPreferences.edit()
+        editor.putBoolean(KEY_REMEMBER, isChecked)
+
+        if (isChecked) {
+            editor.putString(KEY_EMAIL, email)
+            editor.putString(KEY_PASSWORD, password)
+        } else {
+            editor.remove(KEY_EMAIL)
+            editor.remove(KEY_PASSWORD)
+        }
+
+        editor.apply()
     }
 }

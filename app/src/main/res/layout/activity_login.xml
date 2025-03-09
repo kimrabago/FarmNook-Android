@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="30dp">
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/tv_welcome"
@@ -89,6 +89,17 @@
                 android:background="@drawable/register_rounded_box"
                 android:layout_marginTop="8dp" />
 
+            <CheckBox
+                android:id="@+id/checkbox_remember_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remember Me"
+                android:fontFamily="@font/dm_sans"
+                android:textColor="@color/dark_green"
+                android:textSize="14sp"
+                android:buttonTint="@color/dark_green"
+                android:layout_marginTop="8dp"/>
+
             <TextView
                 android:id="@+id/tv_forgot_password"
                 android:layout_width="wrap_content"
@@ -97,8 +108,7 @@
                 android:fontFamily="@font/poppins"
                 android:textColor="@color/dark_green"
                 android:textSize="14sp"
-                android:layout_gravity="end"
-                android:layout_marginTop="8dp" />
+                android:layout_gravity="end" />
 
             <Button
                 android:id="@+id/btn_login"
