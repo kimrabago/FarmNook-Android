@@ -72,7 +72,6 @@
     <string name="delete_account_description">Deleting your account will permanently remove all of your information from our database. This action cannot be undone.</string>
     <string name="i_understand_delete_my_account">I understand, delete my account</string>
 
-    <string name="mapbox_access_token">YOUR_MAPBOX_ACCESS_TOKEN</string>
     <string name="from_location">N. Gonzales Compound, Mandaue City</string>
     <string name="from">From</string>
     <string name="to">To</string>
@@ -149,5 +148,8 @@
 
 
     <string name="default_web_client_id">517240344964-v6i37c6bur0gaitdr0igiv363e0k4ppr.apps.googleusercontent.com</string>
+
+<!--MAPBOX-->
+    <string name="mapbox_access_token">pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg</string>
 
 </resources>

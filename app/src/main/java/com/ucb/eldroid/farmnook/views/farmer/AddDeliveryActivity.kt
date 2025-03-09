@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.eldroid.farmnook.R
-import com.ucb.eldroid.farmnook.model.data.DeliveryItem
+import com.ucb.eldroid.farmnook.model.data.Delivery
 
 class AddDeliveryActivity : AppCompatActivity() {
 
@@ -87,7 +87,7 @@ class AddDeliveryActivity : AppCompatActivity() {
     private fun saveDeliveryToFirestore(vehicleType: String, productType: String, weight: String) {
         val deliveryId = firestore.collection("deliveries").document().id
 
-        val deliveryItem = DeliveryItem(
+        val deliveryItem = Delivery(
             id = deliveryId,
             pickupLocation = "Unknown",
             provincePickup = "Unknown",

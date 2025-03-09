@@ -2,7 +2,7 @@ package com.ucb.eldroid.farmnook.model.data
 
 import com.google.firebase.Timestamp
 
-data class DeliveryItem(
+data class Delivery(
     var id: String? = null,
     var pickupLocation: String? = null,
     var provincePickup: String? = null,

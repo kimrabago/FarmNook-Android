@@ -46,7 +46,6 @@ class BottomNavigationBar : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bottom_navigation_bar)
 
-        // Initialize Views
         bottomNavigationView = findViewById(R.id.bottom_nav)
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation_view)
@@ -61,8 +60,6 @@ class BottomNavigationBar : AppCompatActivity() {
         drawerToggle.syncState()
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button in toolbar
-
-
 
         // Handle Bottom Navigation Clicks
         bottomNavigationView.setOnItemSelectedListener { menu ->
@@ -108,7 +105,7 @@ class BottomNavigationBar : AppCompatActivity() {
     private fun resetToDashboard() {
         Log.d("DashboardDebug", "Resetting to Dashboard. userType: $userType")
         supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        val dashboardFragment: Fragment = if (userType == "hauler") {
+        val dashboardFragment: Fragment = if (userType == "Hauler") {
             Log.d("DashboardDebug", "Loading HaulerDashboardFragment")
             HaulerDashboardFragment()
         } else {
@@ -153,6 +150,10 @@ class BottomNavigationBar : AppCompatActivity() {
                     val headerView: View = navigationView.getHeaderView(0)
                     headerView.findViewById<TextView>(R.id.full_name).text = fullName
                     headerView.findViewById<TextView>(R.id.member_since).text = "Member Since: $formattedDate"
+
+                    val menu = navigationView.menu
+                    val subscriptionMenuItem = menu.findItem(R.id.subscription)
+                    subscriptionMenuItem.isVisible = userType == "Hauler"
 
                     Log.d("FirestoreDebug", "Fetched userType: $userType")
                     // ✅ Now call resetToDashboard() since userType is updated
