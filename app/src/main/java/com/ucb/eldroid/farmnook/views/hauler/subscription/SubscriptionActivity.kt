@@ -46,31 +46,30 @@ class SubscriptionActivity : AppCompatActivity() {
 
         // Handle subscription button click
         subscriptionButton.setOnClickListener {
-            // If already boosted, no further action is required
             if (subscriptionStatusTextView.text.toString() == "Boosted") {
                 Toast.makeText(this, "Already boosted", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Update the UI to show the new status and notify the user
+            // Update UI and show toast
             subscriptionStatusTextView.text = "Boosted"
             Toast.makeText(this, "Subscription successful! You are now boosted.", Toast.LENGTH_SHORT).show()
 
-            // Get the current user's ID
             val userId = firebaseAuth.currentUser?.uid
             if (userId != null) {
-                // Update the user's subscription status in the "users" collection
+                // Update user's subscription status in Firestore
                 db.collection("users").document(userId)
                     .update("subscriptionStatus", "Boosted")
-                    .addOnSuccessListener {
-                        // Optionally log success here
-                    }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Error updating user status: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
 
-                // Log the subscription event in the "notifications" collection
+                // Generate a unique notification ID
+                val notifRef = db.collection("notifications").document()
+                val notifId = notifRef.id
+
                 val notificationRecord = hashMapOf(
+                    "notifId" to notifId,
                     "userId" to userId,
                     "userName" to userNameTextView.text.toString(),
                     "notifMessage" to "Your subscription has been activated!",
@@ -78,8 +77,7 @@ class SubscriptionActivity : AppCompatActivity() {
                     "timestamp" to FieldValue.serverTimestamp()
                 )
 
-                db.collection("notifications")
-                    .add(notificationRecord)
+                notifRef.set(notificationRecord)
                     .addOnSuccessListener {
                         Toast.makeText(this, "Notification logged in database.", Toast.LENGTH_SHORT).show()
                     }
@@ -97,13 +95,11 @@ class SubscriptionActivity : AppCompatActivity() {
             db.collection("users").document(userId).get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
-                        // Combine first and last name for display
                         val firstName = document.getString("firstName") ?: ""
                         val lastName = document.getString("lastName") ?: ""
                         val fullName = "$firstName $lastName"
                         userNameTextView.text = fullName
 
-                        // Fetch subscription status (defaulting to "Unboosted" if not set)
                         val status = document.getString("subscriptionStatus") ?: "Unboosted"
                         subscriptionStatusTextView.text = status
                     } else {
