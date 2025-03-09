@@ -3,6 +3,7 @@ package com.ucb.eldroid.farmnook.views.menu
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -45,7 +46,6 @@ class BottomNavigationBar : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bottom_navigation_bar)
 
-        // Initialize Views
         bottomNavigationView = findViewById(R.id.bottom_nav)
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation_view)
@@ -60,9 +60,6 @@ class BottomNavigationBar : AppCompatActivity() {
         drawerToggle.syncState()
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button in toolbar
-
-        // Fetch and display user data in navigation header
-        fetchUserData()
 
         // Handle Bottom Navigation Clicks
         bottomNavigationView.setOnItemSelectedListener { menu ->
@@ -97,16 +94,22 @@ class BottomNavigationBar : AppCompatActivity() {
 
         // Load default fragment
         if (savedInstanceState == null) {
+            Log.d("FirestoreDebug", "Updated userType: $userType") // Debug
             resetToDashboard()
         }
+        // Fetch and display user data in navigation header
+        fetchUserData()
     }
 
     // Function to reset to dashboard (Home)
     private fun resetToDashboard() {
+        Log.d("DashboardDebug", "Resetting to Dashboard. userType: $userType")
         supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        val dashboardFragment: Fragment = if (userType == "hauler") {
+        val dashboardFragment: Fragment = if (userType == "Hauler") {
+            Log.d("DashboardDebug", "Loading HaulerDashboardFragment")
             HaulerDashboardFragment()
         } else {
+            Log.d("DashboardDebug", "Loading FarmerDashboardFragment")
             FarmerDashboardFragment()
         }
         replaceFragment(dashboardFragment)
@@ -129,55 +132,62 @@ class BottomNavigationBar : AppCompatActivity() {
     // Fetch and display user data in navigation header
     @SuppressLint("SetTextI18n")
     private fun fetchUserData() {
-        val userId = firebaseAuth.currentUser?.uid
+        val userId = firebaseAuth.currentUser?.uid ?: return
 
-        if (userId != null) {
-            database.collection("users").document(userId).get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        val firstName = document.getString("firstName") ?: "User"
-                        val lastName = document.getString("lastName") ?: ""
-                        val fullName = "$firstName $lastName"
+        database.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val firstName = document.getString("firstName") ?: "User"
+                    val lastName = document.getString("lastName") ?: ""
+                    val fullName = "$firstName $lastName"
 
-                        // ✅ Get dateJoined and format it
-                        val dateJoined = document.getString("dateJoined") ?: ""
-                        val formattedDate = formatDateJoined(dateJoined)
+                    userType = document.getString("userType") ?: "farmer" // ✅ Fetch userType dynamically
+                    Log.d("FirestoreDebug", "Fetched userType: $userType") // Debug log
 
-                        // Update UI in the navigation header
-                        val headerView: View = navigationView.getHeaderView(0)
-                        val fullNameTextView: TextView = headerView.findViewById(R.id.full_name)
-                        val memberSinceTextView: TextView = headerView.findViewById(R.id.member_since)
+                    val dateJoined = document.getString("dateJoined") ?: ""
+                    val formattedDate = formatDateJoined(dateJoined)
 
-                        fullNameTextView.text = fullName
-                        memberSinceTextView.text = "Member Since: $formattedDate" // ✅ Show formatted date
+                    val headerView: View = navigationView.getHeaderView(0)
+                    headerView.findViewById<TextView>(R.id.full_name).text = fullName
+                    headerView.findViewById<TextView>(R.id.member_since).text = "Member Since: $formattedDate"
 
-                    }
+                    val menu = navigationView.menu
+                    val subscriptionMenuItem = menu.findItem(R.id.subscription)
+                    subscriptionMenuItem.isVisible = userType == "Hauler"
+
+                    Log.d("FirestoreDebug", "Fetched userType: $userType")
+                    // ✅ Now call resetToDashboard() since userType is updated
+                    Log.d("DashboardDebug", "userType at resetToDashboard: $userType")
+                    resetToDashboard()
+
                 }
-                .addOnFailureListener { exception ->
-                    exception.printStackTrace()
-                }
-        }
+            }
+            .addOnFailureListener { exception ->
+                exception.printStackTrace()
+            }
     }
+
 
     // Function to format dateJoined as "January 2025"
-    private fun formatDateJoined(dateString: String): String {
+    private fun formatDateJoined(dateString: String?): String {
+        if (dateString.isNullOrEmpty()) return "N/A"
         return try {
             val inputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-            val outputFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault()) // January 2025 format
-            val date = inputFormat.parse(dateString) // Convert to Date
-            outputFormat.format(date ?: Date()) // Format as "January 2025"
+            val outputFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+            val date = inputFormat.parse(dateString)
+            outputFormat.format(date ?: Date())
         } catch (e: Exception) {
-            "" // Return empty string if parsing fails
+            "N/A"
         }
     }
 
-    // Handle Drawer Back Button
+
     override fun onSupportNavigateUp(): Boolean {
         return if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawers()
             true
         } else {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
             true
         }
     }
