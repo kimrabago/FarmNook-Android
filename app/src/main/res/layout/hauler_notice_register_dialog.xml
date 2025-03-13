@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding=   "utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="35dp"
+    android:layout_marginHorizontal="30dp"
+    android:background="@color/dirty_white">
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/visit_our_app"
+        android:textColor="@color/black"
+        android:fontFamily="@font/poppins"
+        android:justificationMode="inter_word"
+        android:gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/websiteLink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/farmnook_website_com"
+        android:textColor="@color/red"
+        android:fontFamily="@font/poppins_bold"
+        android:layout_below="@id/description"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"/>
+</RelativeLayout>

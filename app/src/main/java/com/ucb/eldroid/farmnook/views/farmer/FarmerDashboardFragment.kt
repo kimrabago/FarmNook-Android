@@ -36,7 +36,6 @@ class FarmerDashboardFragment : Fragment() {
     private lateinit var locationCallback: LocationCallback
     private var isFirstLocationUpdate = true
     private var lastLocation: Location? = null
-    private val MIN_DISTANCE_CHANGE = 5.0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -106,15 +105,15 @@ class FarmerDashboardFragment : Fragment() {
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
     }
 
-
     private fun updateMapLocation(location: Location) {
         if (lastLocation != null) {
-            val distance = location.distanceTo(lastLocation!!).toInt() // Convert to Int
-            val speed = location.speed // Speed in meters/second
-            val timeDifference = (location.time - lastLocation!!.time) / 1000 // Time difference in seconds
+            val distance = location.distanceTo(lastLocation!!).toInt()
+            val speed = location.speed
+            val timeDifference = (location.time - lastLocation!!.time) / 1000 // Time in seconds
 
+            // Ignore updates if distance < 10m, speed < 0.5m/s, or time difference < 5s
             if (distance < 10 || speed < 0.5 || timeDifference < 5) {
-                return // Ignore minor fluctuations, GPS drift, and frequent updates
+                return
             }
         }
 
@@ -122,12 +121,12 @@ class FarmerDashboardFragment : Fragment() {
 
         val userLocation = Point.fromLngLat(location.longitude, location.latitude)
 
-        // Set initial zoom to 15.0, then preserve zoom level
+        // Preserve zoom level if already set
         val zoomLevel = if (isFirstLocationUpdate) {
             isFirstLocationUpdate = false
-            15.0 // First-time zoom level
+            20.0 // Initial zoom level
         } else {
-            mapView.getMapboxMap().cameraState.zoom // Preserve zoom level
+            mapView.getMapboxMap().cameraState.zoom // Preserve user zoom
         }
 
         mapView.getMapboxMap().setCamera(

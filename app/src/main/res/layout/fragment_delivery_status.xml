@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".views.farmer.DeliveryStatusFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:ignore="UselessParent">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,181 +45,165 @@
                     android:layout_marginTop="10dp"
                     android:layout_toEndOf="@id/menu_burger"
                     android:layout_centerVertical="true"/>
-
             </RelativeLayout>
 
             <!-- Map View -->
             <com.mapbox.maps.MapView
                 android:id="@+id/mapView"
                 android:layout_width="match_parent"
-                android:layout_height="380dp" />
-
-            <!-- Delivery Info Section -->
-            <LinearLayout
-                android:id="@+id/deliveryInfoLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:background="@drawable/half_border">
-
-                <!-- Confirmation Layout -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/confirmationLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="8dp"
-                    android:visibility="gone" />
-
-                <!-- Hauler To Pickup Layout -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/haulerToPickupLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="6dp"
-                    android:visibility="visible">
-
-                    <LinearLayout
-                        android:id="@+id/delivery_info_card"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="16dp"
-                        android:orientation="vertical"
-                        android:background="@drawable/green_rounded_button">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="From"
-                            android:textStyle="bold"
-                            android:textSize="16sp"
-                            android:textColor="@color/white" />
-
-                        <TextView
-                            android:id="@+id/from_address"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="123, Makati Avenue, Makati City, Metro Manila"
-                            android:textSize="14sp"
-                            android:paddingBottom="8dp"
-                            android:textColor="@color/white" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="To"
-                            android:textStyle="bold"
-                            android:textSize="16sp"
-                            android:textColor="@color/white" />
-
-                        <TextView
-                            android:id="@+id/to_address"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="456, Quezon Avenue, Quezon City, Metro Manila"
-                            android:textSize="14sp"
-                            android:paddingBottom="8dp"
-                            android:textColor="@color/white" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- Status & Metrics -->
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:layout_marginHorizontal="70dp">
-
-                    <!-- Kilometer Icon -->
-                    <ImageView
-                        android:id="@+id/kilometerImage"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/km_icon"
-                        android:layout_centerHorizontal="true"
-                        android:layout_alignParentStart="true"
-                        android:layout_marginStart="8dp"/>
-
-                    <!-- Kilometer Text (Below the Icon) -->
-                    <TextView
-                        android:id="@+id/totalKilometer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="40 km"
-                        android:textSize="14sp"
-                        android:textColor="@color/black"
-                        android:layout_below="@id/kilometerImage"
-                        android:layout_centerHorizontal="true"
-                        android:layout_alignParentStart="true"
-                        android:layout_marginTop="4dp" />
-
-                    <!-- Duration Icon -->
-                    <ImageView
-                        android:id="@+id/durationImage"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/duration_icon"
-                        android:layout_centerHorizontal="true"
-                        android:layout_alignParentEnd="true" />
-
-                    <!-- Duration Text (Below the Icon) -->
-                    <TextView
-                        android:id="@+id/durationTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="8 hr"
-                        android:textSize="14sp"
-                        android:textColor="@color/black"
-                        android:layout_below="@id/durationImage"
-                        android:layout_marginTop="4dp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_alignParentEnd="true"  />
-
-                </RelativeLayout>
-
-                <!-- Status Indicator -->
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:background="@drawable/green_rounded"
-                    android:layout_marginHorizontal="80dp">
-
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true">
-
-                        <TextView
-                            android:id="@+id/statusTxtview"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/statusTextView"
-                            android:textSize="16sp"
-                            android:textColor="@color/white"
-                            android:layout_marginTop="5dp"
-                            android:layout_alignParentStart="true" />
-
-                        <TextView
-                            android:id="@+id/status"
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="@string/status_delivery"
-                            android:textStyle="bold"
-                            android:textSize="16sp"
-                            android:textColor="@color/dark_green"
-                            android:fontFamily="@font/dm_sans"
-                            android:layout_toEndOf="@id/statusTxtview"
-                            android:layout_marginStart="8dp"
-                            android:background="@color/cream"
-                            android:padding="5dp"
-                            android:textAlignment="center"/>
-                    </RelativeLayout>
-                </RelativeLayout>
-            </LinearLayout>
+                android:layout_height="match_parent" />
         </LinearLayout>
     </RelativeLayout>
-</FrameLayout>
+
+    <!-- Bottom Sheet Layout -->
+    <LinearLayout
+        android:id="@+id/bottomSheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/half_border"
+        android:orientation="vertical"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <LinearLayout
+            android:id="@+id/deliveryInfoLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="15dp">
+
+            <!-- Hauler To Pickup Layout -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/haulerToPickupLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp">
+
+                <LinearLayout
+                    android:id="@+id/delivery_info_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/green_rounded_button">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="From"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        android:id="@+id/from_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="123, Makati Avenue, Makati City, Metro Manila"
+                        android:textSize="14sp"
+                        android:paddingBottom="8dp"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="To"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        android:id="@+id/to_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="456, Quezon Avenue, Quezon City, Metro Manila"
+                        android:textSize="14sp"
+                        android:paddingBottom="8dp"
+                        android:textColor="@color/white" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Status & Metrics -->
+            <RelativeLayout
+                android:id="@+id/kmAndHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:layout_marginHorizontal="70dp">
+
+                <ImageView
+                    android:id="@+id/kilometerImage"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/km_icon"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="8dp"/>
+
+                <TextView
+                    android:id="@+id/totalKilometer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="40 km"
+                    android:textSize="14sp"
+                    android:textColor="@color/black"
+                    android:layout_below="@id/kilometerImage"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="4dp" />
+
+                <ImageView
+                    android:id="@+id/durationImage"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/duration_icon"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentEnd="true" />
+
+                <TextView
+                    android:id="@+id/durationTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="8 hr"
+                    android:textSize="14sp"
+                    android:textColor="@color/black"
+                    android:layout_below="@id/durationImage"
+                    android:layout_marginTop="4dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentEnd="true"  />
+            </RelativeLayout>
+
+            <!-- Status Section -->
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/green_rounded">
+
+                <TextView
+                    android:id="@+id/statusTxtview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/statusTextView"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="5dp" />
+
+                <TextView
+                    android:id="@+id/status"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_delivery"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/dark_green"
+                    android:fontFamily="@font/dm_sans"
+                    android:layout_toEndOf="@id/statusTxtview"
+                    android:layout_marginStart="8dp"
+                    android:background="@color/cream"
+                    android:padding="5dp"
+                    android:textAlignment="center"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,8 +1,13 @@
 <resources>
+    <string name="default_web_client_id">517240344964-v6i37c6bur0gaitdr0igiv363e0k4ppr.apps.googleusercontent.com</string>
+
+    <!--MAPBOX-->
+    <string name="mapbox_access_token">pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg</string>
+
     <string name="app_name">FarmNook</string>
     <string name="email">Email</string>
+    <string name="email_address">Email Address</string>
     <string name="password">Password</string>
-
     <string name="login_to_account">Login to Account</string>
     <string name="welcome_back">Welcome Back</string>
     <string name="forgot_password">Forgot Password?</string>
@@ -145,11 +150,9 @@
     <string name="_6_digit_code">6-digit code</string>
     <string name="verify">Verify</string>
     <string name="enter_password_to_delete_your_account">Enter password to delete your account</string>
+    <string name="farmnook_website_com"><u>farmnook-website.com</u></string>
+    <string name="visit_our_app">You have successfully registered as a Hauler! You can also log in to our website to manage your vehicles and drivers. Visit our app at</string>
+    <string name="set_location">Set Location</string>
 
-
-    <string name="default_web_client_id">517240344964-v6i37c6bur0gaitdr0igiv363e0k4ppr.apps.googleusercontent.com</string>
-
-<!--MAPBOX-->
-    <string name="mapbox_access_token">pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg</string>
 
 </resources>

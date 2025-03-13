@@ -1,4 +1,4 @@
-package com.ucb.eldroid.farmnook.views.settings
+package com.ucb.eldroid.farmnook.views.adapter
 
 import android.view.LayoutInflater
 import android.view.View

@@ -6,24 +6,21 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/cream"
     tools:context=".views.settings.HaulerProfileActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="30dp">
+        android:padding="5dp"
+        android:layout_marginTop="5dp">
 
         <ImageButton
             android:id="@+id/btn_back"
             android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_height="40dp"
             android:background="@null"
             android:src="@drawable/back_arrow"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="10dp"
             android:contentDescription="@string/back_button"/>
 
         <TextView
@@ -34,148 +31,198 @@
             android:fontFamily="@font/poppins_bold"
             android:text="@string/profile"
             android:textColor="@color/dark_green"
-            android:textSize="30sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <androidx.cardview.widget.CardView
+    <LinearLayout
+        android:id="@+id/input_fields"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="10dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="20dp">
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp">
 
-        <LinearLayout
-            android:id="@+id/input_fields"
+        <RelativeLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/profileImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:contentDescription="@string/profile_icon"
+            android:src="@drawable/profile_circle"/>
+
+        <RatingBar
+            android:id="@+id/ratingBar"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="25dp">
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:rating="4.9"
+            android:isIndicator="false"
+            android:progressTint="@color/dark_green"
+            android:secondaryProgressTint="@color/dark_green"
+            android:layout_marginStart="10dp"
+            android:layout_below="@id/profileImage"
+            android:theme="@style/Widget.AppCompat.RatingBar" />
+
+        <TextView
+            android:id="@+id/ratingValue"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ratings_count"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/ratingBar"
+            android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/fullName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="@string/first_name"
+                android:textColor="@color/black"
+                android:padding="5dp"
+                android:layout_marginStart="10dp"
+                android:textSize="16sp"
+                android:layout_toEndOf="@id/profileImage"
+                android:layout_marginTop="30dp"
+                tools:ignore="RelativeOverlap" />
 
             <ImageView
-                android:id="@+id/profileImage"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:contentDescription="@string/profile_icon"
-                android:src="@drawable/profile_circle"
-                android:layout_gravity="center"/>
-
-            <RatingBar
-                android:id="@+id/ratingBar"
-                style="?android:attr/ratingBarStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:numStars="5"
-                android:stepSize="0.5"
-                android:rating="4.9"
-                android:isIndicator="true"
-                android:progressTint="@color/dark_green"
-                android:secondaryProgressTint="@color/dark_green"
-                android:layout_gravity="center"
-                android:theme="@style/Widget.AppCompat.RatingBar" />
-
-            <TextView
-                android:id="@+id/ratingValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ratings_count"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:layout_marginTop="5dp"
-                android:layout_gravity="center"/>
-
-            <TextView
-                android:id="@+id/ratingLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/rating"
-                android:textSize="15sp"
-                android:fontFamily="@font/poppins"
-                android:textColor="@android:color/black"
-                android:layout_gravity="center"/>
-
-            <TextView
-                android:id="@+id/first_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="name"
-                android:background="@drawable/register_rounded_box"
-                android:drawablePadding="25dp"
-                android:fontFamily="@font/dm_sans_medium"
-                android:hint="@string/first_name"
-                android:padding="12dp"
-                android:layout_marginTop="10dp"
-                android:textSize="18sp"
-                app:drawableStartCompat="@drawable/user_icon" />
-
-            <TextView
-                android:id="@+id/last_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/last_name"
-                android:textSize="18sp"
-                android:fontFamily="@font/dm_sans_medium"
-                android:drawablePadding="25dp"
-                android:padding="12dp"
-                android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp"
-                app:drawableStartCompat="@drawable/user_icon" />
-
-            <TextView
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/email"
-                android:textSize="18sp"
-                android:fontFamily="@font/dm_sans_medium"
-                android:drawablePadding="23dp"
-                android:padding="12dp"
-                android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp"
-                app:drawableStartCompat="@drawable/email_icon" />
-
-            <TextView
-                android:id="@+id/phone_num"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/phone_number"
-                android:textSize="18sp"
-                android:fontFamily="@font/dm_sans_medium"
-                android:drawablePadding="24dp"
-                android:padding="12dp"
-                android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp"
-                app:drawableStartCompat="@drawable/number_icon" />
-
-            <TextView
-                android:id="@+id/dateJoined"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/date_joined"
-                android:textSize="18sp"
-                android:fontFamily="@font/dm_sans_medium"
-                android:drawablePadding="20dp"
-                android:padding="12dp"
-                android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp"
-                app:drawableStartCompat="@drawable/calendar" />
-
-            <Button
                 android:id="@+id/edit_profile_btn"
-                android:layout_width="130dp"
-                android:layout_height="wrap_content"
-                android:text="@string/edit_profile"
-                android:fontFamily="@font/poppins"
-                android:background="@drawable/green_rounded"
-                android:textColor="@color/white"
-                android:textSize="16sp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/new_msg"
+                android:contentDescription="@string/edit_profile"
                 android:padding="5dp"
-                android:layout_marginStart="150dp"
-                android:layout_marginTop="20dp"
-                android:layout_gravity="end"
-                android:textAllCaps="false"/>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="20dp"/>
+
+        </RelativeLayout>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/email_address"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/dm_sans_bold"/>
+
+
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/email"
+            android:textSize="18sp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:padding="12dp"
+            android:background="@drawable/register_rounded_box"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/phone_number"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/dm_sans_bold"/>
+
+        <TextView
+            android:id="@+id/phone_num"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/phone_number"
+            android:textSize="18sp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:padding="12dp"
+            android:background="@drawable/register_rounded_box"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/date_joined"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/dm_sans_bold"/>
+
+        <TextView
+            android:id="@+id/dateJoined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/date_joined"
+            android:textSize="18sp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:padding="12dp"
+            android:background="@drawable/register_rounded_box"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/location_textview"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/dm_sans_bold"/>
+
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/location_textview"
+            android:textSize="18sp"
+            android:fontFamily="@font/dm_sans_medium"
+            android:padding="12dp"
+            android:background="@drawable/register_rounded_box"
+            android:layout_marginTop="8dp" />
+
+        <!-- Change Password as Button -->
+        <Button
+            android:id="@+id/change_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/register_rounded_box"
+            android:drawableEnd="@drawable/right_arrow"
+            android:drawableTint="@color/dark_green"
+            android:fontFamily="@font/dm_sans_bold"
+            android:textSize="18sp"
+            android:text="@string/change_password"
+            android:textAllCaps="false"
+            android:layout_marginTop="25dp"
+            android:textColor="@color/black"
+            android:textAlignment="textStart"/>
+
+        <!-- Delete Account as Button -->
+        <Button
+            android:id="@+id/delete_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/register_rounded_box"
+            android:drawablePadding="20dp"
+            android:drawableTint="@color/dark_green"
+            android:fontFamily="@font/dm_sans_bold"
+            android:layout_marginTop="15dp"
+            android:padding="12dp"
+            android:textSize="18sp"
+            android:text="@string/delete_account"
+            android:textAllCaps="false"
+            android:textColor="@color/red"
+            android:textAlignment="textStart"/>
+
+
+    </LinearLayout>
 </LinearLayout>
