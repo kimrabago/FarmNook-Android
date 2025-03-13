@@ -1,6 +1,7 @@
 package com.ucb.eldroid.farmnook.views.farmer
 
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.Timestamp
@@ -11,6 +12,33 @@ import com.ucb.eldroid.farmnook.model.data.Delivery
 class AddDeliveryActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var vehicleTypeSpinner: Spinner
+    private lateinit var productTypeSpinner: Spinner
+    private lateinit var weightSpinner: Spinner
+
+    private val vehicleProductMap = mapOf(
+        "Small Farm Truck" to listOf("Vegetables", "Fruits", "Poultry", "Animal Feed"),
+        "Medium Farm Truck" to listOf("Vegetables", "Fruits", "Grains", "Poultry", "Dairy Products"),
+        "Large Farm Truck" to listOf("Livestock", "Grains", "Dairy Products", "Fertilizers & Seeds"),
+        "Tractor with Trailer" to listOf("Grains", "Sugarcane", "Cotton", "Fertilizers & Seeds"),
+        "Pickup Truck" to listOf("Vegetables", "Fruits", "Fishery Products", "Agro-Chemicals"),
+        "Refrigerated Truck" to listOf("Dairy Products", "Fishery Products", "Poultry"),
+        "Livestock Transport Truck" to listOf("Livestock", "Poultry"),
+        "Grain Hauler" to listOf("Grains"),
+        "Flatbed Truck" to listOf("Cotton", "Fertilizers & Seeds", "Agro-Chemicals")
+    )
+
+    private val vehicleWeightMap = mapOf(
+        "Small Farm Truck" to listOf("Up to 500 kg", "500 - 1000 kg"),
+        "Medium Farm Truck" to listOf("1000 - 3000 kg", "3000 - 5000 kg"),
+        "Large Farm Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg"),
+        "Tractor with Trailer" to listOf("10000 - 20000 kg", "More than 20000 kg"),
+        "Pickup Truck" to listOf("Up to 500 kg", "500 - 1000 kg"),
+        "Refrigerated Truck" to listOf("1000 - 3000 kg", "3000 - 5000 kg"),
+        "Livestock Transport Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg"),
+        "Grain Hauler" to listOf("10000 - 20000 kg", "More than 20000 kg"),
+        "Flatbed Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg", "More than 20000 kg")
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,61 +46,29 @@ class AddDeliveryActivity : AppCompatActivity() {
 
         firestore = FirebaseFirestore.getInstance()
 
-        val vehicleTypeSpinner: Spinner = findViewById(R.id.vehicle_type_spinner)
-        val productTypeSpinner: Spinner = findViewById(R.id.product_type_spinner)
-        val weightSpinner: Spinner = findViewById(R.id.weight_spinner)
+        vehicleTypeSpinner = findViewById(R.id.vehicle_type_spinner)
+        productTypeSpinner = findViewById(R.id.product_type_spinner)
+        weightSpinner = findViewById(R.id.weight_spinner)
 
-        val vehicleTypes = arrayOf(
-            "Select Vehicle Type",
-            "Small Farm Truck",
-            "Medium Farm Truck",
-            "Large Farm Truck",
-            "Tractor with Trailer",
-            "Pickup Truck",
-            "Refrigerated Truck",
-            "Livestock Transport Truck",
-            "Grain Hauler",
-            "Flatbed Truck"
-        )
-
-        val productTypes = arrayOf(
-            "Select Product Type",
-            "Livestock",
-            "Vegetables",
-            "Fruits",
-            "Grains",
-            "Dairy Products",
-            "Poultry",
-            "Fishery Products",
-            "Sugarcane",
-            "Cotton",
-            "Fertilizers & Seeds",
-            "Agro-Chemicals",
-            "Animal Feed"
-        )
-
-        val weights = arrayOf(
-            "Select Weight",
-            "Less than 500 kg",
-            "500 kg - 1 Ton",
-            "1-3 Tons",
-            "3-5 Tons",
-            "5-10 Tons",
-            "10-20 Tons",
-            "More than 20 Tons"
-        )
-
+        val vehicleTypes = listOf("Select Vehicle Type") + vehicleProductMap.keys
 
         vehicleTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vehicleTypes)
-        productTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, productTypes)
-        weightSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, weights)
+
+        vehicleTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
+                updateProductAndWeightOptions(selectedVehicle)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
 
         findViewById<Button>(R.id.search_button).setOnClickListener {
             val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
             val selectedProduct = productTypeSpinner.selectedItem.toString()
             val selectedWeight = weightSpinner.selectedItem.toString()
 
-            if (selectedVehicle.contains("Select") || selectedProduct.contains("Select") || selectedWeight.contains("Select")) {
+            if (selectedVehicle == "Select Vehicle Type" || selectedProduct == "Select Product Type" || selectedWeight == "Select Weight") {
                 Toast.makeText(this, "Please select all options", Toast.LENGTH_SHORT).show()
             } else {
                 saveDeliveryToFirestore(selectedVehicle, selectedProduct, selectedWeight)
@@ -82,6 +78,14 @@ class AddDeliveryActivity : AppCompatActivity() {
         findViewById<Button>(R.id.cancel_button).setOnClickListener {
             finish()
         }
+    }
+
+    private fun updateProductAndWeightOptions(selectedVehicle: String) {
+        val productTypes = vehicleProductMap[selectedVehicle] ?: emptyList()
+        val weights = vehicleWeightMap[selectedVehicle] ?: emptyList()
+
+        productTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("Select Product Type") + productTypes)
+        weightSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("Select Weight") + weights)
     }
 
     private fun saveDeliveryToFirestore(vehicleType: String, productType: String, weight: String) {
@@ -96,6 +100,9 @@ class AddDeliveryActivity : AppCompatActivity() {
             estimatedTime = "Unknown",
             totalCost = "₱0",
             profileImage = "",
+            truckType = vehicleType,
+            productType = productType,
+            weight = weight,
             timestamp = Timestamp.now()
         )
 

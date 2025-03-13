@@ -11,7 +11,10 @@ data class Delivery(
     var estimatedTime: String? = null,
     var totalCost: String? = null,
     var profileImage: String? = null,
+    var truckType: String? = null,  // Added truck type
+    var productType: String? = null, // Added product type
+    var weight: String? = null,      // Added weight
     var timestamp: Timestamp? = null
 ) {
-    constructor() : this(null, null, null, null, null, null, null, null, null)
+    constructor() : this(null, null, null, null, null, null, null, null, null, null, null, null)
 }

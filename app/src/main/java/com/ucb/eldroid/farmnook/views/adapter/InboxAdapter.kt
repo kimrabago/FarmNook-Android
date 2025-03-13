@@ -1,56 +1,53 @@
 package com.ucb.eldroid.farmnook.views.adapter
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.eldroid.farmnook.R
-import com.ucb.eldroid.farmnook.model.data.Message
+import com.ucb.eldroid.farmnook.model.data.ChatItem
 import com.ucb.eldroid.farmnook.views.message.MessageActivity
 
-class InboxAdapter(private val messages: List<Message>) :
-    RecyclerView.Adapter<InboxAdapter.MessageViewHolder>() {
+class InboxAdapter(private val chatList: MutableList<ChatItem>, private val context: Context) :
+    RecyclerView.Adapter<InboxAdapter.InboxViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
-        val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.message_item, parent, false)
-        return MessageViewHolder(itemView)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InboxViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.message_item, parent, false)
+        return InboxViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-        val message = messages[position]
-        holder.bind(message)
-    }
+    override fun onBindViewHolder(holder: InboxViewHolder, position: Int) {
+        val chatId = chatList[position]
 
-    override fun getItemCount(): Int = messages.size
-
-    inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val senderNameTextView: TextView = itemView.findViewById(R.id.senderNameTextView)
-        private val messageContentTextView: TextView = itemView.findViewById(R.id.messageContentTextView)
-        private val messageTimestampTextView: TextView = itemView.findViewById(R.id.messageTimestampTextView)
-        private val personImageView: ImageView = itemView.findViewById(R.id.personImageView)
-
-        fun bind(message: Message) {
-            senderNameTextView.text = message.senderName
-            messageContentTextView.text = message.messageContent
-            messageTimestampTextView.text = message.timestamp
-
-            message.avatarResId?.let {
-                personImageView.setImageResource(it)
+        FirebaseFirestore.getInstance().collection("chats").document(chatId.toString()).collection("messages")
+            .orderBy("timestamp")
+            .limitToLast(1)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.isEmpty) {
+                    val message = snapshot.documents[0]
+                    holder.senderNameTextView.text = message.getString("senderName")
+                }
             }
 
-            // When a message item is clicked, launch MessageActivity
-            // and pass both the sender's name and the message content
-            itemView.setOnClickListener {
-                val context = itemView.context
-                val intent = Intent(context, MessageActivity::class.java)
-                intent.putExtra("SENDER_NAME", message.senderName)
-                intent.putExtra("MESSAGE_CONTENT", message.messageContent)
-                context.startActivity(intent)
-            }
+        holder.itemView.setOnClickListener {
+            val intent = Intent(context, MessageActivity::class.java)
+            intent.putExtra("chatId", chatId)
+            context.startActivity(intent)
         }
     }
+
+    override fun getItemCount(): Int = chatList.size
+
+    class InboxViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val senderNameTextView: TextView = itemView.findViewById(R.id.senderNameTextView)
+    }
+}
+
+private fun Intent.putExtra(s: String, chatId: ChatItem) {
+
 }

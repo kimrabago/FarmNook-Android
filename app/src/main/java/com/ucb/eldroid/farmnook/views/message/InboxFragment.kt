@@ -9,74 +9,70 @@ import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.ucb.eldroid.farmnook.R
-import com.ucb.eldroid.farmnook.model.data.Message
 import com.ucb.eldroid.farmnook.views.adapter.InboxAdapter
+import com.ucb.eldroid.farmnook.model.data.ChatItem
 
 class InboxFragment : Fragment() {
 
-    private lateinit var messagesRecyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
     private lateinit var inboxAdapter: InboxAdapter
-    private val messageList = mutableListOf<Message>()
+    private lateinit var chatList: MutableList<ChatItem>
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_inbox, container, false)
 
-        val btnNewMessage: ImageButton = view.findViewById(R.id.new_message_btn)
-        messagesRecyclerView = view.findViewById(R.id.messagesRecyclerView)
+        recyclerView = view.findViewById(R.id.messagesRecyclerView)
+        val newMessageBtn = view.findViewById<ImageButton>(R.id.new_message_btn)
 
-        // Set up RecyclerView with a vertical LinearLayoutManager
-        messagesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        chatList = mutableListOf()
+        inboxAdapter = InboxAdapter(chatList, requireContext())
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = inboxAdapter
 
-        // Initialize the adapter with an empty list; dummy data will be loaded
-        inboxAdapter = InboxAdapter(messageList)
-        messagesRecyclerView.adapter = inboxAdapter
-
-        // Load dummy data into the message list
-        loadDummyData()
-
-        // Handle "New Message" button click
-        btnNewMessage.setOnClickListener {
+        newMessageBtn.setOnClickListener {
             val intent = Intent(requireContext(), NewMessageActivity::class.java)
             startActivity(intent)
         }
 
+        fetchChats()
+
         return view
     }
 
-    private fun loadDummyData() {
-        val dummyMessages = listOf(
-            Message(
-                senderName = "Michael Jackstone",
-                messageContent = "Heeee-heeeee",
-                timestamp = "12:00 AM",
-                avatarResId = R.drawable.profile_circle
-            ),
-            Message(
-                senderName = "Megan Miming",
-                messageContent = "My truck is from transformers.",
-                timestamp = "3:20 PM",
-                avatarResId = R.drawable.profile_circle
-            ),
-            Message(
-                senderName = "Phato Thuya",
-                messageContent = "Heeee-heeeee",
-                timestamp = "7:10 PM",
-                avatarResId = R.drawable.profile_circle
-            ),
-            Message(
-                senderName = "Joji Ann Santos",
-                messageContent = "Sir san poba ang bahay ng pagde-deliveran...",
-                timestamp = "12:18 PM",
-                avatarResId = R.drawable.profile_circle
-            )
-        )
+    private fun fetchChats() {
+        val currentUserId = auth.currentUser?.uid ?: return
 
-        messageList.clear()
-        messageList.addAll(dummyMessages)
-        inboxAdapter.notifyDataSetChanged()
+        firestore.collection("chats")
+            .whereArrayContains("userIds", currentUserId)
+            .orderBy("timestamp", Query.Direction.DESCENDING) // Sort by last activity
+            .addSnapshotListener { value, _ ->
+                if (value != null) {
+                    chatList.clear()
+                    for (doc in value.documents) {
+                        val userIds = doc.get("userIds") as? List<String> ?: continue
+                        val otherUserId = userIds.firstOrNull { it != currentUserId } ?: continue
+                        val lastMessage = doc.getString("lastMessage") ?: "No messages yet"
+                        fetchUserDetails(doc.id, otherUserId, lastMessage)
+                    }
+                }
+            }
+    }
+
+    private fun fetchUserDetails(chatId: String, otherUserId: String, lastMessage: String) {
+        firestore.collection("users").document(otherUserId).get()
+            .addOnSuccessListener { userDoc ->
+                val name = "${userDoc.getString("firstName")} ${userDoc.getString("lastName")}"
+                chatList.add(ChatItem(chatId, name, lastMessage))
+                inboxAdapter.notifyDataSetChanged()
+            }
     }
 }
