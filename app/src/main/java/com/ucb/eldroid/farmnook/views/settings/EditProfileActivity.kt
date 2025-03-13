@@ -43,18 +43,6 @@ class EditProfileActivity : AppCompatActivity() {
             finish()
         }
 
-        val changePasswordButton = findViewById<Button>(R.id.change_password)
-        changePasswordButton.setOnClickListener {
-            val intent = Intent(this, ChangePasswordActivity::class.java)
-            startActivity(intent)
-        }
-
-        val deleteAccountButton = findViewById<Button>(R.id.delete_account)
-        deleteAccountButton.setOnClickListener {
-            val intent = Intent(this, DeleteAccountActivity::class.java)
-            startActivity(intent)
-        }
-
         fetchUserData()
 
         saveButton.setOnClickListener {

@@ -11,6 +11,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.ucb.eldroid.farmnook.R
 import com.ucb.eldroid.farmnook.model.data.NotificationItem
+import com.ucb.eldroid.farmnook.views.adapter.NotificationAdapter
 
 class NotificationActivity : AppCompatActivity() {
 

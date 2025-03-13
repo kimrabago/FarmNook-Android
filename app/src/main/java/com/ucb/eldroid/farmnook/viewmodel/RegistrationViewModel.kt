@@ -40,12 +40,7 @@ class RegistrationViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val user = firebaseAuth.currentUser
                     user?.let {
-                        sendEmailVerification(it)
-                        val hashedPassword = hashPassword(password)
-                        val userData = User(
-                            it.uid, firstName, lastName, email, hashedPassword, userType, phoneNum, getCurrentDate(), null
-                        )
-                        saveUserToFirestore(userData)
+                        sendEmailVerification(it, firstName, lastName, phoneNum, userType)
                     }
                 } else {
                     handleAuthError(task.exception?.message)
@@ -53,22 +48,56 @@ class RegistrationViewModel : ViewModel() {
             }
     }
 
-    private fun sendEmailVerification(user: FirebaseUser) {
+
+    private fun sendEmailVerification(user: FirebaseUser, firstName: String, lastName: String, phoneNum: String, userType: String) {
         user.sendEmailVerification()
             .addOnCompleteListener { task ->
-                _emailVerificationStatus.value = if (task.isSuccessful) {
-                    "Verification email sent! Please check your inbox."
+                if (task.isSuccessful) {
+                    _emailVerificationStatus.value = "Verification email sent! Please check your inbox."
+
+                    // Pass actual values instead of hardcoded ones
+                    checkEmailVerification(user, firstName, lastName, phoneNum, userType)
                 } else {
-                    "Failed to send verification email."
+                    _emailVerificationStatus.value = "Failed to send verification email."
                 }
             }
     }
+
+    private fun checkEmailVerification(user: FirebaseUser, firstName: String, lastName: String, phoneNum: String, userType: String) {
+        val handler = android.os.Handler()
+        val runnable = object : Runnable {
+            override fun run() {
+                user.reload()
+                if (user.isEmailVerified) {
+                    val hashedPassword = hashPassword(user.email ?: "")
+                    val userData = User(
+                        user.uid,
+                        firstName, // Now using actual input
+                        lastName,  // Now using actual input
+                        user.email ?: "",
+                        hashedPassword,
+                        userType,  // Now using actual input
+                        phoneNum,  // Now using actual input
+                        getCurrentDate(),
+                        null
+                    )
+
+                    saveUserToFirestore(userData)
+                } else {
+                    handler.postDelayed(this, 3000) // Check again after 3 seconds
+                }
+            }
+        }
+
+        handler.postDelayed(runnable, 3000) // Start checking in 3 seconds
+    }
+
 
     private fun saveUserToFirestore(user: User) {
         database.collection("users").document(user.userId)
             .set(user)
             .addOnSuccessListener {
-                _registrationStatus.value = "Registration successful! Please verify your email."
+                _registrationStatus.value = "Registration successful! You can now log in."
             }
             .addOnFailureListener { e ->
                 _registrationStatus.value = "Failed to save user data: ${e.message}"
