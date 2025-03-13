@@ -8,12 +8,15 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.eldroid.farmnook.R
+import com.ucb.eldroid.farmnook.views.auth.ChangePasswordActivity
+import com.ucb.eldroid.farmnook.views.auth.DeleteAccountActivity
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -36,13 +39,23 @@ class HaulerProfileActivity : AppCompatActivity() {
             finish()
         }
 
-        val editProfileButton = findViewById<Button>(R.id.edit_profile_btn)
+        val editProfileButton = findViewById<ImageView>(R.id.edit_profile_btn)
         editProfileButton.setOnClickListener {
             val intent = Intent(this, EditProfileActivity::class.java)
-            startActivity(intent)
             editProfileLauncher.launch(intent)
         }
 
+        val changePasswordButton = findViewById<Button>(R.id.change_password)
+        changePasswordButton.setOnClickListener {
+            val intent = Intent(this, ChangePasswordActivity::class.java)
+            startActivity(intent)
+        }
+
+        val deleteAccountButton = findViewById<Button>(R.id.delete_account)
+        deleteAccountButton.setOnClickListener {
+            val intent = Intent(this, DeleteAccountActivity::class.java)
+            startActivity(intent)
+        }
         fetchUserData()
     }
 
@@ -67,19 +80,18 @@ class HaulerProfileActivity : AppCompatActivity() {
                         val email = document.getString("email") ?: ""
                         val phoneNumber = document.getString("phoneNum") ?: ""
 
+                        val fullName = "$firstName $lastName"
                         // ✅ Get dateJoined and format it
                         val dateJoined = document.getString("dateJoined") ?: ""
 
                         // ✅ Update the UI in hauler_profile layout
-                        val firstNameTextView : TextView = findViewById(R.id.first_name)
-                        val lastNameTextView : TextView = findViewById(R.id.last_name)
+                        val fullNameTextView : TextView = findViewById(R.id.fullName)
                         val emailTextView : TextView = findViewById(R.id.email)
                         val phoneNumTextView : TextView = findViewById(R.id.phone_num)
                         val dateJoinedTextView : TextView = findViewById(R.id.dateJoined)
 
 
-                        firstNameTextView.text = firstName
-                        lastNameTextView.text = lastName
+                        fullNameTextView.text = fullName
                         emailTextView.text = email
                         phoneNumTextView.text = phoneNumber
                         dateJoinedTextView.text  = dateJoined
