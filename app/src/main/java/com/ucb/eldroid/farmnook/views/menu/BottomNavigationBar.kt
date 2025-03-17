@@ -105,7 +105,7 @@ class BottomNavigationBar : AppCompatActivity() {
     private fun resetToDashboard() {
         Log.d("DashboardDebug", "Resetting to Dashboard. userType: $userType")
         supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        val dashboardFragment: Fragment = if (userType == "Hauler") {
+        val dashboardFragment: Fragment = if (userType == "Business Admin") {
             Log.d("DashboardDebug", "Loading HaulerDashboardFragment")
             HaulerDashboardFragment()
         } else {
@@ -153,7 +153,7 @@ class BottomNavigationBar : AppCompatActivity() {
 
                     val menu = navigationView.menu
                     val subscriptionMenuItem = menu.findItem(R.id.subscription)
-                    subscriptionMenuItem.isVisible = userType == "Hauler"
+                    subscriptionMenuItem.isVisible = userType == "Business Admin"
 
                     Log.d("FirestoreDebug", "Fetched userType: $userType")
                     // ✅ Now call resetToDashboard() since userType is updated
