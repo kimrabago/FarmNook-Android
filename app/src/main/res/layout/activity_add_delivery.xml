@@ -59,11 +59,14 @@
                      </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/fromButton"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:padding="10dp"
                         android:orientation="vertical"
-                        android:background="@color/white">
+                        android:background="@color/white"
+                        android:clickable="true"
+                        android:focusable="true">
 
                         <TextView
                             android:id="@+id/from_textView"
@@ -110,11 +113,14 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/toButton"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:padding="10dp"
                         android:orientation="vertical"
-                        android:background="@color/white">
+                        android:background="@color/white"
+                        android:clickable="true"
+                        android:focusable="true">
 
                         <TextView
                             android:id="@+id/to_textView"

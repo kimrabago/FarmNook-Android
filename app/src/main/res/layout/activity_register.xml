@@ -127,10 +127,10 @@
                     android:layout_weight="1" />
 
                 <RadioButton
-                    android:id="@+id/rb_hauler"
+                    android:id="@+id/rb_business"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/hauler"
+                    android:text="@string/business"
                     android:textSize="18sp"
                     android:textColor="@color/dark_green" />
             </RadioGroup>

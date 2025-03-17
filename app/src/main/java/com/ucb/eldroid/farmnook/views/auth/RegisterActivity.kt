@@ -64,7 +64,7 @@ class RegisterActivity : AppCompatActivity() {
 
         val userType = when (binding.rgUserType.checkedRadioButtonId) {
             R.id.rb_user -> "Farmer"
-            R.id.rb_hauler -> "Hauler"
+            R.id.rb_business -> "Business Admin"
             else -> ""
         }
 

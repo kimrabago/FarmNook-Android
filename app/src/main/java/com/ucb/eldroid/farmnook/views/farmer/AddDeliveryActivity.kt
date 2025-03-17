@@ -12,6 +12,13 @@ import com.ucb.eldroid.farmnook.model.data.Delivery
 class AddDeliveryActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var fromLocation: TextView
+    private lateinit var toLocation: TextView
+
+    companion object {
+        private const val LOCATION_PICKER_REQUEST = 1
+    }
+
     private lateinit var vehicleTypeSpinner: Spinner
     private lateinit var productTypeSpinner: Spinner
     private lateinit var weightSpinner: Spinner
@@ -45,6 +52,14 @@ class AddDeliveryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_delivery)
 
         firestore = FirebaseFirestore.getInstance()
+
+        val fromButton: LinearLayout = findViewById(R.id.fromButton)
+        val toButton: LinearLayout = findViewById(R.id.toButton)
+        fromLocation = findViewById(R.id.from_location)
+        toLocation = findViewById(R.id.to_location)
+
+//        fromButton.setOnClickListener { openLocationPicker("from") }
+//        toButton.setOnClickListener { openLocationPicker("to") }
 
         vehicleTypeSpinner = findViewById(R.id.vehicle_type_spinner)
         productTypeSpinner = findViewById(R.id.product_type_spinner)
