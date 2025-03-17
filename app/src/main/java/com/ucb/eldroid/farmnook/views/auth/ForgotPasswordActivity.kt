@@ -13,7 +13,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         val backButton = findViewById<ImageButton>(R.id.btn_back)
         backButton.setOnClickListener {
-            finish() // This closes the ForgotPasswordActivity and returns to the previous screen (LoginActivity)
+            finish()
         }
     }
 }
