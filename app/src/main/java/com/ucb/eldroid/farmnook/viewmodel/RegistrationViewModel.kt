@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.ucb.eldroid.farmnook.model.data.User
+import com.ucb.eldroid.farmnook.data.model.User
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
