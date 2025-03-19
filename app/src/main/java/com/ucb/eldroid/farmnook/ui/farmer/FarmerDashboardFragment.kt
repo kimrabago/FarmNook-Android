@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +45,7 @@ class FarmerDashboardFragment : Fragment() {
     ): View? {
         val rootView = inflater.inflate(R.layout.fragment_farmer_dashboard, container, false)
 
-
+        // Initialize views
         menuBurger = rootView.findViewById(R.id.menu_burger)
         profileIcon = rootView.findViewById(R.id.profileImage)
         drawerLayout = requireActivity().findViewById(R.id.drawer_layout)
@@ -72,25 +74,44 @@ class FarmerDashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupLocationUpdates()
+        checkPermissionsAndSetupLocation()
+    }
+
+    private fun checkPermissionsAndSetupLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Request location permissions
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                1
+            )
+        } else {
+            setupLocationUpdates()
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun setupLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        // Ensure GPS is enabled
+        if (!isGPSEnabled()) {
+            Toast.makeText(requireContext(), "Please enable GPS!", Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
             return
         }
 
-        // Request last known location first
+        // Request last known location
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             location?.let { updateMapLocation(it) }
         }
 
-        // 🔹 Define the improved location request with accuracy and filtering
-        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 20000) // 20 seconds interval
-            .setMinUpdateDistanceMeters(10f)  // Ignore updates under 10m
-            .setMinUpdateIntervalMillis(20000) // 20 seconds interval
+        // Define location request settings
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 20000) // 20 sec interval
+            .setMinUpdateDistanceMeters(10f)  // Minimum distance of 10m before update
+            .setMinUpdateIntervalMillis(20000) // 20 sec interval
             .build()
 
         locationCallback = object : LocationCallback() {
@@ -105,30 +126,46 @@ class FarmerDashboardFragment : Fragment() {
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
     }
 
+    private fun isGPSEnabled(): Boolean {
+        val locationMode: Int = try {
+            Settings.Secure.getInt(requireContext().contentResolver, Settings.Secure.LOCATION_MODE)
+        } catch (e: Settings.SettingNotFoundException) {
+            0
+        }
+        return locationMode != Settings.Secure.LOCATION_MODE_OFF
+    }
+
     private fun updateMapLocation(location: Location) {
+        // Ensure valid location
+        if (location.latitude == 0.0 && location.longitude == 0.0) {
+            Log.e("LocationUpdate", "Invalid GPS location received")
+            return
+        }
+
+        // Avoid unnecessary updates
         if (lastLocation != null) {
             val distance = location.distanceTo(lastLocation!!).toInt()
             val speed = location.speed
-            val timeDifference = (location.time - lastLocation!!.time) / 1000 // Time in seconds
+            val timeDifference = (location.time - lastLocation!!.time) / 1000
 
-            // Ignore updates if distance < 10m, speed < 0.5m/s, or time difference < 5s
             if (distance < 10 || speed < 0.5 || timeDifference < 5) {
-                return
+                return // Ignore small fluctuations
             }
         }
 
-        lastLocation = location // Update stored location
+        lastLocation = location // Store last known location
 
         val userLocation = Point.fromLngLat(location.longitude, location.latitude)
 
-        // Preserve zoom level if already set
+        // Set initial zoom level
         val zoomLevel = if (isFirstLocationUpdate) {
             isFirstLocationUpdate = false
-            20.0 // Initial zoom level
+            20.0 // Set initial zoom to 15
         } else {
-            mapView.getMapboxMap().cameraState.zoom // Preserve user zoom
+            mapView.getMapboxMap().cameraState.zoom // Maintain user zoom level
         }
 
+        // Move camera to user location
         mapView.getMapboxMap().setCamera(
             CameraOptions.Builder()
                 .center(userLocation)
@@ -136,11 +173,13 @@ class FarmerDashboardFragment : Fragment() {
                 .build()
         )
 
-        // Enable real-time location tracking
+        // Enable location tracking on Mapbox
         mapView.location.updateSettings {
             enabled = true
             pulsingEnabled = true
         }
+
+        Log.d("LocationUpdate", "Updated location: Lat: ${location.latitude}, Lng: ${location.longitude}")
     }
 
     override fun onDestroyView() {
