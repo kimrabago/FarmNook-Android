@@ -18,7 +18,7 @@
         android:theme="@style/Theme.FarmNook"
         tools:targetApi="31">
         <activity
-            android:name=".views.farmer.LocationPicker"
+            android:name=".ui.farmer.LocationPicker"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,10 +27,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".views.message.MessageActivity"
+            android:name=".ui.message.MessageActivity"
             android:exported="true"></activity>
         <activity
-            android:name=".views.message.NewMessageActivity"
+            android:name=".ui.message.NewMessageActivity"
             android:exported="true"></activity>
 
         <meta-data
@@ -38,58 +38,58 @@
             android:value="@string/mapbox_access_token" />
 
         <activity
-            android:name=".views.farmer.WaitingDeliveryActivity"
+            android:name=".ui.farmer.WaitingDeliveryActivity"
             android:exported="true" />
         <activity
-            android:name=".views.farmer.DeliveryConfirmationActivity"
+            android:name=".ui.farmer.DeliveryConfirmationActivity"
             android:exported="false" />
         <activity
-            android:name=".views.farmer.SetScheduleActivity"
+            android:name=".ui.farmer.SetScheduleActivity"
             android:exported="true" />
         <activity
-            android:name=".views.farmer.RecommendationActivity"
+            android:name=".ui.farmer.RecommendationActivity"
             android:exported="true" />
         <activity
-            android:name=".views.farmer.AddDeliveryActivity"
+            android:name=".ui.farmer.AddDeliveryActivity"
             android:exported="true" />
         <activity
-            android:name=".views.auth.DeleteAccountActivity"
+            android:name=".ui.auth.DeleteAccountActivity"
             android:exported="true" />
         <activity
-            android:name=".views.hauler.subscription.AccountBoostedActivity"
+            android:name=".ui.hauler.subscription.AccountBoostedActivity"
             android:exported="true" />
         <activity
-            android:name=".views.auth.ChangePasswordActivity"
+            android:name=".ui.auth.ChangePasswordActivity"
             android:exported="true" />
         <activity
-            android:name=".views.settings.EditProfileActivity"
+            android:name=".ui.settings.EditProfileActivity"
             android:exported="true" />
         <activity
-            android:name=".views.settings.FeedbackActivity"
+            android:name=".ui.settings.FeedbackActivity"
             android:exported="true" />
         <activity
-            android:name=".views.settings.ReportActivity"
+            android:name=".ui.settings.ReportActivity"
             android:exported="true" />
         <activity
-            android:name=".views.hauler.subscription.SubscriptionActivity"
+            android:name=".ui.hauler.subscription.SubscriptionActivity"
             android:exported="true" />
         <activity
-            android:name=".views.settings.AboutActivity"
+            android:name=".ui.settings.AboutActivity"
             android:exported="true" />
         <activity
-            android:name=".views.settings.HaulerProfileActivity"
+            android:name=".ui.settings.HaulerProfileActivity"
             android:exported="true" />
         <activity
-            android:name=".views.settings.NotificationActivity"
+            android:name=".ui.settings.NotificationActivity"
             android:exported="true" />
         <activity
-            android:name=".views.hauler.DeliveryDetailsActivity"
+            android:name=".ui.hauler.DeliveryDetailsActivity"
             android:exported="true" />
         <activity
-            android:name=".views.menu.BottomNavigationBar"
+            android:name=".ui.menu.BottomNavigationBar"
             android:exported="true" />
         <activity
-            android:name=".views.StartingPageActivity"
+            android:name=".ui.StartingPageActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -98,13 +98,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".views.auth.RegisterActivity"
+            android:name=".ui.auth.RegisterActivity"
             android:exported="true" />
         <activity
-            android:name=".views.auth.ForgotPasswordActivity"
+            android:name=".ui.auth.ForgotPasswordActivity"
             android:exported="true" />
         <activity
-            android:name=".views.auth.LoginActivity"
+            android:name=".ui.auth.LoginActivity"
             android:exported="true" />
         <activity
             android:name=".MainActivity"
