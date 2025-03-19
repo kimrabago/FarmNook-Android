@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/cream"
-    tools:context=".views.auth.DeleteAccountActivity">
+    tools:context=".ui.auth.DeleteAccountActivity">
 
     <TextView
         android:id="@+id/delete_account_title"
