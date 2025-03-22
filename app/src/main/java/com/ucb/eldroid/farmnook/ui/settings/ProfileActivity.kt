@@ -1,12 +1,9 @@
 package com.ucb.eldroid.farmnook.ui.settings
 
-import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -17,19 +14,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.eldroid.farmnook.R
 import com.ucb.eldroid.farmnook.ui.auth.ChangePasswordActivity
 import com.ucb.eldroid.farmnook.ui.auth.DeleteAccountActivity
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
-class HaulerProfileActivity : AppCompatActivity() {
+class ProfileActivity : AppCompatActivity() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var database: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_hauler_profile)
+        setContentView(R.layout.activity_profile)
 
         firebaseAuth = FirebaseAuth.getInstance()
         database = FirebaseFirestore.getInstance()
@@ -79,22 +72,31 @@ class HaulerProfileActivity : AppCompatActivity() {
                         val lastName = document.getString("lastName") ?: ""
                         val email = document.getString("email") ?: ""
                         val phoneNumber = document.getString("phoneNum") ?: ""
-
-                        val fullName = "$firstName $lastName"
-                        // ✅ Get dateJoined and format it
+                        val userType = document.getString("userType") ?: ""
+                        val companyName = document.getString("companyName") ?: ""
                         val dateJoined = document.getString("dateJoined") ?: ""
 
-                        // ✅ Update the UI in hauler_profile layout
-                        val fullNameTextView : TextView = findViewById(R.id.fullName)
-                        val emailTextView : TextView = findViewById(R.id.email)
-                        val phoneNumTextView : TextView = findViewById(R.id.phone_num)
-                        val dateJoinedTextView : TextView = findViewById(R.id.dateJoined)
+                        val fullName = "$firstName $lastName"
 
+                        // Update UI
+                        val fullNameTextView: TextView = findViewById(R.id.fullName)
+                        val emailTextView: TextView = findViewById(R.id.email)
+                        val phoneNumTextView: TextView = findViewById(R.id.phone_num)
+                        val dateJoinedTextView: TextView = findViewById(R.id.dateJoined)
+                        val companyNameTextView: TextView = findViewById(R.id.companyName)
 
                         fullNameTextView.text = fullName
                         emailTextView.text = email
                         phoneNumTextView.text = phoneNumber
-                        dateJoinedTextView.text  = dateJoined
+                        dateJoinedTextView.text = dateJoined
+
+                        // Show company name only if the user is a business admin
+                        if (userType == "Business Admin") {
+                            companyNameTextView.text = companyName
+                            companyNameTextView.visibility = View.VISIBLE
+                        } else {
+                            companyNameTextView.visibility = View.GONE
+                        }
                     }
                 }
                 .addOnFailureListener { exception ->

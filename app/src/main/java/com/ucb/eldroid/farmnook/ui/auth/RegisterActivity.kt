@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -36,20 +37,27 @@ class RegisterActivity : AppCompatActivity() {
         setupPasswordToggle(binding.etPassword)
         setupPasswordToggle(binding.etConfirmPassword)
 
+        // Handle visibility of Company Name field based on user selection
+        binding.rgUserType.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId == R.id.rb_business) {
+                binding.etCompanyName.visibility = View.VISIBLE
+            } else {
+                binding.etCompanyName.visibility = View.GONE
+            }
+        }
+
         observeViewModel()
     }
 
     private fun observeViewModel() {
-        registrationViewModel.registrationStatus.observe(this
-        ) { message ->
+        registrationViewModel.registrationStatus.observe(this) { message ->
             showToast(message)
             if (message.contains("successful", ignoreCase = true)) {
                 navigateToLogin()
             }
         }
 
-        registrationViewModel.emailVerificationStatus.observe(this
-        ) { message ->
+        registrationViewModel.emailVerificationStatus.observe(this) { message ->
             showToast(message)
         }
     }
@@ -63,12 +71,14 @@ class RegisterActivity : AppCompatActivity() {
         val phoneNum = binding.phoneNumber.text.toString().trim()
 
         val userType = when (binding.rgUserType.checkedRadioButtonId) {
-            R.id.rb_user -> "Farmer"
+            R.id.rb_farmer -> "Farmer"
             R.id.rb_business -> "Business Admin"
             else -> ""
         }
 
-        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, phoneNum, userType)
+        val companyName = if (userType == "Business Admin") binding.etCompanyName.text.toString().trim() else ""
+
+        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, phoneNum, userType, companyName)
     }
 
     @SuppressLint("ClickableViewAccessibility")

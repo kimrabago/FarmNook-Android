@@ -25,7 +25,7 @@ import com.ucb.eldroid.farmnook.ui.hauler.subscription.SubscriptionActivity
 import com.ucb.eldroid.farmnook.ui.message.InboxFragment
 import com.ucb.eldroid.farmnook.ui.settings.AboutActivity
 import com.ucb.eldroid.farmnook.ui.settings.FeedbackActivity
-import com.ucb.eldroid.farmnook.ui.settings.HaulerProfileActivity
+import com.ucb.eldroid.farmnook.ui.settings.ProfileActivity
 import com.ucb.eldroid.farmnook.ui.settings.NotificationActivity
 import com.ucb.eldroid.farmnook.ui.settings.ReportActivity
 import java.text.SimpleDateFormat
@@ -126,7 +126,7 @@ class BottomNavigationBar : AppCompatActivity() {
 
     // Handle Profile Navigation from Fragment
     fun navigateToProfile() {
-        startActivity(Intent(this, HaulerProfileActivity::class.java))
+        startActivity(Intent(this, ProfileActivity::class.java))
     }
 
     // Fetch and display user data in navigation header

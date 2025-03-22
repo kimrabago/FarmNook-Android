@@ -23,9 +23,10 @@ class RegistrationViewModel : ViewModel() {
     private val _emailVerificationStatus = MutableLiveData<String>()
     val emailVerificationStatus: LiveData<String> = _emailVerificationStatus
 
-    fun registerUser(firstName: String, lastName: String, email: String, password: String, confirmPass: String, phoneNum: String, userType: String) {
+    fun registerUser(firstName: String, lastName: String, email: String, password: String, confirmPass: String, phoneNum: String, userType: String, companyName: String) {
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
-            password.isEmpty() || confirmPass.isEmpty() || phoneNum.isEmpty() || userType.isEmpty()) {
+            password.isEmpty() || confirmPass.isEmpty() || phoneNum.isEmpty() || userType.isEmpty() ||
+            (userType == "Business Admin" && companyName.isEmpty())) {
             _registrationStatus.value = "Please fill in all fields!"
             return
         }
@@ -40,7 +41,7 @@ class RegistrationViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val user = firebaseAuth.currentUser
                     user?.let {
-                        sendEmailVerification(it, firstName, lastName, phoneNum, userType)
+                        sendEmailVerification(it, firstName, lastName, phoneNum, userType, companyName)
                     }
                 } else {
                     handleAuthError(task.exception?.message)
@@ -49,37 +50,37 @@ class RegistrationViewModel : ViewModel() {
     }
 
 
-    private fun sendEmailVerification(user: FirebaseUser, firstName: String, lastName: String, phoneNum: String, userType: String) {
+    private fun sendEmailVerification(user: FirebaseUser, firstName: String, lastName: String, phoneNum: String, userType: String, companyName: String) {
         user.sendEmailVerification()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _emailVerificationStatus.value = "Verification email sent! Please check your inbox."
-
-                    // Pass actual values instead of hardcoded ones
-                    checkEmailVerification(user, firstName, lastName, phoneNum, userType)
+                    checkEmailVerification(user, firstName, lastName, phoneNum, userType, companyName)
                 } else {
                     _emailVerificationStatus.value = "Failed to send verification email."
                 }
             }
     }
 
-    private fun checkEmailVerification(user: FirebaseUser, firstName: String, lastName: String, phoneNum: String, userType: String) {
+    private fun checkEmailVerification(user: FirebaseUser, firstName: String, lastName: String, phoneNum: String, userType: String, companyName: String) {
         val handler = android.os.Handler()
         val runnable = object : Runnable {
             override fun run() {
                 user.reload()
                 if (user.isEmailVerified) {
                     val hashedPassword = hashPassword(user.email ?: "")
+
                     val userData = User(
-                        user.uid,
-                        firstName, // Now using actual input
-                        lastName,  // Now using actual input
-                        user.email ?: "",
-                        hashedPassword,
-                        userType,  // Now using actual input
-                        phoneNum,  // Now using actual input
-                        getCurrentDate(),
-                        null
+                        userId = user.uid,
+                        firstName = firstName,
+                        lastName = lastName,
+                        email = user.email ?: "",
+                        pass = hashedPassword,
+                        userType = userType,
+                        phoneNum = phoneNum,
+                        companyName = if (userType == "Business Admin") companyName else null, // ✅ Only store if Business Admin
+                        dateJoined = getCurrentDate(),
+                        profileImage = null
                     )
 
                     saveUserToFirestore(userData)
@@ -94,8 +95,24 @@ class RegistrationViewModel : ViewModel() {
 
 
     private fun saveUserToFirestore(user: User) {
+        val userMap = mutableMapOf(
+            "userId" to user.userId,
+            "firstName" to user.firstName,
+            "lastName" to user.lastName,
+            "email" to user.email,
+            "pass" to user.pass,
+            "userType" to user.userType,
+            "phoneNum" to user.phoneNum,
+            "dateJoined" to user.dateJoined,
+            "profileImage" to user.profileImage
+        )
+
+        if (user.userType == "Business Admin") {
+            userMap["companyName"] = user.companyName ?: ""
+        }
+
         database.collection("users").document(user.userId)
-            .set(user)
+            .set(userMap)
             .addOnSuccessListener {
                 _registrationStatus.value = "Registration successful! You can now log in."
             }
