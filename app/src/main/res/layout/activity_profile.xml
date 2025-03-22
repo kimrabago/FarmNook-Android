@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.settings.HaulerProfileActivity">
+    tools:context=".ui.settings.ProfileActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -84,14 +84,26 @@
                 android:id="@+id/fullName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
-                android:text="@string/first_name"
+                android:fontFamily="@font/dm_sans_bold"
+                android:text="@string/user_name"
                 android:textColor="@color/black"
-                android:padding="5dp"
+                android:layout_marginStart="10dp"
+                android:textSize="20sp"
+                android:layout_toEndOf="@id/profileImage"
+                android:layout_marginTop="30dp"
+                tools:ignore="RelativeOverlap" />
+
+            <TextView
+                android:id="@+id/companyName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="@string/company_name"
+                android:textColor="@color/black"
                 android:layout_marginStart="10dp"
                 android:textSize="16sp"
                 android:layout_toEndOf="@id/profileImage"
-                android:layout_marginTop="30dp"
+                android:layout_below="@+id/fullName"
                 tools:ignore="RelativeOverlap" />
 
             <ImageView
@@ -107,7 +119,6 @@
 
         </RelativeLayout>
 
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -116,8 +127,6 @@
             android:textSize="18sp"
             android:textColor="@color/black"
             android:fontFamily="@font/dm_sans_bold"/>
-
-
 
         <TextView
             android:id="@+id/email"
@@ -190,7 +199,6 @@
             android:background="@drawable/register_rounded_box"
             android:layout_marginTop="8dp" />
 
-        <!-- Change Password as Button -->
         <Button
             android:id="@+id/change_password"
             android:layout_width="match_parent"
@@ -206,7 +214,6 @@
             android:textColor="@color/black"
             android:textAlignment="textStart"/>
 
-        <!-- Delete Account as Button -->
         <Button
             android:id="@+id/delete_account"
             android:layout_width="match_parent"
@@ -222,7 +229,5 @@
             android:textAllCaps="false"
             android:textColor="@color/red"
             android:textAlignment="textStart"/>
-
-
     </LinearLayout>
 </LinearLayout>

@@ -156,6 +156,7 @@
     <string name="business">Business</string>
     <string name="report">Report</string>
     <string name="logout">Logout</string>
+    <string name="company_name">Company Name</string>
 
 
 </resources>

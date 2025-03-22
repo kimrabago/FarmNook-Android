@@ -64,6 +64,9 @@ dependencies {
     implementation("com.mapbox.maps:android:11.9.2")
     implementation("androidx.annotation:annotation:1.9.1")
     implementation("de.hdodenhof:circleimageview:3.1.0") // For Circular Profile Image
+//
+//    // 🗺️ Add Mapbox Search SDK for Geocoding (NEW)
+//    implementation("com.mapbox.search:mapbox-search-android:1.0.2")
 
     implementation ("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
