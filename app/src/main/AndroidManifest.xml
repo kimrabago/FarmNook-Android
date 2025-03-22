@@ -18,7 +18,7 @@
         android:theme="@style/Theme.FarmNook"
         tools:targetApi="31">
         <activity
-            android:name=".ui.farmer.LocationPicker"
+            android:name=".ui.farmer.LocationPickerActivity"
             android:exported="true">
 
         </activity>
@@ -77,7 +77,7 @@
             android:name=".ui.settings.AboutActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.settings.HaulerProfileActivity"
+            android:name=".ui.settings.ProfileActivity"
             android:exported="true" />
         <activity
             android:name=".ui.settings.NotificationActivity"

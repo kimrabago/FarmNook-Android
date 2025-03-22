@@ -8,6 +8,7 @@ class User(
     val pass: String = "",
     val userType: String = "",
     val phoneNum: String = "",
+    val companyName: String? = null,
     val dateJoined: String = "",
     val profileImage: String? = null
 )

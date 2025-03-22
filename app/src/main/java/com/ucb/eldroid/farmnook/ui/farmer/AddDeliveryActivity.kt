@@ -1,5 +1,7 @@
 package com.ucb.eldroid.farmnook.ui.farmer
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -58,8 +60,8 @@ class AddDeliveryActivity : AppCompatActivity() {
         fromLocation = findViewById(R.id.from_location)
         toLocation = findViewById(R.id.to_location)
 
-//        fromButton.setOnClickListener { openLocationPicker("from") }
-//        toButton.setOnClickListener { openLocationPicker("to") }
+        fromButton.setOnClickListener { openLocationPicker("from") }
+        toButton.setOnClickListener { openLocationPicker("to") }
 
         vehicleTypeSpinner = findViewById(R.id.vehicle_type_spinner)
         productTypeSpinner = findViewById(R.id.product_type_spinner)
@@ -92,6 +94,27 @@ class AddDeliveryActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.cancel_button).setOnClickListener {
             finish()
+        }
+    }
+    private fun openLocationPicker(type: String) {
+        val intent = Intent(this, LocationPickerActivity::class.java).apply {
+            putExtra("location_type", type)
+        }
+        startActivityForResult(intent, LOCATION_PICKER_REQUEST)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == LOCATION_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
+            data?.let {
+                val locationType = it.getStringExtra("location_type")
+                val selectedLocation = it.getStringExtra("selected_location")
+
+                when (locationType) {
+                    "from" -> fromLocation.text = selectedLocation
+                    "to" -> toLocation.text = selectedLocation
+                }
+            }
         }
     }
 
