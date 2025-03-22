@@ -58,6 +58,8 @@
             android:fontFamily="@font/dm_sans_medium"
             android:padding="12dp"
             android:hint="@string/company_name"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
             android:visibility="gone"
             android:textColorHint="@color/dark_green" />
 
@@ -77,6 +79,8 @@
             android:background="@drawable/register_rounded_box"
             android:fontFamily="@font/dm_sans_medium"
             android:padding="12dp"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
             android:textColorHint="@color/dark_green" />
 
         <TextView
@@ -96,6 +100,8 @@
             android:background="@drawable/register_rounded_box"
             android:fontFamily="@font/dm_sans_medium"
             android:padding="12dp"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
             android:textColorHint="@color/dark_green" />
 
         <TextView
@@ -115,6 +121,8 @@
             android:background="@drawable/register_rounded_box"
             android:fontFamily="@font/dm_sans_medium"
             android:padding="12dp"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
             android:textColorHint="@color/dark_green" />
 
         <TextView
@@ -135,6 +143,8 @@
             android:background="@drawable/register_rounded_box"
             android:fontFamily="@font/dm_sans_medium"
             android:padding="12dp"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
             android:textColorHint="@color/dark_green" />
 
         <TextView
@@ -156,6 +166,8 @@
             android:fontFamily="@font/dm_sans_medium"
             android:hint="@string/set_location"
             android:padding="12dp"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
             android:textColorHint="@color/dark_green" />
 
         <Button
