@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:517240344964:android:c167d0d58f00fdf4c80dd1",
         "android_client_info": {
-          "package_name": "com.ucb.eldroid.farmnook"
+          "package_name": "com.ucb.capstone.farmnook"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "517240344964-sqiqb4rplc9vm239kq3eed2iug8m9dcf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.ucb.eldroid.farmnook",
+            "package_name": "com.ucb.capstone.farmnook",
             "certificate_hash": "6fdbad8d9553317290df0e08d7a72efccc0320fa"
           }
         },

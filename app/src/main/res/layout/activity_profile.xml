@@ -48,10 +48,11 @@
 
         <ImageView
             android:id="@+id/profileImage"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:contentDescription="@string/profile_icon"
-            android:src="@drawable/profile_circle"/>
+            android:src="@drawable/profile_circle"
+            android:layout_marginStart="3dp"/>
 
         <RatingBar
             android:id="@+id/ratingBar"
@@ -64,13 +65,13 @@
             android:isIndicator="false"
             android:progressTint="@color/dark_green"
             android:secondaryProgressTint="@color/dark_green"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="5dp"
             android:layout_below="@id/profileImage"
             android:theme="@style/Widget.AppCompat.RatingBar" />
 
         <TextView
             android:id="@+id/ratingValue"
-            android:layout_width="100dp"
+            android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:text="@string/ratings_count"
             android:textSize="15sp"
@@ -90,7 +91,7 @@
                 android:layout_marginStart="10dp"
                 android:textSize="20sp"
                 android:layout_toEndOf="@id/profileImage"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 tools:ignore="RelativeOverlap" />
 
             <TextView
@@ -108,15 +109,12 @@
 
             <ImageView
                 android:id="@+id/edit_profile_btn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:src="@drawable/new_msg"
                 android:contentDescription="@string/edit_profile"
-                android:padding="5dp"
                 android:layout_alignParentEnd="true"
-                android:layout_marginEnd="10dp"
                 android:layout_marginTop="20dp"/>
-
         </RelativeLayout>
 
         <TextView

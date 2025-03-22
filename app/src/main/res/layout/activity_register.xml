@@ -50,7 +50,9 @@
                 android:hint="@string/first_name"
                 android:padding="12dp"
                 android:textColorHint="@color/dark_green"
-                android:drawablePadding="20dp" />
+                android:drawablePadding="20dp"
+                android:singleLine="true"
+                android:imeOptions="actionNext" />
 
             <EditText
                 android:id="@+id/et_last_name"
@@ -62,7 +64,9 @@
                 android:padding="12dp"
                 android:textColorHint="@color/dark_green"
                 android:layout_marginTop="8dp"
-                android:drawablePadding="20dp" />
+                android:drawablePadding="20dp"
+                android:singleLine="true"
+                android:imeOptions="actionNext" />
 
             <EditText
                 android:id="@+id/et_email"
@@ -74,7 +78,9 @@
                 android:padding="12dp"
                 android:textColorHint="@color/dark_green"
                 android:layout_marginTop="8dp"
-                android:drawablePadding="20dp"/>
+                android:drawablePadding="20dp"
+                android:singleLine="true"
+                android:imeOptions="actionNext"/>
 
             <EditText
                 android:id="@+id/et_password"
@@ -88,7 +94,9 @@
                 android:padding="12dp"
                 android:textColorHint="@color/dark_green"
                 android:layout_marginTop="8dp"
-                android:drawablePadding="20dp"/>
+                android:drawablePadding="20dp"
+                android:singleLine="true"
+                android:imeOptions="actionNext"/>
 
             <EditText
                 android:id="@+id/et_confirm_password"
@@ -102,7 +110,9 @@
                 android:padding="12dp"
                 android:textColorHint="@color/dark_green"
                 android:layout_marginTop="8dp"
-                android:drawablePadding="20dp"/>
+                android:drawablePadding="20dp"
+                android:singleLine="true"
+                android:imeOptions="actionNext"/>
 
             <EditText
                 android:id="@+id/phone_number"
@@ -116,7 +126,9 @@
                 android:padding="12dp"
                 android:textColorHint="@color/dark_green"
                 android:layout_marginTop="8dp"
-                android:drawablePadding="20dp"/>
+                android:drawablePadding="20dp"
+                android:singleLine="true"
+                android:imeOptions="actionNext"/>
 
             <RadioGroup
                 android:id="@+id/rg_user_type"
@@ -156,7 +168,9 @@
                 android:autofillHints="@string/company_name"
                 android:hint="@string/company_name"
                 android:inputType="text"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                android:singleLine="true"
+                android:imeOptions="actionNext"/>
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

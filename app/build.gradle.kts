@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ucb.eldroid.farmnook"
+    namespace = "com.ucb.capstone.farmnook"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ucb.eldroid.farmnook"
+        applicationId = "com.ucb.capstone.farmnook"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

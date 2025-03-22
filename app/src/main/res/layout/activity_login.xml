@@ -72,7 +72,9 @@
                 android:drawablePadding="18dp"
                 android:padding="12dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="16dp" />
+                android:layout_marginTop="16dp"
+                android:singleLine="true"
+                android:imeOptions="actionNext" />
 
             <EditText
                 android:id="@+id/password"
@@ -87,7 +89,9 @@
                 android:drawablePadding="20dp"
                 android:padding="12dp"
                 android:background="@drawable/register_rounded_box"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                android:singleLine="true"
+                android:imeOptions="actionNext" />
 
             <CheckBox
                 android:id="@+id/checkbox_remember_me"
