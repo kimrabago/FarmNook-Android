@@ -1,63 +1,64 @@
 package com.ucb.capstone.farmnook.ui.farmer
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-//import android.text.Editable
-//import android.text.TextWatcher
-//import android.widget.ArrayAdapter
-//import android.widget.AutoCompleteTextView
-//import android.widget.Button
-//import com.mapbox.search.SearchEngine
-//import com.mapbox.search.SearchEngineSettings
-//import com.mapbox.search.result.SearchSuggestion
-//import com.mapbox.search.ResponseInfo
-//import com.mapbox.search.SearchOptions
-//import com.mapbox.search.SearchCallback
+import android.text.Editable
+import android.text.TextWatcher
+import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import com.mapbox.search.*
+import com.mapbox.search.autocomplete.*
 import com.ucb.capstone.farmnook.R
 
 class LocationPickerActivity : AppCompatActivity() {
-//    private lateinit var locationInput: AutoCompleteTextView
-//    private lateinit var searchEngine: SearchEngine
-//    private var locationType: String? = null
-//    private val suggestionList = ArrayList<String>()
-//    private lateinit var adapter: ArrayAdapter<String>
+    private lateinit var locationInput: AutoCompleteTextView
+
+    //    private lateinit var searchEngine: PlaceAutocomplete
+    private lateinit var listView: ListView
+//    private lateinit var adapter: LocationSuggestionsAdapter
+//    private val suggestionsList = mutableListOf<PlaceAutocompleteSuggestion>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location_picker)
 
+        locationInput = findViewById(R.id.location_input)
+        listView = findViewById(R.id.search_results_list)
+        val confirmButton: Button = findViewById(R.id.confirm_button)
 
-//        locationInput = findViewById(R.id.location_input)
-//        val confirmButton: Button = findViewById(R.id.confirm_button)
+//        // Initialize Place Autocomplete with the Mapbox token
+//        searchEngine = PlaceAutocomplete.create(getString(R.string.mapbox_access_token))
 //
-//        locationType = intent.getStringExtra("location_type")
+//        // Initialize adapter
+//        adapter = LocationSuggestionsAdapter(this, suggestionsList)
+//        listView.adapter = adapter
 //
-//        // Initialize Mapbox Search API
-//        searchEngine = SearchEngine.createSearchEngineWithBuiltInDataProviders(
-//            SearchEngineSettings("YOUR_MAPBOX_ACCESS_TOKEN") // Replace with your API key
-//        )
-//
-//        // Set up the adapter for location suggestions
-//        adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, suggestionList)
-//        locationInput.setAdapter(adapter)
-//
-//        // Add text change listener to fetch location suggestions
+//        // Handle text input changes
 //        locationInput.addTextChangedListener(object : TextWatcher {
-//            override fun afterTextChanged(s: Editable?) {}
-//
 //            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 //
 //            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-//                if (s.toString().isNotEmpty()) {
+//                if (!s.isNullOrEmpty()) {
 //                    fetchLocationSuggestions(s.toString())
 //                }
 //            }
+//
+//            override fun afterTextChanged(s: Editable?) {}
 //        })
 //
+//        // Handle list item click
+//        listView.setOnItemClickListener { _, _, position, _ ->
+//            val selectedSuggestion = suggestionsList[position]
+//            locationInput.setText(selectedSuggestion.name)
+//        }
+//
+//        // Confirm selection
 //        confirmButton.setOnClickListener {
 //            val selectedLocation = locationInput.text.toString()
 //            val resultIntent = Intent().apply {
-//                putExtra("location_type", locationType)
 //                putExtra("selected_location", selectedLocation)
 //            }
 //            setResult(Activity.RESULT_OK, resultIntent)
@@ -66,20 +67,14 @@ class LocationPickerActivity : AppCompatActivity() {
 //    }
 //
 //    private fun fetchLocationSuggestions(query: String) {
-//        val searchOptions = SearchOptions.Builder().limit(5).build()
-//
-//        searchEngine.search(query, searchOptions, object : SearchCallback {
-//            override fun onResults(results: List<SearchSuggestion>, responseInfo: ResponseInfo) {
-//                suggestionList.clear()
-//                results.forEach { suggestion ->
-//                    suggestionList.add(suggestion.name)
-//                }
+//        searchEngine.suggestions(query, PlaceAutocompleteOptions()) { result ->
+//            result.value?.let { suggestions ->
+//                suggestionsList.clear()
+//                suggestionsList.addAll(suggestions)
 //                adapter.notifyDataSetChanged()
 //            }
-//
-//            override fun onError(e: Exception) {
-//                e.printStackTrace()
-//            }
-//        })
-      }
+//        }
+//    }
+    }
 }
+
