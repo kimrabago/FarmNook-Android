@@ -1,29 +1,42 @@
 package com.ucb.capstone.farmnook.ui.farmer
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.*
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.Delivery
+import java.util.*
 
 class AddDeliveryActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
     private lateinit var fromLocation: TextView
     private lateinit var toLocation: TextView
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     companion object {
         private const val LOCATION_PICKER_REQUEST = 1
+        private const val LOCATION_PERMISSION_REQUEST = 1001
     }
 
     private lateinit var vehicleTypeSpinner: Spinner
     private lateinit var productTypeSpinner: Spinner
     private lateinit var weightSpinner: Spinner
+
+    private var userLatitude: Double? = null
+    private var userLongitude: Double? = null
 
     private val vehicleProductMap = mapOf(
         "Small Farm Truck" to listOf("Vegetables", "Fruits", "Poultry", "Animal Feed"),
@@ -54,6 +67,7 @@ class AddDeliveryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_delivery)
 
         firestore = FirebaseFirestore.getInstance()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val fromButton: LinearLayout = findViewById(R.id.fromButton)
         val toButton: LinearLayout = findViewById(R.id.toButton)
@@ -68,13 +82,14 @@ class AddDeliveryActivity : AppCompatActivity() {
         weightSpinner = findViewById(R.id.weight_spinner)
 
         val vehicleTypes = listOf("Select Vehicle Type") + vehicleProductMap.keys
-
         vehicleTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vehicleTypes)
 
         vehicleTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
-                updateProductAndWeightOptions(selectedVehicle)
+                if (selectedVehicle != "Select Vehicle Type") {
+                    updateProductAndWeightOptions(selectedVehicle)
+                }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -95,7 +110,10 @@ class AddDeliveryActivity : AppCompatActivity() {
         findViewById<Button>(R.id.cancel_button).setOnClickListener {
             finish()
         }
+
+        checkLocationPermissionAndFetch()
     }
+
     private fun openLocationPicker(type: String) {
         val intent = Intent(this, LocationPickerActivity::class.java).apply {
             putExtra("location_type", type)
@@ -103,21 +121,59 @@ class AddDeliveryActivity : AppCompatActivity() {
         startActivityForResult(intent, LOCATION_PICKER_REQUEST)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == LOCATION_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
-            data?.let {
-                val locationType = it.getStringExtra("location_type")
-                val selectedLocation = it.getStringExtra("selected_location")
-
-                when (locationType) {
-                    "from" -> fromLocation.text = selectedLocation
-                    "to" -> toLocation.text = selectedLocation
-                }
+    @SuppressLint("MissingPermission")
+    private fun fetchUserLocation() {
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                userLatitude = location.latitude
+                userLongitude = location.longitude
+                val address = getAddressFromCoordinates(userLatitude!!, userLongitude!!)
+                fromLocation.text = address ?: "Lat: ${userLatitude}, Lng: ${userLongitude}"
             }
         }
     }
 
+    private fun checkLocationPermissionAndFetch() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST)
+        } else {
+            fetchUserLocation()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            fetchUserLocation()
+        } else {
+            Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun getAddressFromCoordinates(latitude: Double, longitude: Double): String? {
+        val geocoder = Geocoder(this, Locale.getDefault())
+        return try {
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            addresses?.get(0)?.getAddressLine(0)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun saveDeliveryToFirestore(vehicleType: String, productType: String, weight: String) {
+        val deliveryItem = Delivery(
+            pickupLocation = fromLocation.text.toString(),
+            destination = toLocation.text.toString(),
+            truckType = vehicleType,
+            productType = productType,
+            weight = weight,
+            timestamp = Timestamp.now()
+        )
+
+        firestore.collection("deliveries").add(deliveryItem)
+            .addOnSuccessListener { Toast.makeText(this, "Delivery Added Successfully!", Toast.LENGTH_SHORT).show() }
+            .addOnFailureListener { Toast.makeText(this, "Failed to Add Delivery", Toast.LENGTH_SHORT).show() }
+    }
     private fun updateProductAndWeightOptions(selectedVehicle: String) {
         val productTypes = vehicleProductMap[selectedVehicle] ?: emptyList()
         val weights = vehicleWeightMap[selectedVehicle] ?: emptyList()
@@ -126,31 +182,4 @@ class AddDeliveryActivity : AppCompatActivity() {
         weightSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("Select Weight") + weights)
     }
 
-    private fun saveDeliveryToFirestore(vehicleType: String, productType: String, weight: String) {
-        val deliveryId = firestore.collection("deliveries").document().id
-
-        val deliveryItem = Delivery(
-            id = deliveryId,
-            pickupLocation = "Unknown",
-            provincePickup = "Unknown",
-            destination = "Unknown",
-            provinceDestination = "Unknown",
-            estimatedTime = "Unknown",
-            totalCost = "₱0",
-            profileImage = "",
-            truckType = vehicleType,
-            productType = productType,
-            weight = weight,
-            timestamp = Timestamp.now()
-        )
-
-        firestore.collection("deliveries").document(deliveryId)
-            .set(deliveryItem)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Delivery Added Successfully!", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to Add Delivery", Toast.LENGTH_SHORT).show()
-            }
-    }
 }
