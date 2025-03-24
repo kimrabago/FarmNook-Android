@@ -6,12 +6,15 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.RatingBar
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.auth.ChangePasswordActivity
 import com.ucb.capstone.farmnook.ui.auth.DeleteAccountActivity
@@ -20,6 +23,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var database: FirebaseFirestore
+    private lateinit var profileImage: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +31,7 @@ class ProfileActivity : AppCompatActivity() {
 
         firebaseAuth = FirebaseAuth.getInstance()
         database = FirebaseFirestore.getInstance()
+        profileImage = findViewById(R.id.profileImage)
 
         val backButton = findViewById<ImageButton>(R.id.btn_back)
         backButton.setOnClickListener {
@@ -67,13 +72,13 @@ class ProfileActivity : AppCompatActivity() {
         val userId = firebaseAuth.currentUser?.uid ?: return
 
         // First, check if the user exists in the "farmers" collection
-        database.collection("farmers").document(userId).get()
+        database.collection("farmers").document(userId).get(Source.CACHE)
             .addOnSuccessListener { farmerDocument ->
                 if (farmerDocument.exists()) {
                     updateUI(farmerDocument, "farmer")
                 } else {
                     // If not found, check in the "users_business_admin" collection
-                    database.collection("users_business_admin").document(userId).get()
+                    database.collection("users_business_admin").document(userId).get(Source.CACHE)
                         .addOnSuccessListener { adminDocument ->
                             if (adminDocument.exists()) {
                                 updateUI(adminDocument, "business_admin")
@@ -87,19 +92,23 @@ class ProfileActivity : AppCompatActivity() {
             }
             .addOnFailureListener { it.printStackTrace() }
     }
-
     private fun updateUI(document: DocumentSnapshot, userType: String) {
         val firstName = document.getString("firstName") ?: "User"
         val lastName = document.getString("lastName") ?: ""
         val email = document.getString("email") ?: ""
         val phoneNumber = document.getString("phoneNum") ?: ""
         val dateJoined = document.getString("dateJoined") ?: ""
+        // **Fetch profile image URL**
+        val profileImageUrl = document.getString("profileImageUrl")
+
 
         val fullNameTextView: TextView = findViewById(R.id.fullName)
         val emailTextView: TextView = findViewById(R.id.email)
         val phoneNumTextView: TextView = findViewById(R.id.phone_num)
         val dateJoinedTextView: TextView = findViewById(R.id.dateJoined)
         val companyNameTextView: TextView = findViewById(R.id.companyName)
+        val ratingBar: RatingBar = findViewById(R.id.ratingBar)
+        val ratingValue: TextView = findViewById(R.id.ratingValue)
 
         fullNameTextView.text = "$firstName $lastName"
         emailTextView.text = email
@@ -111,8 +120,25 @@ class ProfileActivity : AppCompatActivity() {
             val companyName = document.getString("companyName") ?: ""
             companyNameTextView.text = companyName
             companyNameTextView.visibility = View.VISIBLE
+            ratingBar.visibility = View.VISIBLE
+            ratingValue.visibility = View.VISIBLE
         } else {
             companyNameTextView.visibility = View.GONE
+            ratingBar.visibility = View.GONE
+            ratingValue.visibility = View.GONE
+        }
+
+        if (!profileImageUrl.isNullOrEmpty()) {
+            // **Load image using Glide**
+            Glide.with(this)
+                .load(profileImageUrl)
+                .override(100, 100)
+                .placeholder(R.drawable.profile_circle) // Placeholder while loading
+                .error(R.drawable.profile_circle) // Error image if failed
+                .into(profileImage)
+        } else {
+            // Set default profile image if no image is found
+            profileImage.setImageResource(R.drawable.profile_circle)
         }
     }
 
