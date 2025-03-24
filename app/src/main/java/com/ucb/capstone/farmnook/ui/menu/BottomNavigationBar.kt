@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -133,7 +134,6 @@ class BottomNavigationBar : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun fetchUserData() {
         val userId = firebaseAuth.currentUser?.uid ?: return
-
         val farmersRef = database.collection("farmers").document(userId)
         val adminRef = database.collection("users_business_admin").document(userId)
 
@@ -142,18 +142,22 @@ class BottomNavigationBar : AppCompatActivity() {
                 val firstName = farmerDoc.getString("firstName") ?: "User"
                 val lastName = farmerDoc.getString("lastName") ?: ""
                 val fullName = "$firstName $lastName"
+                val dateJoined = farmerDoc.getString("dateJoined") ?: ""
+                val profileImageUrl = farmerDoc.getString("profileImageUrl")
 
-                userType = "farmer" // ✅ Set userType to "farmer"
-                updateUI(fullName, farmerDoc.getString("dateJoined") ?: "")
+                userType = "farmer"
+                updateUI(fullName, dateJoined, profileImageUrl)
             } else {
                 adminRef.get().addOnSuccessListener { adminDoc ->
                     if (adminDoc.exists()) {
                         val firstName = adminDoc.getString("firstName") ?: "User"
                         val lastName = adminDoc.getString("lastName") ?: ""
                         val fullName = "$firstName $lastName"
+                        val dateJoined = adminDoc.getString("dateJoined") ?: ""
+                        val profileImageUrl = adminDoc.getString("profileImageUrl")
 
-                        userType = "Business Admin" // ✅ Set userType to "Business Admin"
-                        updateUI(fullName, adminDoc.getString("dateJoined") ?: "")
+                        userType = "Business Admin"
+                        updateUI(fullName, dateJoined, profileImageUrl)
                     } else {
                         Log.e("FirestoreDebug", "User not found in both collections.")
                     }
@@ -167,12 +171,28 @@ class BottomNavigationBar : AppCompatActivity() {
     }
 
     // ✅ Separate function to update UI
-    private fun updateUI(fullName: String, dateJoined: String) {
+    private fun updateUI(fullName: String, dateJoined: String, profileImageUrl: String?) {
         val formattedDate = formatDateJoined(dateJoined)
 
         val headerView: View = navigationView.getHeaderView(0)
-        headerView.findViewById<TextView>(R.id.full_name).text = fullName
-        headerView.findViewById<TextView>(R.id.member_since).text = "Member Since: $formattedDate"
+        val profileImage = headerView.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
+        val fullNameTextView = headerView.findViewById<TextView>(R.id.full_name)
+        val memberSinceTextView = headerView.findViewById<TextView>(R.id.member_since)
+
+        fullNameTextView.text = fullName
+        memberSinceTextView.text = "Member Since: $formattedDate"
+
+        // **Load profile image using Glide**
+        if (!profileImageUrl.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(profileImageUrl)
+                .override(100, 100)
+                .placeholder(R.drawable.profile_circle) // Placeholder while loading
+                .error(R.drawable.profile_circle) // Error image if loading fails
+                .into(profileImage)
+        } else {
+            profileImage.setImageResource(R.drawable.profile_circle)
+        }
 
         // Show subscription menu only for Business Admin
         val menu = navigationView.menu
@@ -181,7 +201,7 @@ class BottomNavigationBar : AppCompatActivity() {
 
         Log.d("FirestoreDebug", "Fetched userType: $userType")
 
-        // ✅ Now call resetToDashboard() since userType is updated
+        // ✅ Reset dashboard after updating UI
         resetToDashboard()
     }
 

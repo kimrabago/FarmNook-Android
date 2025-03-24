@@ -11,17 +11,17 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:layout_marginTop="5dp">
+        android:layout_marginTop="5dp"
+        android:padding="6dp">
 
         <ImageButton
             android:id="@+id/btn_back"
             android:layout_width="50dp"
             android:layout_height="40dp"
-            android:background="@null"
-            android:src="@drawable/back_arrow"
             android:layout_alignParentStart="true"
-            android:contentDescription="@string/back_button"/>
+            android:background="@null"
+            android:contentDescription="@string/back_button"
+            android:src="@drawable/back_arrow" />
 
         <TextView
             android:id="@+id/profile_title"
@@ -46,13 +46,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/profileImage"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:contentDescription="@string/profile_icon"
-            android:src="@drawable/profile_circle"
-            android:layout_marginStart="3dp"/>
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImage"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:src="@drawable/profile_circle"
+                android:layout_marginStart="5dp"/>
 
         <RatingBar
             android:id="@+id/ratingBar"

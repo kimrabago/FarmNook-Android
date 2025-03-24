@@ -59,6 +59,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.android.gms:play-services-auth:20.5.0")
+    // Update Firebase Storage version here
+    implementation("com.google.firebase:firebase-storage:20.3.0")
+
 
     //Mapbox SDK
     implementation("com.mapbox.maps:android:11.9.2")
