@@ -34,11 +34,6 @@
         android:layout_marginHorizontal="24dp"
         android:completionThreshold="1"  />
 
-    
-    <ListView
-        android:id="@+id/search_results_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
     <Button
         android:id="@+id/confirm_button"
         android:layout_width="0dp"

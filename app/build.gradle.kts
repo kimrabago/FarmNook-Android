@@ -62,7 +62,6 @@ dependencies {
     // Update Firebase Storage version here
     implementation("com.google.firebase:firebase-storage:20.3.0")
 
-
     //Mapbox SDK
     implementation("com.mapbox.maps:android:11.9.2")
     implementation("androidx.annotation:annotation:1.9.1")
@@ -73,6 +72,8 @@ dependencies {
     implementation("com.mapbox.search:place-autocomplete:2.7.0")
     implementation("com.mapbox.search:mapbox-search-android:2.7.0")
     implementation("com.mapbox.search:offline:2.7.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     implementation("de.hdodenhof:circleimageview:3.1.0") // For Circular Profile Image
 
