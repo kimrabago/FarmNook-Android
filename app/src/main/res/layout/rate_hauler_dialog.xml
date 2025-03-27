@@ -29,7 +29,7 @@
         android:textSize="20sp"
         android:fontFamily="@font/poppins_bold"
         android:textColor="@color/dark_green"
-        android:layout_margin="15dp"/>
+        android:layout_margin="10dp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
         android:fontFamily="@font/poppins"
         android:textColor="@color/dark_green"
         android:gravity="center"
-        android:layout_margin="15dp"/>
+        android:layout_margin="5dp"/>
 
     <RatingBar
         android:id="@+id/ratingBar"
@@ -54,7 +54,15 @@
         android:secondaryProgressTint="@color/dark_green"
         android:layout_gravity="center"
         android:theme="@style/Widget.AppCompat.RatingBar"
-        android:layout_margin="15dp"/>
+        android:layout_margin="10dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:text="You can also give feedback to let us know!"
+        android:textColor="@color/black"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"/>
 
     <Button
         android:id="@+id/rate_button"

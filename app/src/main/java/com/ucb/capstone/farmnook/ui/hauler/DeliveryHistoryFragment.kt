@@ -16,7 +16,6 @@ class DeliveryHistoryFragment : Fragment() {
     private lateinit var menuBurger: ImageView
     private lateinit var drawerLayout: DrawerLayout
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

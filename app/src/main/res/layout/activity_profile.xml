@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ui.settings.ProfileActivity">
 
     <RelativeLayout
@@ -51,181 +51,181 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_gravity="center"
-                android:src="@drawable/profile_circle"
-                android:layout_marginStart="5dp"/>
+                android:layout_marginStart="5dp"
+                android:src="@drawable/profile_circle" />
 
-        <RatingBar
-            android:id="@+id/ratingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:rating="4.9"
-            android:isIndicator="false"
-            android:progressTint="@color/dark_green"
-            android:secondaryProgressTint="@color/dark_green"
-            android:layout_marginStart="5dp"
-            android:layout_below="@id/profileImage"
-            android:theme="@style/Widget.AppCompat.RatingBar" />
+            <RatingBar
+                android:id="@+id/ratingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/profileImage"
+                android:layout_marginStart="5dp"
+                android:isIndicator="false"
+                android:numStars="5"
+                android:progressTint="@color/dark_green"
+                android:rating="4.9"
+                android:secondaryProgressTint="@color/dark_green"
+                android:stepSize="0.5"
+                android:theme="@style/Widget.AppCompat.RatingBar" />
 
-        <TextView
-            android:id="@+id/ratingValue"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="@string/ratings_count"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="5dp"
-            android:layout_below="@id/ratingBar"
-            android:gravity="center"/>
+            <TextView
+                android:id="@+id/ratingValue"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ratingBar"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:text="@string/ratings_count"
+                android:textColor="@android:color/black"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/fullName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_toEndOf="@id/profileImage"
                 android:fontFamily="@font/dm_sans_bold"
                 android:text="@string/user_name"
                 android:textColor="@color/black"
-                android:layout_marginStart="10dp"
                 android:textSize="20sp"
-                android:layout_toEndOf="@id/profileImage"
-                android:layout_marginTop="20dp"
                 tools:ignore="RelativeOverlap" />
 
             <TextView
                 android:id="@+id/companyName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/fullName"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@id/profileImage"
                 android:fontFamily="@font/dm_sans_medium"
                 android:text="@string/company_name"
                 android:textColor="@color/black"
-                android:layout_marginStart="10dp"
                 android:textSize="16sp"
-                android:layout_toEndOf="@id/profileImage"
-                android:layout_below="@+id/fullName"
                 tools:ignore="RelativeOverlap" />
 
             <ImageView
                 android:id="@+id/edit_profile_btn"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/new_msg"
-                android:contentDescription="@string/edit_profile"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="20dp"/>
+                android:layout_marginTop="20dp"
+                android:contentDescription="@string/edit_profile"
+                android:src="@drawable/new_msg" />
         </RelativeLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:fontFamily="@font/dm_sans_bold"
             android:text="@string/email_address"
-            android:textSize="18sp"
             android:textColor="@color/black"
-            android:fontFamily="@font/dm_sans_bold"/>
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/email"
-            android:textSize="18sp"
-            android:fontFamily="@font/dm_sans_medium"
-            android:padding="12dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/register_rounded_box"
-            android:layout_marginTop="8dp" />
+            android:fontFamily="@font/dm_sans_medium"
+            android:hint="@string/email"
+            android:padding="12dp"
+            android:textSize="18sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:fontFamily="@font/dm_sans_bold"
             android:text="@string/phone_number"
-            android:textSize="18sp"
             android:textColor="@color/black"
-            android:fontFamily="@font/dm_sans_bold"/>
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/phone_num"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/phone_number"
-            android:textSize="18sp"
-            android:fontFamily="@font/dm_sans_medium"
-            android:padding="12dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/register_rounded_box"
-            android:layout_marginTop="8dp" />
+            android:fontFamily="@font/dm_sans_medium"
+            android:hint="@string/phone_number"
+            android:padding="12dp"
+            android:textSize="18sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:fontFamily="@font/dm_sans_bold"
             android:text="@string/date_joined"
-            android:textSize="18sp"
             android:textColor="@color/black"
-            android:fontFamily="@font/dm_sans_bold"/>
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/dateJoined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/date_joined"
-            android:textSize="18sp"
-            android:fontFamily="@font/dm_sans_medium"
-            android:padding="12dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/register_rounded_box"
-            android:layout_marginTop="8dp" />
+            android:fontFamily="@font/dm_sans_medium"
+            android:hint="@string/date_joined"
+            android:padding="12dp"
+            android:textSize="18sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:fontFamily="@font/dm_sans_bold"
             android:text="@string/location_textview"
-            android:textSize="18sp"
             android:textColor="@color/black"
-            android:fontFamily="@font/dm_sans_bold"/>
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/location_textview"
-            android:textSize="18sp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/register_rounded_box"
             android:fontFamily="@font/dm_sans_medium"
             android:padding="12dp"
-            android:background="@drawable/register_rounded_box"
-            android:layout_marginTop="8dp" />
+            android:text="@string/location_textview"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/change_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
             android:background="@drawable/register_rounded_box"
             android:drawableEnd="@drawable/right_arrow"
             android:drawableTint="@color/dark_green"
             android:fontFamily="@font/dm_sans_bold"
-            android:textSize="18sp"
             android:text="@string/change_password"
+            android:textAlignment="textStart"
             android:textAllCaps="false"
-            android:layout_marginTop="25dp"
             android:textColor="@color/black"
-            android:textAlignment="textStart"/>
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/delete_account"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
             android:background="@drawable/register_rounded_box"
             android:drawablePadding="20dp"
             android:drawableTint="@color/dark_green"
             android:fontFamily="@font/dm_sans_bold"
-            android:layout_marginTop="15dp"
             android:padding="12dp"
-            android:textSize="18sp"
             android:text="@string/delete_account"
+            android:textAlignment="textStart"
             android:textAllCaps="false"
             android:textColor="@color/red"
-            android:textAlignment="textStart"/>
+            android:textSize="18sp" />
     </LinearLayout>
 </LinearLayout>
