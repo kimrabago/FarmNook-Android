@@ -38,15 +38,13 @@ class EditProfileActivity : AppCompatActivity() {
     private var projectImageUri: Uri? = null
     private var selectedFileName: String? = null
 
-    private var userCollection: String = ""  // Store the correct collection name
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
         firebaseAuth = FirebaseAuth.getInstance()
         database = FirebaseFirestore.getInstance()
-        profileImage = findViewById(R.id.profileImage)
+        storageReference = FirebaseStorage.getInstance().reference
 
         firstNameEditText = findViewById(R.id.first_name)
         lastNameEditText = findViewById(R.id.last_name)
@@ -54,11 +52,12 @@ class EditProfileActivity : AppCompatActivity() {
         phoneNumEditText = findViewById(R.id.phone_num)
         companyNameEditText = findViewById(R.id.company_name)
         saveButton = findViewById(R.id.save_profile_btn)
-
-        storageReference = FirebaseStorage.getInstance().reference
+        profileImage = findViewById(R.id.profileImage)
 
         val backButton = findViewById<ImageButton>(R.id.btn_back)
-        backButton.setOnClickListener { finish() }
+        backButton.setOnClickListener {
+            finish()
+        }
 
         profileImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -67,7 +66,9 @@ class EditProfileActivity : AppCompatActivity() {
 
         fetchUserData()
 
-        saveButton.setOnClickListener { saveProfileChanges() }
+        saveButton.setOnClickListener {
+            saveProfileChanges()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -104,116 +105,91 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     private fun fetchUserData() {
-        val userId = firebaseAuth.currentUser?.uid ?: return
+        val userId = firebaseAuth.currentUser?.uid
+        if (userId != null) {
+            database.collection("users").document(userId).get(Source.CACHE)
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        firstNameEditText.setText(document.getString("firstName") ?: "User")
+                        lastNameEditText.setText(document.getString("lastName") ?: "")
+                        emailEditText.setText(document.getString("email") ?: "")
+                        phoneNumEditText.setText(document.getString("phoneNum") ?: "")
 
-        database.collection("farmers").document(userId).get(Source.CACHE)
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    userCollection = "farmers"  // Set correct collection
-                    loadProfileData(document)
-                } else {
-                    database.collection("users_business_admin").document(userId).get()
-                        .addOnSuccessListener { adminDocument ->
-                            if (adminDocument.exists()) {
-                                userCollection = "users_business_admin"  // Set correct collection
-                                loadProfileData(adminDocument)
-                            }
+                        val userType = document.getString("userType") ?: ""
+                        val companyName = document.getString("companyName") ?: ""
+
+                        if (userType == "Business Admin") {
+                            companyNameEditText.visibility = View.VISIBLE
+                            companyNameEditText.setText(companyName)
+                        } else {
+                            companyNameEditText.visibility = View.GONE
                         }
-                        .addOnFailureListener { exception ->
-                            exception.printStackTrace()
-                            Toast.makeText(this, "Failed to load profile data", Toast.LENGTH_SHORT).show()
+
+                        // **Fetch profile image URL**
+                        val profileImageUrl = document.getString("profileImageUrl")
+
+                        if (!profileImageUrl.isNullOrEmpty()) {
+                            // **Load image using Glide**
+                            Glide.with(this)
+                                .load(profileImageUrl)
+                                .override(100, 100)
+                                .placeholder(R.drawable.profile_circle) // Placeholder while loading
+                                .error(R.drawable.profile_circle) // Error image if failed
+                                .into(profileImage)
+                        } else {
+                            // Set default profile image if no image is found
+                            profileImage.setImageResource(R.drawable.profile_circle)
                         }
-                }
-            }
-            .addOnFailureListener { exception ->
-                exception.printStackTrace()
-                Toast.makeText(this, "Failed to load profile data", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun loadProfileData(document: DocumentSnapshot) {
-        firstNameEditText.setText(document.getString("firstName") ?: "")
-        lastNameEditText.setText(document.getString("lastName") ?: "")
-        emailEditText.setText(document.getString("email") ?: "")
-        phoneNumEditText.setText(document.getString("phoneNum") ?: "")
-
-        if (userCollection == "users_business_admin") {
-            companyNameEditText.visibility = View.VISIBLE
-            companyNameEditText.setText(document.getString("companyName") ?: "")
-        } else {
-            companyNameEditText.visibility = View.GONE
-        }
-
-        // **Fetch profile image URL**
-        val profileImageUrl = document.getString("profileImageUrl")
-
-        if (!profileImageUrl.isNullOrEmpty()) {
-            // **Load image using Glide**
-            Glide.with(this)
-                .load(profileImageUrl)
-                .override(100, 100)
-                .placeholder(R.drawable.profile_circle) // Placeholder while loading
-                .error(R.drawable.profile_circle) // Error image if failed
-                .into(profileImage)
-        } else {
-            // Set default profile image if no image is found
-            profileImage.setImageResource(R.drawable.profile_circle)
-        }
-    }
-
-    private fun saveProfileChanges() {
-        val userId = firebaseAuth.currentUser?.uid ?: return
-
-        if (userCollection.isEmpty()) {
-            Toast.makeText(this, "Error: User type not identified", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val updatedData = mutableMapOf<String, Any>(
-            "firstName" to firstNameEditText.text.toString().trim(),
-            "lastName" to lastNameEditText.text.toString().trim(),
-            "phoneNum" to phoneNumEditText.text.toString().trim()
-        )
-
-        if (userCollection == "users_business_admin") {
-            updatedData["companyName"] = companyNameEditText.text.toString().trim()
-        }
-
-        // Determine correct folder based on user type
-        val folder = if (userCollection == "farmers") "farmers" else "haulers"
-        val fileName = selectedFileName ?: "$userId.jpg"  // Use selected filename or default
-
-        val imageRef = storageReference.child("profileImages/$folder/$fileName")
-
-        if (projectImageUri != null) {
-            // Upload the image
-            imageRef.putFile(projectImageUri!!)
-                .addOnSuccessListener {
-                    imageRef.downloadUrl.addOnSuccessListener { uri ->
-                        updatedData["profileImageUrl"] = uri.toString()
-                        updateFirestoreData(userId, updatedData)
                     }
                 }
                 .addOnFailureListener { exception ->
                     exception.printStackTrace()
-                    Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Failed to load profile data", Toast.LENGTH_SHORT).show()
                 }
-        } else {
-            updateFirestoreData(userId, updatedData)
         }
     }
 
+    private fun saveProfileChanges() {
+        val userId = firebaseAuth.currentUser?.uid
+        if (userId != null) {
+            val userDocRef = database.collection("users").document(userId)
 
-    private fun updateFirestoreData(userId: String, updatedData: Map<String, Any>) {
-        database.collection(userCollection).document(userId).update(updatedData)
-            .addOnSuccessListener {
+            if (projectImageUri != null) {
+                val fileName = selectedFileName ?: "$userId.jpg"
+                val imageRef = storageReference.child("profileImages/$userId/$fileName")
+
+                imageRef.putFile(projectImageUri!!)
+                    .addOnSuccessListener {
+                        imageRef.downloadUrl.addOnSuccessListener { uri ->
+                            userDocRef.update("profileImageUrl", uri.toString())
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Profile image updated!", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { exception ->
+                                    exception.printStackTrace()
+                                    Toast.makeText(this, "Failed to update image URL", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        exception.printStackTrace()
+                        Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
+                    }
+            }
+
+            userDocRef.update(
+                "firstName", firstNameEditText.text.toString(),
+                "lastName", lastNameEditText.text.toString(),
+                "email", emailEditText.text.toString(),
+                "phoneNum", phoneNumEditText.text.toString(),
+                "companyName", if (companyNameEditText.visibility == View.VISIBLE) companyNameEditText.text.toString() else ""
+            ).addOnSuccessListener {
                 Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
                 finish()
-            }
-            .addOnFailureListener { exception ->
+            }.addOnFailureListener { exception ->
                 exception.printStackTrace()
                 Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show()
             }
+        }
     }
 }
-
