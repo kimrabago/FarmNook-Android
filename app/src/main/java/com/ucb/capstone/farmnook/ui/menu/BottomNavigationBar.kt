@@ -134,75 +134,54 @@ class BottomNavigationBar : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun fetchUserData() {
         val userId = firebaseAuth.currentUser?.uid ?: return
-        val farmersRef = database.collection("farmers").document(userId)
-        val adminRef = database.collection("users_business_admin").document(userId)
 
-        farmersRef.get().addOnSuccessListener { farmerDoc ->
-            if (farmerDoc.exists()) {
-                val firstName = farmerDoc.getString("firstName") ?: "User"
-                val lastName = farmerDoc.getString("lastName") ?: ""
-                val fullName = "$firstName $lastName"
-                val dateJoined = farmerDoc.getString("dateJoined") ?: ""
-                val profileImageUrl = farmerDoc.getString("profileImageUrl")
+        database.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val profileImageUrl = document.getString("profileImageUrl")
+                    val firstName = document.getString("firstName") ?: "User"
+                    val lastName = document.getString("lastName") ?: ""
+                    val fullName = "$firstName $lastName"
 
-                userType = "farmer"
-                updateUI(fullName, dateJoined, profileImageUrl)
-            } else {
-                adminRef.get().addOnSuccessListener { adminDoc ->
-                    if (adminDoc.exists()) {
-                        val firstName = adminDoc.getString("firstName") ?: "User"
-                        val lastName = adminDoc.getString("lastName") ?: ""
-                        val fullName = "$firstName $lastName"
-                        val dateJoined = adminDoc.getString("dateJoined") ?: ""
-                        val profileImageUrl = adminDoc.getString("profileImageUrl")
+                    userType = document.getString("userType") ?: "farmer" // ✅ Fetch userType dynamically
+                    Log.d("FirestoreDebug", "Fetched userType: $userType") // Debug log
 
-                        userType = "Business Admin"
-                        updateUI(fullName, dateJoined, profileImageUrl)
+                    val dateJoined = document.getString("dateJoined") ?: ""
+                    val formattedDate = formatDateJoined(dateJoined)
+
+                    val headerView: View = navigationView.getHeaderView(0)
+                    headerView.findViewById<TextView>(R.id.full_name).text = fullName
+                    headerView.findViewById<TextView>(R.id.member_since).text = "Member Since: $formattedDate"
+
+                    val profileImage = headerView.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
+
+                    if (!profileImageUrl.isNullOrEmpty()) {
+                        Glide.with(this)
+                            .load(profileImageUrl)
+                            .override(100, 100)
+                            .placeholder(R.drawable.profile_circle) // Placeholder while loading
+                            .error(R.drawable.profile_circle) // Error image if loading fails
+                            .into(profileImage)
                     } else {
-                        Log.e("FirestoreDebug", "User not found in both collections.")
+                        profileImage.setImageResource(R.drawable.profile_circle)
                     }
-                }.addOnFailureListener { exception ->
-                    exception.printStackTrace()
+
+                    val menu = navigationView.menu
+                    val subscriptionMenuItem = menu.findItem(R.id.subscription)
+                    subscriptionMenuItem.isVisible = userType == "Business Admin"
+
+
+
+                    Log.d("FirestoreDebug", "Fetched userType: $userType")
+                    // ✅ Now call resetToDashboard() since userType is updated
+                    Log.d("DashboardDebug", "userType at resetToDashboard: $userType")
+                    resetToDashboard()
+
                 }
             }
-        }.addOnFailureListener { exception ->
-            exception.printStackTrace()
-        }
-    }
-
-    // ✅ Separate function to update UI
-    private fun updateUI(fullName: String, dateJoined: String, profileImageUrl: String?) {
-        val formattedDate = formatDateJoined(dateJoined)
-
-        val headerView: View = navigationView.getHeaderView(0)
-        val profileImage = headerView.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
-        val fullNameTextView = headerView.findViewById<TextView>(R.id.full_name)
-        val memberSinceTextView = headerView.findViewById<TextView>(R.id.member_since)
-
-        fullNameTextView.text = fullName
-        memberSinceTextView.text = "Member Since: $formattedDate"
-
-        // **Load profile image using Glide**
-        if (!profileImageUrl.isNullOrEmpty()) {
-            Glide.with(this)
-                .load(profileImageUrl)
-                .override(100, 100)
-                .placeholder(R.drawable.profile_circle) // Placeholder while loading
-                .error(R.drawable.profile_circle) // Error image if loading fails
-                .into(profileImage)
-        } else {
-            profileImage.setImageResource(R.drawable.profile_circle)
-        }
-
-        // Show subscription menu only for Business Admin
-        val menu = navigationView.menu
-        val subscriptionMenuItem = menu.findItem(R.id.subscription)
-        subscriptionMenuItem.isVisible = userType == "Business Admin"
-
-        Log.d("FirestoreDebug", "Fetched userType: $userType")
-
-        // ✅ Reset dashboard after updating UI
-        resetToDashboard()
+            .addOnFailureListener { exception ->
+                exception.printStackTrace()
+            }
     }
 
 
@@ -218,6 +197,7 @@ class BottomNavigationBar : AppCompatActivity() {
             "N/A"
         }
     }
+
 
     override fun onSupportNavigateUp(): Boolean {
         return if (drawerLayout.isDrawerOpen(GravityCompat.START)) {

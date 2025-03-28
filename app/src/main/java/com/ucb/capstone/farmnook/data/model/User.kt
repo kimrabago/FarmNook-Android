@@ -5,9 +5,8 @@ class User(
     val firstName: String = "",
     val lastName: String = "",
     val email: String = "",
-    val pass: String = "",
     val userType: String = "",
-    val phoneNum: String = "",
+    val phoneNum: String? = null,
     val companyName: String? = null,
     val dateJoined: String = "",
     val profileImage: String? = null

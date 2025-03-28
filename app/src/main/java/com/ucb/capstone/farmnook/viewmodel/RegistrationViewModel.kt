@@ -23,9 +23,9 @@ class RegistrationViewModel : ViewModel() {
     private val _emailVerificationStatus = MutableLiveData<String>()
     val emailVerificationStatus: LiveData<String> = _emailVerificationStatus
 
-    fun registerUser(firstName: String, lastName: String, email: String, password: String, confirmPass: String, phoneNum: String, userType: String, companyName: String) {
+    fun registerUser(firstName: String, lastName: String, email: String, password: String, confirmPass: String, userType: String, companyName: String) {
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
-            password.isEmpty() || confirmPass.isEmpty() || phoneNum.isEmpty() || userType.isEmpty() ||
+            password.isEmpty() || confirmPass.isEmpty() || userType.isEmpty() ||
             (userType == "Business Admin" && companyName.isEmpty())) {
             _registrationStatus.value = "Please fill in all fields!"
             return
@@ -41,7 +41,7 @@ class RegistrationViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val user = firebaseAuth.currentUser
                     user?.let {
-                        sendEmailVerification(it, firstName, lastName, phoneNum, userType, companyName)
+                        sendEmailVerification(it, firstName, lastName, userType, companyName)
                     }
                 } else {
                     handleAuthError(task.exception?.message)
@@ -50,19 +50,19 @@ class RegistrationViewModel : ViewModel() {
     }
 
 
-    private fun sendEmailVerification(user: FirebaseUser, firstName: String, lastName: String, phoneNum: String, userType: String, companyName: String) {
+    private fun sendEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, companyName: String) {
         user.sendEmailVerification()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _emailVerificationStatus.value = "Verification email sent! Please check your inbox."
-                    checkEmailVerification(user, firstName, lastName, phoneNum, userType, companyName)
+                    checkEmailVerification(user, firstName, lastName, userType, companyName)
                 } else {
                     _emailVerificationStatus.value = "Failed to send verification email."
                 }
             }
     }
 
-    private fun checkEmailVerification(user: FirebaseUser, firstName: String, lastName: String, phoneNum: String, userType: String, companyName: String) {
+    private fun checkEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, companyName: String) {
         val handler = android.os.Handler()
         val runnable = object : Runnable {
             override fun run() {
@@ -75,9 +75,8 @@ class RegistrationViewModel : ViewModel() {
                         firstName = firstName,
                         lastName = lastName,
                         email = user.email ?: "",
-                        pass = hashedPassword,
                         userType = userType,
-                        phoneNum = phoneNum,
+                        phoneNum = null,
                         companyName = if (userType == "Business Admin") companyName else null, // ✅ Only store if Business Admin
                         dateJoined = getCurrentDate(),
                         profileImage = null
@@ -100,30 +99,17 @@ class RegistrationViewModel : ViewModel() {
             "firstName" to user.firstName,
             "lastName" to user.lastName,
             "email" to user.email,
-            "pass" to user.pass,
             "userType" to user.userType,
             "phoneNum" to user.phoneNum,
             "dateJoined" to user.dateJoined,
             "profileImage" to user.profileImage
         )
 
-        val collectionName = when (user.userType) {
-            "Business Admin" -> "users_business_admin"
-            "Farmer" -> "farmers"
-            else -> "" // Default collection
-        }
-
-        // Add business admins with vehicle set to 0 initially
         if (user.userType == "Business Admin") {
             userMap["companyName"] = user.companyName ?: ""
-            userMap["vehicles"] = "0" // Default vehicle count
-
-            // Generate a unique companyId if not provided
-            val companyId = database.collection("user_business_admin").document().id
-            userMap["companyId"] = companyId
         }
 
-        database.collection(collectionName).document(user.userId)
+        database.collection("users").document(user.userId)
             .set(userMap)
             .addOnSuccessListener {
                 _registrationStatus.value = "Registration successful! You can now log in."

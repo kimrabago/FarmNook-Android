@@ -42,33 +42,23 @@ class LoginViewModel : ViewModel() {
 
     fun getUserData(user: FirebaseUser?, onResult: (String?, String?, String?, String?) -> Unit) {
         user?.let {
-            val uid = it.uid
-            val farmersRef = database.collection("farmers").document(uid)
-            val adminRef = database.collection("users_business_admin").document(uid)
+            val userRef = database.collection("users").document(it.uid)
+            userRef.get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val firstName = document.getString("firstName")
+                        val lastName = document.getString("lastName")
+                        val email = document.getString("email")
+                        val userType = document.getString("userType") ?: "farmer" // Default to farmer
 
-            farmersRef.get().addOnSuccessListener { farmerDoc ->
-                if (farmerDoc.exists()) {
-                    val firstName = farmerDoc.getString("firstName")
-                    val lastName = farmerDoc.getString("lastName")
-                    val email = farmerDoc.getString("email")
-                    onResult(firstName, lastName, email, "farmer")
-                } else {
-                    adminRef.get().addOnSuccessListener { adminDoc ->
-                        if (adminDoc.exists()) {
-                            val firstName = adminDoc.getString("firstName")
-                            val lastName = adminDoc.getString("lastName")
-                            val email = adminDoc.getString("email")
-                            onResult(firstName, lastName, email, "business_admin")
-                        } else {
-                            onResult(null, null, null, null)
-                        }
-                    }.addOnFailureListener {
+                        onResult(firstName, lastName, email, userType)
+                    } else {
                         onResult(null, null, null, null)
                     }
                 }
-            }.addOnFailureListener {
-                onResult(null, null, null, null)
-            }
+                .addOnFailureListener {
+                    onResult(null, null, null, null)
+                }
         } ?: onResult(null, null, null, null)
     }
 }

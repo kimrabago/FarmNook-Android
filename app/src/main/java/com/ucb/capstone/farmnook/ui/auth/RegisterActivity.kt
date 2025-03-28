@@ -68,7 +68,6 @@ class RegisterActivity : AppCompatActivity() {
         val email = binding.etEmail.text.toString().trim()
         val password = binding.etPassword.text.toString()
         val confirmPass = binding.etConfirmPassword.text.toString()
-        val phoneNum = binding.phoneNumber.text.toString().trim()
 
         val userType = when (binding.rgUserType.checkedRadioButtonId) {
             R.id.rb_farmer -> "Farmer"
@@ -78,7 +77,7 @@ class RegisterActivity : AppCompatActivity() {
 
         val companyName = if (userType == "Business Admin") binding.etCompanyName.text.toString().trim() else ""
 
-        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, phoneNum, userType, companyName)
+        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, userType, companyName)
     }
 
     @SuppressLint("ClickableViewAccessibility")
