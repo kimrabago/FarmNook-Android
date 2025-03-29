@@ -6,25 +6,23 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
+import android.view.*
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
-import com.mapbox.geojson.Point
-import com.mapbox.maps.CameraOptions
-import com.mapbox.maps.MapView
-import com.mapbox.maps.plugin.locationcomponent.location
-import com.ucb.capstone.farmnook.ui.menu.BottomNavigationBar
 import com.ucb.capstone.farmnook.R
+import com.ucb.capstone.farmnook.ui.menu.BottomNavigationBar
+import android.content.Context
+import android.location.LocationManager
 
 class FarmerDashboardFragment : Fragment() {
 
@@ -32,28 +30,34 @@ class FarmerDashboardFragment : Fragment() {
     private lateinit var profileIcon: ImageView
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var addDeliveryBtn: Button
-    private lateinit var mapView: MapView
+    private lateinit var webView: WebView
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
-    private var isFirstLocationUpdate = true
     private var lastLocation: Location? = null
+    private var webViewLoaded = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val rootView = inflater.inflate(R.layout.fragment_farmer_dashboard, container, false)
 
-        // Initialize views
         menuBurger = rootView.findViewById(R.id.menu_burger)
         profileIcon = rootView.findViewById(R.id.profileImage)
         drawerLayout = requireActivity().findViewById(R.id.drawer_layout)
         addDeliveryBtn = rootView.findViewById(R.id.addDeliveryBtn)
-        mapView = rootView.findViewById(R.id.mapView)
+        webView = rootView.findViewById(R.id.webView)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
+        setupWebView()
+        setupClickListeners()
+
+        return rootView
+    }
+
+    private fun setupClickListeners() {
         menuBurger.setOnClickListener {
             if (!drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 drawerLayout.openDrawer(GravityCompat.START)
@@ -68,22 +72,38 @@ class FarmerDashboardFragment : Fragment() {
             val intent = Intent(requireContext(), AddDeliveryActivity::class.java)
             startActivity(intent)
         }
-
-        return rootView
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        checkPermissionsAndSetupLocation()
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupWebView() {
+        val settings: WebSettings = webView.settings
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                Log.d("WEBVIEW", "Page finished loading.")
+                webViewLoaded = true
+
+                // Only call if fragment is attached
+                if (isAdded && context != null) {
+                    checkPermissionsAndStartLocation()
+                } else {
+                    Log.w("WEBVIEW", "Fragment not attached — skipping location setup.")
+                }
+            }
+        }
+
+        webView.loadUrl("https://farmnook-web.vercel.app/maps")
     }
 
-    private fun checkPermissionsAndSetupLocation() {
+    private fun checkPermissionsAndStartLocation() {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // Request location permissions
             ActivityCompat.requestPermissions(
                 requireActivity(),
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -96,94 +116,77 @@ class FarmerDashboardFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun setupLocationUpdates() {
-        // Ensure GPS is enabled
-        if (!isGPSEnabled()) {
+        if (!isGPSEnabled(requireContext())) {
             Toast.makeText(requireContext(), "Please enable GPS!", Toast.LENGTH_LONG).show()
             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
             return
         }
 
-        // Request last known location
+        // Try last known location on resume
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            location?.let { updateMapLocation(it) }
+            if (location != null) {
+                lastLocation = location
+                Log.d("LOCATION", "Using last known location: ${location.latitude}, ${location.longitude}")
+                sendLocationToWebView(location.latitude, location.longitude)
+            } else {
+                Log.w("LOCATION", "lastLocation is null, waiting for updates...")
+            }
         }
 
-        // Define location request settings
-        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 20000) // 20 sec interval
-            .setMinUpdateDistanceMeters(10f)  // Minimum distance of 10m before update
-            .setMinUpdateIntervalMillis(20000) // 20 sec interval
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
+            .setMinUpdateDistanceMeters(1f)
+            .setMinUpdateIntervalMillis(10000)
             .build()
 
         locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                locationResult.locations.lastOrNull()?.let { location ->
-                    updateMapLocation(location)
+            override fun onLocationResult(result: LocationResult) {
+                val location = result.lastLocation
+                if (location != null) {
+                    lastLocation = location
+                    Log.d("LOCATION_CALLBACK", "Location update: ${location.latitude}, ${location.longitude}")
+                    sendLocationToWebView(location.latitude, location.longitude)
                 }
             }
         }
 
-        // Start requesting location updates
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
 
-    private fun isGPSEnabled(): Boolean {
-        val locationMode: Int = try {
-            Settings.Secure.getInt(requireContext().contentResolver, Settings.Secure.LOCATION_MODE)
-        } catch (e: Settings.SettingNotFoundException) {
-            0
-        }
-        return locationMode != Settings.Secure.LOCATION_MODE_OFF
+    private fun isGPSEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
-    private fun updateMapLocation(location: Location) {
-        // Ensure valid location
-        if (location.latitude == 0.0 && location.longitude == 0.0) {
-            Log.e("LocationUpdate", "Invalid GPS location received")
+    private fun sendLocationToWebView(lat: Double, lng: Double) {
+        if (!webViewLoaded) {
+            Log.w("WEBVIEW", "Not sending location — WebView not fully loaded.")
             return
         }
 
-        // Avoid unnecessary updates
-        if (lastLocation != null) {
-            val distance = location.distanceTo(lastLocation!!).toInt()
-            val speed = location.speed
-            val timeDifference = (location.time - lastLocation!!.time) / 1000
-
-            if (distance < 10 || speed < 0.5 || timeDifference < 5) {
-                return // Ignore small fluctuations
-            }
+        webView.post {
+            val js = "window.updateUserLocation($lat, $lng);"
+            Log.d("SEND_LOCATION", "Injecting JS: $js")
+            webView.evaluateJavascript(js, null)
         }
+    }
 
-        lastLocation = location // Store last known location
+    override fun onResume() {
+        super.onResume()
 
-        val userLocation = Point.fromLngLat(location.longitude, location.latitude)
-
-        // Set initial zoom level
-        val zoomLevel = if (isFirstLocationUpdate) {
-            isFirstLocationUpdate = false
-            20.0 // Set initial zoom to 15
-        } else {
-            mapView.getMapboxMap().cameraState.zoom // Maintain user zoom level
+        // Always try to re-send last location when user returns
+        lastLocation?.let {
+            sendLocationToWebView(it.latitude, it.longitude)
         }
-
-        // Move camera to user location
-        mapView.getMapboxMap().setCamera(
-            CameraOptions.Builder()
-                .center(userLocation)
-                .zoom(zoomLevel)
-                .build()
-        )
-
-        // Enable location tracking on Mapbox
-        mapView.location.updateSettings {
-            enabled = true
-            pulsingEnabled = true
-        }
-
-        Log.d("LocationUpdate", "Updated location: Lat: ${location.latitude}, Lng: ${location.longitude}")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        if (::locationCallback.isInitialized) {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        }
     }
 }
