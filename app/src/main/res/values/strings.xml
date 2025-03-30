@@ -151,12 +151,15 @@
     <string name="verify">Verify</string>
     <string name="enter_password_to_delete_your_account">Enter password to delete your account</string>
     <string name="farmnook_website_com"><u>farmnook-website.com</u></string>
-    <string name="visit_our_app">You have successfully registered as a Hauler! You can also log in to our website to manage your vehicles and drivers. Visit our app at</string>
+    <string name="visit_our_app">You have successfully registered as a Hauler Business! You can also log in to our website to manage your vehicles and drivers. Visit our app at</string>
     <string name="set_location">Set Location</string>
     <string name="business">Business</string>
     <string name="report">Report</string>
     <string name="logout">Logout</string>
     <string name="company_name">Company Name</string>
+    <string name="hauler_business">Hauler Business</string>
+    <string name="business_name">Business Name</string>
+    <string name="close">Close</string>
 
 
 </resources>
