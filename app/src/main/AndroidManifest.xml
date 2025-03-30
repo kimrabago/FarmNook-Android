@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -22,20 +21,24 @@
         android:theme="@style/Theme.FarmNook"
         tools:targetApi="31">
         <activity
-            android:name=".ui.farmer.LocationPickerActivity"
+            android:name=".ui.farmer.DeliveryOverviewActivity"
             android:exported="true">
 
         </activity>
+        <activity
+            android:name=".ui.farmer.AddDeliveryPage1Activity"
+            android:exported="true">
+
+        </activity>
+        <activity
+            android:name=".ui.farmer.LocationPickerActivity"
+            android:exported="true" />
         <activity
             android:name=".ui.message.MessageActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.message.NewMessageActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true" />
 
         <meta-data
             android:name="com.mapbox.token"

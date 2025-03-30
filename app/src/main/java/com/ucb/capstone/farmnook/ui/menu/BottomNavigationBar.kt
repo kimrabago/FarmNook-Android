@@ -106,7 +106,7 @@ class BottomNavigationBar : AppCompatActivity() {
     private fun resetToDashboard() {
         Log.d("DashboardDebug", "Resetting to Dashboard. userType: $userType")
         supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        val dashboardFragment: Fragment = if (userType == "Business Admin") {
+        val dashboardFragment: Fragment = if (userType == "Hauler Business Admin") {
             Log.d("DashboardDebug", "Loading HaulerDashboardFragment")
             HaulerDashboardFragment()
         } else {
@@ -168,7 +168,7 @@ class BottomNavigationBar : AppCompatActivity() {
 
                     val menu = navigationView.menu
                     val subscriptionMenuItem = menu.findItem(R.id.subscription)
-                    subscriptionMenuItem.isVisible = userType == "Business Admin"
+                    subscriptionMenuItem.isVisible = userType == "Hauler Business Admin"
 
 
 

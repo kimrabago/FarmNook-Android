@@ -11,35 +11,17 @@
         android:orientation="vertical"
         tools:ignore="UselessParent">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp">
-
-            <ImageButton
-                android:id="@+id/menu_burger"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@null"
-                android:src="@drawable/menu"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="5dp"
-                android:contentDescription="@string/back_button"/>
-
             <TextView
-                android:id="@+id/delHistoryTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/delivery_history"
-                android:fontFamily="@font/poppins_bold"
-                android:textColor="@color/dark_green"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="10dp"
-                android:layout_toEndOf="@id/menu_burger"
-                android:layout_centerVertical="true"/>
-        </RelativeLayout>
+            android:id="@+id/delHistoryTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delivery_history"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/dark_green"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"/>
 
         <RelativeLayout
             android:layout_width="match_parent"

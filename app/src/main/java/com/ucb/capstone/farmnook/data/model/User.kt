@@ -7,7 +7,5 @@ class User(
     val email: String = "",
     val userType: String = "",
     val phoneNum: String? = null,
-    val companyName: String? = null,
     val dateJoined: String = "",
-    val profileImage: String? = null
 )

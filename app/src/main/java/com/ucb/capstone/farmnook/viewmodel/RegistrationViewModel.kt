@@ -23,10 +23,10 @@ class RegistrationViewModel : ViewModel() {
     private val _emailVerificationStatus = MutableLiveData<String>()
     val emailVerificationStatus: LiveData<String> = _emailVerificationStatus
 
-    fun registerUser(firstName: String, lastName: String, email: String, password: String, confirmPass: String, userType: String, companyName: String) {
+    fun registerUser(firstName: String, lastName: String, email: String, password: String, confirmPass: String, userType: String, businessName: String) {
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
             password.isEmpty() || confirmPass.isEmpty() || userType.isEmpty() ||
-            (userType == "Business Admin" && companyName.isEmpty())) {
+            (userType == "Hauler Business Admin" && businessName.isEmpty())) {
             _registrationStatus.value = "Please fill in all fields!"
             return
         }
@@ -41,7 +41,7 @@ class RegistrationViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val user = firebaseAuth.currentUser
                     user?.let {
-                        sendEmailVerification(it, firstName, lastName, userType, companyName)
+                        sendEmailVerification(it, firstName, lastName, userType, businessName)
                     }
                 } else {
                     handleAuthError(task.exception?.message)
@@ -49,27 +49,24 @@ class RegistrationViewModel : ViewModel() {
             }
     }
 
-
-    private fun sendEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, companyName: String) {
+    private fun sendEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, businessName: String?) {
         user.sendEmailVerification()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _emailVerificationStatus.value = "Verification email sent! Please check your inbox."
-                    checkEmailVerification(user, firstName, lastName, userType, companyName)
+                    checkEmailVerification(user, firstName, lastName, userType, businessName)
                 } else {
                     _emailVerificationStatus.value = "Failed to send verification email."
                 }
             }
     }
 
-    private fun checkEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, companyName: String) {
+    private fun checkEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, businessName: String?) {
         val handler = android.os.Handler()
         val runnable = object : Runnable {
             override fun run() {
                 user.reload()
                 if (user.isEmailVerified) {
-                    val hashedPassword = hashPassword(user.email ?: "")
-
                     val userData = User(
                         userId = user.uid,
                         firstName = firstName,
@@ -77,12 +74,10 @@ class RegistrationViewModel : ViewModel() {
                         email = user.email ?: "",
                         userType = userType,
                         phoneNum = null,
-                        companyName = if (userType == "Business Admin") companyName else null, // ✅ Only store if Business Admin
-                        dateJoined = getCurrentDate(),
-                        profileImage = null
+                        dateJoined = getCurrentDate()
                     )
 
-                    saveUserToFirestore(userData)
+                    saveUserToFirestore(userData, if (userType == "Hauler Business Admin") businessName else null)
                 } else {
                     handler.postDelayed(this, 3000) // Check again after 3 seconds
                 }
@@ -93,7 +88,7 @@ class RegistrationViewModel : ViewModel() {
     }
 
 
-    private fun saveUserToFirestore(user: User) {
+    private fun saveUserToFirestore(user: User, businessName: String?) {
         val userMap = mutableMapOf(
             "userId" to user.userId,
             "firstName" to user.firstName,
@@ -102,11 +97,10 @@ class RegistrationViewModel : ViewModel() {
             "userType" to user.userType,
             "phoneNum" to user.phoneNum,
             "dateJoined" to user.dateJoined,
-            "profileImage" to user.profileImage
         )
 
-        if (user.userType == "Business Admin") {
-            userMap["companyName"] = user.companyName ?: ""
+        if (user.userType == "Hauler Business Admin") {
+            userMap["businessName"] = businessName
         }
 
         database.collection("users").document(user.userId)
@@ -117,11 +111,6 @@ class RegistrationViewModel : ViewModel() {
             .addOnFailureListener { e ->
                 _registrationStatus.value = "Failed to save user data: ${e.message}"
             }
-    }
-
-    private fun hashPassword(password: String): String {
-        val md = MessageDigest.getInstance("SHA-256")
-        return md.digest(password.toByteArray()).joinToString("") { "%02x".format(it) }
     }
 
     private fun getCurrentDate(): String {
