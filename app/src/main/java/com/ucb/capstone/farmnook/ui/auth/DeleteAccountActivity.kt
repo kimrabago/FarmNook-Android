@@ -17,7 +17,6 @@ class DeleteAccountActivity : AppCompatActivity() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var database: FirebaseFirestore
-    private var userCollection: String = ""  // Store the correct collection name
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,10 +26,14 @@ class DeleteAccountActivity : AppCompatActivity() {
         database = FirebaseFirestore.getInstance()
 
         val confirmDeleteButton = findViewById<Button>(R.id.btn_confirm_delete)
-        confirmDeleteButton.setOnClickListener { showPasswordDialog() }
+        confirmDeleteButton.setOnClickListener {
+            showPasswordDialog()
+        }
 
         val cancelButton = findViewById<Button>(R.id.btn_cancel_delete)
-        cancelButton.setOnClickListener { finish() }
+        cancelButton.setOnClickListener {
+            finish()
+        }
     }
 
     private fun showPasswordDialog() {
@@ -59,10 +62,11 @@ class DeleteAccountActivity : AppCompatActivity() {
 
         if (user != null && email != null) {
             val credential = EmailAuthProvider.getCredential(email, password)
+
             user.reauthenticate(credential)
                 .addOnSuccessListener {
                     Log.d("ReAuth", "User re-authenticated successfully.")
-                    determineUserCollection(user.uid)
+                    deleteUserAccount()
                 }
                 .addOnFailureListener { e ->
                     Log.e("ReAuth", "Re-authentication failed", e)
@@ -71,62 +75,38 @@ class DeleteAccountActivity : AppCompatActivity() {
         }
     }
 
-    private fun determineUserCollection(userId: String) {
-        database.collection("farmers").document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    userCollection = "farmers"
-                    deleteUserAccount(userId)
-                } else {
-                    database.collection("users_business_admin").document(userId).get()
-                        .addOnSuccessListener { adminDocument ->
-                            if (adminDocument.exists()) {
-                                userCollection = "users_business_admin"
-                                deleteUserAccount(userId)
-                            } else {
-                                Toast.makeText(this, "User not found in any collection", Toast.LENGTH_LONG).show()
-                            }
+    private fun deleteUserAccount() {
+        val user = firebaseAuth.currentUser
+        val userID = user?.uid
+
+        if (userID != null) {
+            // ✅ 1. Delete user data from Firestore
+            database.collection("users").document(userID)
+                .delete()
+                .addOnSuccessListener {
+                    Log.d("DeleteAccount", "User data deleted from Firestore")
+
+                    // ✅ 2. Delete user from Firebase Authentication
+                    user.delete()
+                        .addOnSuccessListener {
+                            Log.d("DeleteAccount", "User deleted from Authentication")
+                            Toast.makeText(this, "Account deleted successfully", Toast.LENGTH_SHORT).show()
+
+                            // ✅ Redirect to Login Activity after deletion
+                            val intent = Intent(this, LoginActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                            finish()
                         }
                         .addOnFailureListener { e ->
-                            Log.e("DeleteAccount", "Error finding user collection", e)
-                            Toast.makeText(this, "Error identifying user. Try again.", Toast.LENGTH_LONG).show()
+                            Log.e("DeleteAccount", "Failed to delete user from Authentication", e)
+                            Toast.makeText(this, "Account deletion failed. Please try again.", Toast.LENGTH_LONG).show()
                         }
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.e("DeleteAccount", "Error finding user collection", e)
-                Toast.makeText(this, "Error identifying user. Try again.", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    private fun deleteUserAccount(userId: String) {
-        if (userCollection.isEmpty()) {
-            Toast.makeText(this, "Error: User type not identified", Toast.LENGTH_SHORT).show()
-            return
+                .addOnFailureListener { e ->
+                    Log.e("DeleteAccount", "Failed to delete user data from Firestore", e)
+                    Toast.makeText(this, "Failed to delete account data. Try again.", Toast.LENGTH_LONG).show()
+                }
         }
-
-        database.collection(userCollection).document(userId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d("DeleteAccount", "User data deleted from Firestore")
-                firebaseAuth.currentUser?.delete()
-                    ?.addOnSuccessListener {
-                        Log.d("DeleteAccount", "User deleted from Authentication")
-                        Toast.makeText(this, "Account deleted successfully", Toast.LENGTH_SHORT).show()
-
-                        val intent = Intent(this, LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                        finish()
-                    }
-                    ?.addOnFailureListener { e ->
-                        Log.e("DeleteAccount", "Failed to delete user from Authentication", e)
-                        Toast.makeText(this, "Account deletion failed. Please try again.", Toast.LENGTH_LONG).show()
-                    }
-            }
-            .addOnFailureListener { e ->
-                Log.e("DeleteAccount", "Failed to delete user data from Firestore", e)
-                Toast.makeText(this, "Failed to delete account data. Try again.", Toast.LENGTH_LONG).show()
-            }
     }
 }

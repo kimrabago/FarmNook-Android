@@ -3,7 +3,7 @@
     android:id="@+id/dialog_root_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="35dp"
+    android:padding="30dp"
     android:layout_marginHorizontal="30dp"
     android:background="@color/dirty_white">
 
@@ -29,4 +29,16 @@
         android:layout_below="@id/description"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="5dp"/>
+
+    <Button
+        android:id="@+id/closeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:background="@drawable/green_rounded_button"
+        android:padding="8dp"
+        android:text="@string/close"
+        android:textColor="@android:color/white"
+        android:textSize="11sp"
+        android:layout_below="@id/websiteLink"
+        android:layout_centerInParent="true"/>
 </RelativeLayout>
