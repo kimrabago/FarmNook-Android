@@ -29,9 +29,9 @@ class HaulerAdapter(
         val hauler = haulerList[position]
 
         // Bind hauler data to UI elements in the RecyclerView item
-        holder.haulerName.text = hauler.name
-        holder.haulerRating.text = hauler.rating
-        holder.haulerPrice.text = hauler.price
+        holder.businessName.text = hauler.name
+        holder.vehicleModel.text = hauler.rating
+        holder.vehicleWeight.text = hauler.price
 
         // Availability logic
         if (hauler.isAvailable) {
@@ -52,10 +52,10 @@ class HaulerAdapter(
 
     class HaulerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val profileImage: CircleImageView = itemView.findViewById(R.id.profileImage)
-        val haulerName: TextView = itemView.findViewById(R.id.haulerName)
-        val haulerRating: TextView = itemView.findViewById(R.id.haulerRating)
-        val haulerPrice: TextView = itemView.findViewById(R.id.haulerPrice)
-        val statusButton: Button = itemView.findViewById(R.id.statusButton)
+        val businessName: TextView = itemView.findViewById(R.id.business_name)
+        val vehicleModel: TextView = itemView.findViewById(R.id.vehicle_model)
+        val vehicleWeight: TextView = itemView.findViewById(R.id.vehicle_weight)
+        val statusButton: Button = itemView.findViewById(R.id.available_button)
     }
 
     // Function to show the driver details dialog

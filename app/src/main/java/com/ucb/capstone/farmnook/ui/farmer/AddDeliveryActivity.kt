@@ -2,11 +2,9 @@ package com.ucb.capstone.farmnook.ui.farmer
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -14,11 +12,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.Delivery
 import java.util.*
 
+@Suppress("DEPRECATION")
 class AddDeliveryActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
@@ -27,7 +27,6 @@ class AddDeliveryActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     companion object {
-        private const val LOCATION_PICKER_REQUEST = 1
         private const val LOCATION_PERMISSION_REQUEST = 1001
     }
 
@@ -38,6 +37,7 @@ class AddDeliveryActivity : AppCompatActivity() {
     private var userLatitude: Double? = null
     private var userLongitude: Double? = null
 
+    // Maps
     private val vehicleProductMap = mapOf(
         "Small Farm Truck" to listOf("Vegetables", "Fruits", "Poultry", "Animal Feed"),
         "Medium Farm Truck" to listOf("Vegetables", "Fruits", "Grains", "Poultry", "Dairy Products"),
@@ -69,13 +69,14 @@ class AddDeliveryActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+
+
+        // Views
         val fromButton: LinearLayout = findViewById(R.id.fromButton)
         val toButton: LinearLayout = findViewById(R.id.toButton)
         fromLocation = findViewById(R.id.from_location)
         toLocation = findViewById(R.id.to_location)
-
-        fromButton.setOnClickListener { openLocationPicker("from") }
-        toButton.setOnClickListener { openLocationPicker("to") }
+        vehicleTypeSpinner = findViewById(R.id.vehicle_type_spinner)
 
         productTypeSpinner = findViewById(R.id.product_type_spinner)
         weightSpinner = findViewById(R.id.weight_spinner)
@@ -90,22 +91,39 @@ class AddDeliveryActivity : AppCompatActivity() {
             if (selectedVehicle == "Select Vehicle Type" || selectedProduct == "Select Product Type" || selectedWeight == "Select Weight") {
                 Toast.makeText(this, "Please select all options", Toast.LENGTH_SHORT).show()
             } else {
-                saveDeliveryToFirestore(selectedVehicle, selectedProduct, selectedWeight)
+                proceedToRecommendations(selectedVehicle, selectedProduct, selectedWeight)
             }
         }
 
-        findViewById<Button>(R.id.cancel_button).setOnClickListener {
-            finish()
-        }
+        findViewById<Button>(R.id.cancel_button).setOnClickListener { finish() }
 
         checkLocationPermissionAndFetch()
     }
 
-    private fun openLocationPicker(type: String) {
-        val intent = Intent(this, LocationPickerActivity::class.java).apply {
-            putExtra("location_type", type)
+    private fun proceedToRecommendations(vehicleType: String, productType: String, weight: String) {
+        val pickupCoordinates = if (userLatitude != null && userLongitude != null)
+            "${userLatitude},${userLongitude}" else "0.0,0.0"
+
+        //currentUserID
+        val farmerId = FirebaseAuth.getInstance().currentUser?.uid
+
+        val intent = Intent(this, RecommendationActivity::class.java).apply {
+            putExtra("pickupLocation", pickupCoordinates)
+            putExtra("destinationLocation", "10.331149791236012,123.9112171375494") // static for now
+            putExtra("vehicleType", vehicleType)
+            putExtra("productType", productType)
+            putExtra("farmerId", farmerId)
+            putExtra("weight", weight)
         }
-        startActivityForResult(intent, LOCATION_PICKER_REQUEST)
+        startActivity(intent)
+    }
+
+    private fun updateProductAndWeightOptions(selectedVehicle: String) {
+        val productTypes = vehicleProductMap[selectedVehicle] ?: emptyList()
+        val weights = vehicleWeightMap[selectedVehicle] ?: emptyList()
+
+        productTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("Select Product Type") + productTypes)
+        weightSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("Select Weight") + weights)
     }
 
     @SuppressLint("MissingPermission")
@@ -115,7 +133,7 @@ class AddDeliveryActivity : AppCompatActivity() {
                 userLatitude = location.latitude
                 userLongitude = location.longitude
                 val address = getAddressFromCoordinates(userLatitude!!, userLongitude!!)
-                fromLocation.text = address ?: "Lat: ${userLatitude}, Lng: ${userLongitude}"
+                fromLocation.text = address ?: "$userLatitude, $userLongitude"
             }
         }
     }
@@ -146,27 +164,4 @@ class AddDeliveryActivity : AppCompatActivity() {
             null
         }
     }
-
-    private fun saveDeliveryToFirestore(vehicleType: String, productType: String, weight: String) {
-        val deliveryItem = Delivery(
-            pickupLocation = fromLocation.text.toString(),
-            destination = toLocation.text.toString(),
-            truckType = vehicleType,
-            productType = productType,
-            weight = weight,
-            timestamp = Timestamp.now()
-        )
-
-        firestore.collection("deliveries").add(deliveryItem)
-            .addOnSuccessListener { Toast.makeText(this, "Delivery Added Successfully!", Toast.LENGTH_SHORT).show() }
-            .addOnFailureListener { Toast.makeText(this, "Failed to Add Delivery", Toast.LENGTH_SHORT).show() }
-    }
-    private fun updateProductAndWeightOptions(selectedVehicle: String) {
-        val productTypes = vehicleProductMap[selectedVehicle] ?: emptyList()
-        val weights = vehicleWeightMap[selectedVehicle] ?: emptyList()
-
-        productTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("Select Product Type") + productTypes)
-        weightSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("Select Weight") + weights)
-    }
-
 }

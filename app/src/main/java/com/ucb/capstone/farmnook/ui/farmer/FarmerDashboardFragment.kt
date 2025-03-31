@@ -95,7 +95,7 @@ class FarmerDashboardFragment : Fragment() {
             }
         }
 
-        webView.loadUrl("https://farmnook-web.vercel.app/maps")
+        webView.loadUrl("https://farmnook-web.vercel.app/maps?disablePicker=true")
     }
 
     private fun checkPermissionsAndStartLocation() {
