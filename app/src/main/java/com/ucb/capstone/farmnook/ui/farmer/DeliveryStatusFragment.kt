@@ -2,9 +2,6 @@ package com.ucb.capstone.farmnook.ui.farmer
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.ucb.capstone.farmnook.R
