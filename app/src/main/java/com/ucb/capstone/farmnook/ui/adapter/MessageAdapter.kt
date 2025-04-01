@@ -11,15 +11,12 @@ import com.ucb.capstone.farmnook.data.model.Message
 class MessageAdapter(private val messageList: List<Message>, private val currentUserId: String) :
     RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
         val view = if (viewType == 1)
             LayoutInflater.from(parent.context).inflate(R.layout.message_item_sent, parent, false)
         else
             LayoutInflater.from(parent.context).inflate(R.layout.message_item_received, parent, false)
         return MessageViewHolder(view)
-
-
     }
 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
@@ -36,5 +33,5 @@ class MessageAdapter(private val messageList: List<Message>, private val current
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val messageContentTextView: TextView = itemView.findViewById(R.id.messageContentTextView)
     }
-
 }
+
