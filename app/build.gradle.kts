@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ucb.eldroid.farmnook"
+    namespace = "com.ucb.capstone.farmnook"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ucb.eldroid.farmnook"
+        applicationId = "com.ucb.capstone.farmnook"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -59,10 +59,22 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.android.gms:play-services-auth:20.5.0")
+    // Update Firebase Storage version here
+    implementation("com.google.firebase:firebase-storage:20.3.0")
 
     //Mapbox SDK
     implementation("com.mapbox.maps:android:11.9.2")
     implementation("androidx.annotation:annotation:1.9.1")
+
+    // Search
+    implementation("com.mapbox.search:autofill:2.7.0")
+    implementation("com.mapbox.search:discover:2.7.0")
+    implementation("com.mapbox.search:place-autocomplete:2.7.0")
+    implementation("com.mapbox.search:mapbox-search-android:2.7.0")
+    implementation("com.mapbox.search:offline:2.7.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
     implementation("de.hdodenhof:circleimageview:3.1.0") // For Circular Profile Image
 
     implementation ("com.github.bumptech.glide:glide:4.15.1")
@@ -72,7 +84,7 @@ dependencies {
 configurations.all {
     resolutionStrategy.eachDependency {
         if (requested.group == "com.mapbox.maps") {
-            useVersion("11.9.1")
+            useVersion("11.9.2")
         }
     }
 }

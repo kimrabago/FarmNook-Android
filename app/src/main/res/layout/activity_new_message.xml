@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".views.message.NewMessageActivity">
+    tools:context=".ui.message.NewMessageActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -53,16 +53,18 @@
             android:layout_marginTop="15dp"
             android:layout_marginEnd="10dp"/>
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/searchContact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/type_username"
+            android:hint="Type hauler's name"
             android:background="@drawable/edit_text_border"
             android:padding="15dp"
             android:inputType="text"
             android:autofillHints="name"
-            android:layout_toEndOf="@id/toTextView"/>
+            android:layout_toEndOf="@id/toTextView"
+            android:completionThreshold="1"/> <!-- Show suggestions after 1 letter -->
+
 
         <TextView
             android:id="@+id/contactTxtView"

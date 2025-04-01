@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:padding="20dp"
     android:background="@color/cream"
-    tools:context=".views.farmer.DeliveryConfirmationActivity">
+    tools:context=".ui.farmer.DeliveryConfirmationActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"

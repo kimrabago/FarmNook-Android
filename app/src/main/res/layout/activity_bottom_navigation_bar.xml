@@ -5,7 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.menu.BottomNavigationBar">
+    tools:context=".ui.menu.BottomNavigationBar">
 
     <!-- Main Content Layout -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/drawer_navigation_hauler"
+        app:menu="@menu/drawer_navigation"
         app:headerLayout="@layout/nav_header"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>

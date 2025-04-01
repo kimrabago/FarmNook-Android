@@ -32,7 +32,7 @@
             android:paddingEnd="12dp">
 
             <TextView
-                android:id="@+id/haulerName"
+                android:id="@+id/business_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/user_name"
@@ -42,7 +42,7 @@
                 android:fontFamily="@font/dm_sans_medium"/>
 
             <TextView
-                android:id="@+id/haulerRating"
+                android:id="@+id/vehicle_model"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ratings"
@@ -57,7 +57,7 @@
             android:gravity="center">
 
             <TextView
-                android:id="@+id/haulerPrice"
+                android:id="@+id/vehicle_weight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/price"
@@ -67,7 +67,7 @@
                 android:fontFamily="@font/dm_sans_medium"/>
 
             <Button
-                android:id="@+id/statusButton"
+                android:id="@+id/available_button"
                 android:layout_width="100dp"
                 android:layout_height="35dp"
                 android:text="@string/available"
