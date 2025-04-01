@@ -126,27 +126,38 @@ class MessageActivity : AppCompatActivity() {
     }
 
     private fun sendMessage(content: String, senderName: String) {
-        val message = Message(senderId!!, receiverId!!, content, System.currentTimeMillis(), senderName)
+        val message = Message(
+            senderId = senderId!!,
+            receiverId = receiverId!!,
+            content = content,
+            timestamp = System.currentTimeMillis(),
+            senderName = senderName
+        )
 
         val chatRef = firestore.collection("chats").document(chatId)
 
-        // Ensure the chat exists before adding messages
-        chatRef.get().addOnSuccessListener { document ->
-            if (!document.exists()) {
-                val chatData = hashMapOf(
-                    "userIds" to listOf(senderId, receiverId)
-                )
-                chatRef.set(chatData)
-            }
+        // Data to store in the "chats" document
+        val chatData = hashMapOf(
+            "userIds" to listOf(senderId, receiverId),
+            "lastMessage" to content,
+            "timestamp" to System.currentTimeMillis()
+        )
 
-            // Add message to Firestore
-            chatRef.collection("messages").add(message)
-                .addOnSuccessListener {
-                    replyEditText.text.clear()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Failed to send message", Toast.LENGTH_SHORT).show()
-                }
-        }
+        // Merge so we don’t overwrite existing fields
+        chatRef.set(chatData, com.google.firebase.firestore.SetOptions.merge())
+            .addOnSuccessListener {
+                // Now add the message to the subcollection
+                chatRef.collection("messages").add(message)
+                    .addOnSuccessListener {
+                        replyEditText.text.clear()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Failed to send message", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to update chat", Toast.LENGTH_SHORT).show()
+            }
     }
+
 }

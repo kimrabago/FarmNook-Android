@@ -9,28 +9,34 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/dark_green"
-        android:padding="12dp"
-        android:orientation="vertical"
-        android:gravity="end"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp">
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/message_bubble"
+        android:backgroundTint="@color/dark_green"
+        android:clipToOutline="true"
+        android:elevation="4dp"
+        android:gravity="end"
+        android:orientation="vertical"
+        android:padding="12dp">
 
         <TextView
             android:id="@+id/messageContentTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxWidth="250dp"
+            android:paddingEnd="4dp"
             android:text="Hello, how are you?"
-            android:textSize="14sp"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/messageTimestampTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:layout_marginTop="4dp"
+            android:gravity="end"
             android:textColor="@android:color/darker_gray"
-            android:text="10:30 AM"
-            android:gravity="end"/>
+            android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>
