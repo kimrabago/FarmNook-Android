@@ -71,17 +71,28 @@ class AddDeliveryActivity : AppCompatActivity() {
 
 
 
-        // Views
+        // Views Spinners
         val fromButton: LinearLayout = findViewById(R.id.fromButton)
         val toButton: LinearLayout = findViewById(R.id.toButton)
         fromLocation = findViewById(R.id.from_location)
         toLocation = findViewById(R.id.to_location)
         vehicleTypeSpinner = findViewById(R.id.vehicle_type_spinner)
-
         productTypeSpinner = findViewById(R.id.product_type_spinner)
         weightSpinner = findViewById(R.id.weight_spinner)
 
+        val vehicleTypes = listOf("Select Vehicle Type") + vehicleProductMap.keys
+        vehicleTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vehicleTypes)
 
+        vehicleTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
+                if (selectedVehicle != "Select Vehicle Type") {
+                    updateProductAndWeightOptions(selectedVehicle)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
 
         findViewById<Button>(R.id.search_button).setOnClickListener {
             val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
