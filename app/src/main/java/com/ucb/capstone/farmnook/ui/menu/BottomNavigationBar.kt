@@ -43,6 +43,7 @@ class BottomNavigationBar : AppCompatActivity() {
 
     private var userType: String = "farmer"
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bottom_navigation_bar)
@@ -51,8 +52,8 @@ class BottomNavigationBar : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation_view)
         firebaseAuth = FirebaseAuth.getInstance()
-        database = FirebaseFirestore.getInstance()
 
+        database = FirebaseFirestore.getInstance()
         // Drawer Toggle setup
         drawerToggle = ActionBarDrawerToggle(
             this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -106,7 +107,7 @@ class BottomNavigationBar : AppCompatActivity() {
     private fun resetToDashboard() {
         Log.d("DashboardDebug", "Resetting to Dashboard. userType: $userType")
         supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        val dashboardFragment: Fragment = if (userType == "Business Admin") {
+        val dashboardFragment: Fragment = if (userType == "Hauler Business Admin" || userType == "Hauler"  ) {
             Log.d("DashboardDebug", "Loading HaulerDashboardFragment")
             HaulerDashboardFragment()
         } else {
@@ -168,7 +169,7 @@ class BottomNavigationBar : AppCompatActivity() {
 
                     val menu = navigationView.menu
                     val subscriptionMenuItem = menu.findItem(R.id.subscription)
-                    subscriptionMenuItem.isVisible = userType == "Business Admin"
+                    subscriptionMenuItem.isVisible = userType == "Hauler Business Admin"
 
 
 
@@ -208,4 +209,5 @@ class BottomNavigationBar : AppCompatActivity() {
             true
         }
     }
+
 }

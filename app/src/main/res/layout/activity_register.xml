@@ -141,17 +141,17 @@
                     android:id="@+id/rb_business"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/business"
+                    android:text="@string/hauler_business"
                     android:textSize="18sp"
                     android:textColor="@color/dark_green" />
             </RadioGroup>
 
             <EditText
-                android:id="@+id/et_company_name"
+                android:id="@+id/et_business_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/company_name"
-                android:hint="@string/company_name"
+                android:autofillHints="Business Name"
+                android:hint="@string/business_name"
                 android:inputType="text"
                 android:visibility="gone"
                 android:singleLine="true"

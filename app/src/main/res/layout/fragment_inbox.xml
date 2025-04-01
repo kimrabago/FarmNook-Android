@@ -15,7 +15,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp"
             android:layout_marginTop="5dp">
 
             <TextView
@@ -25,17 +24,17 @@
                 android:text="@string/inbox"
                 android:fontFamily="@font/poppins_bold"
                 android:textColor="@color/dark_green"
-                android:textSize="25sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:layout_centerVertical="true"
                 tools:ignore="RelativeOverlap" />
 
             <ImageButton
                 android:id="@+id/new_message_btn"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@null"
                 android:src="@drawable/new_msg"
                 android:layout_alignParentEnd="true"

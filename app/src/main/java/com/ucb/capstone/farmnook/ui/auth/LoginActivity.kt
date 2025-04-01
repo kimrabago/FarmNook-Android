@@ -9,6 +9,7 @@ import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -24,6 +25,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var googleSignInClient: GoogleSignInClient
     private val loginViewModel: LoginViewModel by viewModels()
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val RC_SIGN_IN = 9001
 
     private var isPasswordVisible = false
@@ -38,13 +40,21 @@ class LoginActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Check if the user is already authenticated before inflating the UI
+        val currentUser = firebaseAuth.currentUser
+        if (currentUser != null) {
+            navigateToDashboard(currentUser)
+            return // Prevent setting up UI if already logged in
+        }
+
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
 
         setupGoogleSignIn()
-        loadRememberedLogin() // Load saved credentials if checked
+        loadRememberedLogin()
 
         binding.tvForgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
@@ -59,18 +69,20 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.btnLogin.setOnClickListener {
-            val email = binding.email.text.toString()
-            val password = binding.password.text.toString()
+            val email = binding.email.text.toString().trim()
+            val password = binding.password.text.toString().trim()
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
-                } else {
-                    loginViewModel.loginWithEmail(email, password)
-                }
-            } else {
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Empty Fields Are Not Allowed!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            loginViewModel.loginWithEmail(email, password)
         }
 
         binding.password.setOnTouchListener { _, event ->
@@ -168,30 +180,31 @@ class LoginActivity : AppCompatActivity() {
 
     // Load saved email & password if Remember Me is checked
     private fun loadRememberedLogin() {
-        if (sharedPreferences.getBoolean(KEY_REMEMBER, false)) {
+        val isChecked = sharedPreferences.getBoolean(KEY_REMEMBER, false)
+        binding.checkboxRememberMe.isChecked = isChecked
+
+        if (isChecked) {
             binding.email.setText(sharedPreferences.getString(KEY_EMAIL, ""))
             binding.password.setText(sharedPreferences.getString(KEY_PASSWORD, ""))
-            binding.checkboxRememberMe.isChecked = true
         }
     }
 
     // Save email & password when user logs in
     private fun saveLoginState() {
-        val email = binding.email.text.toString()
-        val password = binding.password.text.toString()
+        val email = binding.email.text.toString().trim()
+        val password = binding.password.text.toString().trim()
         val isChecked = binding.checkboxRememberMe.isChecked
 
-        val editor = sharedPreferences.edit()
-        editor.putBoolean(KEY_REMEMBER, isChecked)
-
-        if (isChecked) {
-            editor.putString(KEY_EMAIL, email)
-            editor.putString(KEY_PASSWORD, password)
-        } else {
-            editor.remove(KEY_EMAIL)
-            editor.remove(KEY_PASSWORD)
+        with(sharedPreferences.edit()) {
+            putBoolean(KEY_REMEMBER, isChecked)
+            if (isChecked) {
+                putString(KEY_EMAIL, email)
+                putString(KEY_PASSWORD, password)
+            } else {
+                remove(KEY_EMAIL)
+                remove(KEY_PASSWORD)
+            }
+            apply()
         }
-
-        editor.apply()
     }
 }

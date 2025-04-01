@@ -1,10 +1,14 @@
 package com.ucb.capstone.farmnook.ui.auth
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -40,9 +44,9 @@ class RegisterActivity : AppCompatActivity() {
         // Handle visibility of Company Name field based on user selection
         binding.rgUserType.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.rb_business) {
-                binding.etCompanyName.visibility = View.VISIBLE
+                binding.etBusinessName.visibility = View.VISIBLE
             } else {
-                binding.etCompanyName.visibility = View.GONE
+                binding.etBusinessName.visibility = View.GONE
             }
         }
 
@@ -53,7 +57,12 @@ class RegisterActivity : AppCompatActivity() {
         registrationViewModel.registrationStatus.observe(this) { message ->
             showToast(message)
             if (message.contains("successful", ignoreCase = true)) {
-                navigateToLogin()
+                val userType = when (binding.rgUserType.checkedRadioButtonId) {
+                    R.id.rb_farmer -> "Farmer"
+                    R.id.rb_business -> "Hauler Business Admin"
+                    else -> ""
+                }
+                navigateToLogin(userType)
             }
         }
 
@@ -71,13 +80,13 @@ class RegisterActivity : AppCompatActivity() {
 
         val userType = when (binding.rgUserType.checkedRadioButtonId) {
             R.id.rb_farmer -> "Farmer"
-            R.id.rb_business -> "Business Admin"
+            R.id.rb_business -> "Hauler Business Admin"
             else -> ""
         }
 
-        val companyName = if (userType == "Business Admin") binding.etCompanyName.text.toString().trim() else ""
+        val businessName = if (userType == "Hauler Business Admin") binding.etBusinessName.text.toString().trim() else ""
 
-        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, userType, companyName)
+        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, userType, businessName)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -118,7 +127,26 @@ class RegisterActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun navigateToLogin() {
+
+    private fun navigateToLogin(userType: String) {
+        if (userType == "Hauler Business Admin") {
+            val dialog = Dialog(this)
+            dialog.setContentView(R.layout.hauler_notice_register_dialog)
+
+            val closeButton = dialog.findViewById<Button>(R.id.closeButton)
+            closeButton.setOnClickListener {
+                dialog.dismiss()
+                goToLoginScreen()
+            }
+
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            dialog.show()
+        } else {
+            goToLoginScreen()
+        }
+    }
+
+    private fun goToLoginScreen() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
