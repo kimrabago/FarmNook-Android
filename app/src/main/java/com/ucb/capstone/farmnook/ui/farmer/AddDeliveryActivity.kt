@@ -71,7 +71,7 @@ class AddDeliveryActivity : AppCompatActivity() {
 
 
 
-        // Views Spnnier
+        // Views Spinners
         val fromButton: LinearLayout = findViewById(R.id.fromButton)
         val toButton: LinearLayout = findViewById(R.id.toButton)
         fromLocation = findViewById(R.id.from_location)
