@@ -71,7 +71,7 @@ class NewMessageActivity : AppCompatActivity() {
     }
 
     private fun fetchUsers(currentUserType: String) {
-        val targetUserType = if (currentUserType == "Hauler Business Admin") "Farmer" else "Hauler Business Admin"
+        val targetUserType = if (currentUserType == "Hauler") "Farmer" else "Hauler"
 
         firestore.collection("users")
             .whereEqualTo("userType", targetUserType)
