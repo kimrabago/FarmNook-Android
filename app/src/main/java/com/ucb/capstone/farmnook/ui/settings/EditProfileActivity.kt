@@ -164,6 +164,9 @@ class EditProfileActivity : AppCompatActivity() {
                             userDocRef.update("profileImageUrl", uri.toString())
                                 .addOnSuccessListener {
                                     Toast.makeText(this, "Profile image updated!", Toast.LENGTH_SHORT).show()
+                                    // Notify ProfileActivity to reload the profile
+                                    setResult(RESULT_OK)
+                                    finish()
                                 }
                                 .addOnFailureListener { exception ->
                                     exception.printStackTrace()

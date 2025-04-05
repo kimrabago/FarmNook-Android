@@ -69,8 +69,6 @@ class AddDeliveryActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-
-
         // Views Spinners
         val fromButton: LinearLayout = findViewById(R.id.fromButton)
         val toButton: LinearLayout = findViewById(R.id.toButton)
