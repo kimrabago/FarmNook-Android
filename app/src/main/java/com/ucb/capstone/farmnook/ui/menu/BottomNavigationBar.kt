@@ -16,6 +16,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.auth.LoginActivity
 import com.ucb.capstone.farmnook.ui.farmer.DeliveryStatusFragment
@@ -136,7 +137,7 @@ class BottomNavigationBar : AppCompatActivity() {
     private fun fetchUserData() {
         val userId = firebaseAuth.currentUser?.uid ?: return
 
-        database.collection("users").document(userId).get()
+        database.collection("users").document(userId).get(Source.CACHE)
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val profileImageUrl = document.getString("profileImageUrl")
@@ -170,7 +171,6 @@ class BottomNavigationBar : AppCompatActivity() {
                     val menu = navigationView.menu
                     val subscriptionMenuItem = menu.findItem(R.id.subscription)
                     subscriptionMenuItem.isVisible = userType == "Hauler Business Admin"
-
 
 
                     Log.d("FirestoreDebug", "Fetched userType: $userType")

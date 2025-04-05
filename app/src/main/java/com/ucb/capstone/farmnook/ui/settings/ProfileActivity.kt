@@ -2,6 +2,7 @@ package com.ucb.capstone.farmnook.ui.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -11,6 +12,7 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
@@ -57,15 +59,6 @@ class ProfileActivity : AppCompatActivity() {
         fetchUserData()
     }
 
-    private val editProfileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        fetchUserData() // Refresh profile data after returning from EditProfileActivity
-    }
-
-    override fun onResume() {
-        super.onResume()
-        fetchUserData() // Ensures profile data refreshes when activity resumes
-    }
-
     private fun fetchUserData() {
         val userId = firebaseAuth.currentUser?.uid
 
@@ -78,7 +71,7 @@ class ProfileActivity : AppCompatActivity() {
                         val email = document.getString("email") ?: ""
                         val phoneNumber = document.getString("phoneNum") ?: ""
                         val userType = document.getString("userType") ?: ""
-                        val companyName = document.getString("companyName") ?: ""
+                        val businessID = document.getString("businessAdminId")
                         val dateJoined = document.getString("dateJoined") ?: ""
                         val profileImageUrl = document.getString("profileImageUrl")
 
@@ -89,7 +82,7 @@ class ProfileActivity : AppCompatActivity() {
                         val emailTextView: TextView = findViewById(R.id.email)
                         val phoneNumTextView: TextView = findViewById(R.id.phone_num)
                         val dateJoinedTextView: TextView = findViewById(R.id.dateJoined)
-                        val companyNameTextView: TextView = findViewById(R.id.companyName)
+                        val businessNameTextView: TextView = findViewById(R.id.businessName)
                         val ratingBar: RatingBar = findViewById(R.id.ratingBar)
                         val ratingValue: TextView = findViewById(R.id.ratingValue)
 
@@ -98,14 +91,26 @@ class ProfileActivity : AppCompatActivity() {
                         phoneNumTextView.text = phoneNumber
                         dateJoinedTextView.text = dateJoined
 
-                        // Show company name only if the user is a business admin
-                        if (userType == "Business Admin") {
-                            companyNameTextView.text = companyName
-                            companyNameTextView.visibility = View.VISIBLE
-                            ratingBar.visibility = View.VISIBLE
-                            ratingValue.visibility = View.VISIBLE
+                        if (userType == "Hauler" && !businessID.isNullOrEmpty()) {
+                            // Fetch company name from Hauler Business Admin's document
+                            database.collection("users").document(businessID).get(Source.CACHE)
+                                .addOnSuccessListener { adminDoc ->
+                                    if (adminDoc.exists()) {
+                                        val businessName = adminDoc.getString("businessName") ?: "N/A"
+                                        runOnUiThread {
+                                            businessNameTextView.text = businessName
+                                            businessNameTextView.visibility = View.VISIBLE
+                                            ratingBar.visibility = View.VISIBLE
+                                            ratingValue.visibility = View.VISIBLE
+                                        }
+                                        Log.d("ProfileActivity", "businessID: $businessID")
+                                    }
+                                }
+                                .addOnFailureListener { exception ->
+                                    exception.printStackTrace()
+                                }
                         } else {
-                            companyNameTextView.visibility = View.GONE
+                            businessNameTextView.visibility = View.GONE
                             ratingBar.visibility = View.GONE
                             ratingValue.visibility = View.GONE
                         }
@@ -113,9 +118,10 @@ class ProfileActivity : AppCompatActivity() {
                             // **Load image using Glide**
                             Glide.with(this)
                                 .load(profileImageUrl)
-                                .override(100, 100)
-                                .placeholder(R.drawable.profile_circle) // Placeholder while loading
-                                .error(R.drawable.profile_circle) // Error image if failed
+                                .diskCacheStrategy(DiskCacheStrategy.ALL) // Cache both the original and resized images
+                                .override(100, 100) // Define a fixed image size
+                                .placeholder(R.drawable.profile_circle)
+                                .error(R.drawable.profile_circle)
                                 .into(profileImage)
                         } else {
                             // Set default profile image if no image is found
@@ -127,6 +133,16 @@ class ProfileActivity : AppCompatActivity() {
                     exception.printStackTrace()
                 }
         }
+    }
+    private val editProfileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            fetchUserData() // Refresh profile data after returning from EditProfileActivity
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        fetchUserData() // Ensures profile data refreshes when activity resumes
     }
 
 }
