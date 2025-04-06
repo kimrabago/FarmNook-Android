@@ -156,10 +156,8 @@
     <string name="business">Business</string>
     <string name="report">Report</string>
     <string name="logout">Logout</string>
-    <string name="company_name">Company Name</string>
-    <string name="hauler_business">Hauler Business</string>
     <string name="business_name">Business Name</string>
+    <string name="hauler_business">Hauler Business</string>
     <string name="close">Close</string>
-
 
 </resources>

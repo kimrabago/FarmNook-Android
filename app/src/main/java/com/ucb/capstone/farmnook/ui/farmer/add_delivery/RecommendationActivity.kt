@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.farmer
+package com.ucb.capstone.farmnook.ui.farmer.add_delivery
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -57,7 +57,7 @@ class RecommendationActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { vehiclesSnapshot ->
                 val vehicles = vehiclesSnapshot.documents
-                val businessIds = vehicles.mapNotNull { it.getString("organizationId") }.toSet()
+                val businessIds = vehicles.mapNotNull { it.getString("businessId") }.toSet()
 
                 firestore.collection("users")
                     .whereIn("userId", businessIds.toList())
@@ -70,8 +70,8 @@ class RecommendationActivity : AppCompatActivity() {
 
                         vehicleList.clear()
                         for (doc in vehicles) {
-                            val orgId = doc.getString("organizationId") ?: continue
-                            val businessName = businessMap[orgId] ?: "Unknown Business"
+                            val busId = doc.getString("businessId") ?: continue
+                            val businessName = businessMap[busId] ?: "Unknown Business"
                             vehicleList.add(
                                 VehicleWithBusiness(
                                     vehicleId = doc.id,
@@ -80,7 +80,7 @@ class RecommendationActivity : AppCompatActivity() {
                                     maxWeightKg = doc.getLong("maxWeightKg")?.toInt() ?: 0,
                                     size = doc.getString("size") ?: "N/A",
                                     businessName = businessName,
-                                    businessId = orgId
+                                    businessId = busId
                                 )
                             )
                         }
@@ -131,6 +131,22 @@ class RecommendationActivity : AppCompatActivity() {
         newRequestRef.set(requestData)
             .addOnSuccessListener {
                 Toast.makeText(this, "Delivery request sent!", Toast.LENGTH_SHORT).show()
+
+                val farmerId = delivery.farmerId
+                if (farmerId != null) {
+                    FirebaseFirestore.getInstance().collection("users").document(farmerId)
+                        .get()
+                        .addOnSuccessListener { farmerDoc ->
+                            val farmerName = farmerDoc.getString("firstName") + " " + farmerDoc.getString("lastName")
+                            delivery.businessId?.let { it1 ->
+                                DeliveryRequestSendNotification.notifyBusinessOfRequest(
+                                    context = this,
+                                    businessId = it1,
+                                    farmerName = farmerName ?: "A farmer"
+                                )
+                            }
+                        }
+                }
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Failed to send request.", Toast.LENGTH_SHORT).show()

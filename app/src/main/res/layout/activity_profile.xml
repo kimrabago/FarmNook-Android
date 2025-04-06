@@ -54,33 +54,6 @@
                 android:layout_marginStart="5dp"
                 android:src="@drawable/profile_circle" />
 
-            <RatingBar
-                android:id="@+id/ratingBar"
-                style="?android:attr/ratingBarStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/profileImage"
-                android:layout_marginStart="5dp"
-                android:isIndicator="false"
-                android:numStars="5"
-                android:progressTint="@color/dark_green"
-                android:rating="4.9"
-                android:secondaryProgressTint="@color/dark_green"
-                android:stepSize="0.5"
-                android:theme="@style/Widget.AppCompat.RatingBar" />
-
-            <TextView
-                android:id="@+id/ratingValue"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/ratingBar"
-                android:layout_marginTop="5dp"
-                android:gravity="center"
-                android:text="@string/ratings_count"
-                android:textColor="@android:color/black"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
             <TextView
                 android:id="@+id/fullName"
                 android:layout_width="wrap_content"
@@ -102,7 +75,7 @@
                 android:layout_marginStart="10dp"
                 android:layout_toEndOf="@id/profileImage"
                 android:fontFamily="@font/dm_sans_medium"
-                android:text="@string/company_name"
+                android:text="@string/business_name"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 tools:ignore="RelativeOverlap" />

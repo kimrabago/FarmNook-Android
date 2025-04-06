@@ -41,7 +41,6 @@ class RegisterActivity : AppCompatActivity() {
         setupPasswordToggle(binding.etPassword)
         setupPasswordToggle(binding.etConfirmPassword)
 
-        // Handle visibility of Company Name field based on user selection
         binding.rgUserType.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.rb_business) {
                 binding.etBusinessName.visibility = View.VISIBLE

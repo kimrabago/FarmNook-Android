@@ -83,8 +83,6 @@ class ProfileActivity : AppCompatActivity() {
                         val phoneNumTextView: TextView = findViewById(R.id.phone_num)
                         val dateJoinedTextView: TextView = findViewById(R.id.dateJoined)
                         val businessNameTextView: TextView = findViewById(R.id.businessName)
-                        val ratingBar: RatingBar = findViewById(R.id.ratingBar)
-                        val ratingValue: TextView = findViewById(R.id.ratingValue)
 
                         fullNameTextView.text = fullName
                         emailTextView.text = email
@@ -92,7 +90,6 @@ class ProfileActivity : AppCompatActivity() {
                         dateJoinedTextView.text = dateJoined
 
                         if (userType == "Hauler" && !businessID.isNullOrEmpty()) {
-                            // Fetch company name from Hauler Business Admin's document
                             database.collection("users").document(businessID).get(Source.CACHE)
                                 .addOnSuccessListener { adminDoc ->
                                     if (adminDoc.exists()) {
@@ -100,8 +97,6 @@ class ProfileActivity : AppCompatActivity() {
                                         runOnUiThread {
                                             businessNameTextView.text = businessName
                                             businessNameTextView.visibility = View.VISIBLE
-                                            ratingBar.visibility = View.VISIBLE
-                                            ratingValue.visibility = View.VISIBLE
                                         }
                                         Log.d("ProfileActivity", "businessID: $businessID")
                                     }
@@ -111,9 +106,9 @@ class ProfileActivity : AppCompatActivity() {
                                 }
                         } else {
                             businessNameTextView.visibility = View.GONE
-                            ratingBar.visibility = View.GONE
-                            ratingValue.visibility = View.GONE
                         }
+
+
                         if (!profileImageUrl.isNullOrEmpty()) {
                             // **Load image using Glide**
                             Glide.with(this)

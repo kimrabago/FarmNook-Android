@@ -1,11 +1,9 @@
-package com.ucb.capstone.farmnook.ui.farmer
+package com.ucb.capstone.farmnook.ui.farmer.add_delivery
 
 import android.app.Dialog
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.data.model.Delivery
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 

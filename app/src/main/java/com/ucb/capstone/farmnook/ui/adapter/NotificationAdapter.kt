@@ -1,40 +1,43 @@
 package com.ucb.capstone.farmnook.ui.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.ucb.capstone.farmnook.R
-import com.ucb.capstone.farmnook.data.model.NotificationItem
+import com.ucb.capstone.farmnook.data.model.Notification
+import com.ucb.capstone.farmnook.databinding.ItemNotificationBinding
 
-class NotificationAdapter(private val notifications: List<NotificationItem>) :
-    RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
+class NotificationAdapter(
+    private var items: List<Notification>,
+    private val onClick: (Notification) -> Unit
+) : RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.notification_item, parent, false)
-        return NotificationViewHolder(view)
-    }
+    inner class NotificationViewHolder(private val binding: ItemNotificationBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-    override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
-        holder.bind(notifications[position])
-    }
+        fun bind(item: Notification) {
+            binding.notificationTitle.text = item.title
+            binding.notificationMessage.text = item.message
+            binding.notificationTimestamp.text = item.timestamp
 
-    override fun getItemCount(): Int = notifications.size
-
-    class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val profileImage: ImageView = itemView.findViewById(R.id.profileImage)
-        private val haulerName: TextView = itemView.findViewById(R.id.haulerName)
-        private val notifMessage: TextView = itemView.findViewById(R.id.notification_message)
-        private val dateTime: TextView = itemView.findViewById(R.id.date_time)
-
-        fun bind(item: NotificationItem) {
-            haulerName.text = item.userName
-            notifMessage.text = item.notifMessage
-            dateTime.text = item.dateTime
-            // Optionally, load an image into profileImage if needed.
+            binding.root.setOnClickListener { onClick(item) }
         }
     }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = ItemNotificationBinding.inflate(inflater, parent, false)
+        return NotificationViewHolder(binding)
+    }
+
+    override fun getItemCount() = items.size
+
+    override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
+        holder.bind(items[position])
+    }
+
+    fun updateList(newItems: List<Notification>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
 }
+
