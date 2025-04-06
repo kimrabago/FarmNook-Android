@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+
 }
 
 android {
@@ -50,6 +51,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.play.services.location)
+    implementation(libs.volley)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,6 +81,10 @@ dependencies {
 
     implementation ("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
+
+    //OneSignal
+    implementation("com.onesignal:OneSignal:5.0.4")
+    implementation("com.google.firebase:firebase-messaging:23.4.1")
 }
 
 configurations.all {

@@ -23,6 +23,7 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.menu.BottomNavigationBar
 import android.content.Context
 import android.location.LocationManager
+import com.ucb.capstone.farmnook.ui.farmer.add_delivery.AddDeliveryActivity
 
 class FarmerDashboardFragment : Fragment() {
 

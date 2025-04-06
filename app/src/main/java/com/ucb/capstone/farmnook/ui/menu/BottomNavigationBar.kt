@@ -102,6 +102,8 @@ class BottomNavigationBar : AppCompatActivity() {
         }
         // Fetch and display user data in navigation header
         fetchUserData()
+
+
     }
 
     // Function to reset to dashboard (Home)

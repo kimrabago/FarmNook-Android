@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.farmer.RecommendationActivity">
+    tools:context=".ui.farmer.add_delivery.RecommendationActivity">
 
     <TextView
         android:id="@+id/recommendation_title"

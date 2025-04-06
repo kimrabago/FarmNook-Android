@@ -50,14 +50,14 @@
             android:src="@drawable/profile_circle"/>
 
         <EditText
-            android:id="@+id/company_name"
+            android:id="@+id/business_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@drawable/register_rounded_box"
             android:fontFamily="@font/dm_sans_medium"
             android:padding="12dp"
-            android:hint="@string/company_name"
+            android:hint="@string/business_name"
             android:singleLine="true"
             android:imeOptions="actionNext"
             android:visibility="gone"

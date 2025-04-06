@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.farmer
+package com.ucb.capstone.farmnook.ui.farmer.add_delivery
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -11,11 +11,9 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
-import com.ucb.capstone.farmnook.data.model.Delivery
 import java.util.*
 
 @Suppress("DEPRECATION")
