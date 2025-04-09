@@ -86,10 +86,10 @@
                             android:layout_marginEnd="8dp"/>
 
                         <TextView
-                            android:id="@+id/driverName"
+                            android:id="@+id/farmerName"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Darron Handler"
+                            android:text="Baliwag Santomaru"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             android:layout_weight="1"
@@ -99,7 +99,7 @@
                             android:id="@+id/deliveryPrice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="503 PHP"
+                            android:text="### PHP"
                             android:textSize="18sp"
                             android:fontFamily="@font/dm_sans_bold"
                             android:textColor="@color/dark_green"/>
@@ -107,10 +107,10 @@
 
                     <!-- Schedule -->
                     <TextView
-                        android:id="@+id/schedule"
+                        android:id="@+id/estimatedTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Schedule: July 7, 2024 8:00 AM"
+                        android:text="Usa ka Oras"
                         android:textSize="16sp"
                         android:layout_marginTop="8dp"
                         android:textColor="@color/dark_green"

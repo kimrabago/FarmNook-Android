@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp"
+    android:layout_marginVertical="15dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="6dp"
     app:cardBackgroundColor="@color/dark_green">
@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="10dp">
+            android:paddingVertical="5dp">
 
             <LinearLayout
                 android:layout_width="20dp"
@@ -80,7 +80,7 @@
 
                 <View
                     android:layout_width="2dp"
-                    android:layout_height="35dp"
+                    android:layout_height="67dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="4dp"
                     android:background="@color/white" />
@@ -96,6 +96,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:paddingBottom="10dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -104,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/pick_up_location"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -113,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/province"
                     android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/destination"
@@ -122,7 +123,7 @@
                     android:layout_marginTop="15dp"
                     android:text="@string/destination_place"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -131,7 +132,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/province_destination"
                     android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <TextView
@@ -140,7 +141,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/total_cost_estimation"
                 android:textColor="@color/white"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginTop="50dp"/>
         </LinearLayout>
@@ -148,16 +149,16 @@
         <Button
             android:id="@+id/viewDeliverBtn"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="40dp"
             android:text="@string/view_delivery"
             android:textColor="@color/black"
-            android:layout_marginHorizontal="50dp"
+            android:layout_marginHorizontal="30dp"
             android:background="@drawable/white_rounded_button"
             android:fontFamily="@font/poppins_semibold"
             android:textAllCaps="false"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:drawableStart="@drawable/truck"
-            android:paddingStart="40dp"
-            android:paddingEnd="25dp"/>
+            android:paddingStart="30dp"
+            android:paddingEnd="15dp"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
