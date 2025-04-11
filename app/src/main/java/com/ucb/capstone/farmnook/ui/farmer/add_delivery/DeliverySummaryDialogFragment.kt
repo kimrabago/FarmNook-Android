@@ -39,8 +39,8 @@ class DeliverySummaryDialogFragment : DialogFragment() {
                 
                 Pickup: ${delivery.pickupLocation}
                 Destination: ${delivery.destinationLocation}
+                Purpose: ${delivery.purpose}
                 Product Type: ${delivery.productType}
-                Vehicle Type: ${delivery.vehicleType}
                 Weight: ${delivery.weight} kg
                 
                 Proceed with delivery request?
