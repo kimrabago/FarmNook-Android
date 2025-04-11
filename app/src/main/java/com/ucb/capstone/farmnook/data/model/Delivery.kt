@@ -4,7 +4,7 @@ import com.google.firebase.Timestamp
 
 data class Delivery(
     val id: String? = null,
-    val vehicleType: String? = null,
+    val purpose: String? = null,
     val productType: String? = null,
     val weight: String? = null, // string instead of Int
     val timestamp: Timestamp? = null,

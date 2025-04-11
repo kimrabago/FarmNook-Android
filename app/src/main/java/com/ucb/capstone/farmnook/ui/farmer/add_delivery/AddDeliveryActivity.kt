@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -23,42 +24,43 @@ class AddDeliveryActivity : AppCompatActivity() {
     private lateinit var fromLocation: TextView
     private lateinit var toLocation: TextView
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var purposeSpinner: Spinner
+    private lateinit var productTypeEditText: EditText
+    private lateinit var weightEditText: EditText
 
+    private var userLatitude: Double? = null
+    private var userLongitude: Double? = null
     companion object {
         private const val LOCATION_PERMISSION_REQUEST = 1001
     }
 
-    private lateinit var vehicleTypeSpinner: Spinner
-    private lateinit var productTypeSpinner: Spinner
-    private lateinit var weightSpinner: Spinner
-
-    private var userLatitude: Double? = null
-    private var userLongitude: Double? = null
-
-    // Maps
-    private val vehicleProductMap = mapOf(
-        "Small Farm Truck" to listOf("Vegetables", "Fruits", "Poultry", "Animal Feed"),
-        "Medium Farm Truck" to listOf("Vegetables", "Fruits", "Grains", "Poultry", "Dairy Products"),
-        "Large Farm Truck" to listOf("Livestock", "Grains", "Dairy Products", "Fertilizers & Seeds"),
-        "Tractor with Trailer" to listOf("Grains", "Sugarcane", "Cotton", "Fertilizers & Seeds"),
-        "Pickup Truck" to listOf("Vegetables", "Fruits", "Fishery Products", "Agro-Chemicals"),
-        "Refrigerated Truck" to listOf("Dairy Products", "Fishery Products", "Poultry"),
-        "Livestock Transport Truck" to listOf("Livestock", "Poultry"),
-        "Grain Hauler" to listOf("Grains"),
-        "Flatbed Truck" to listOf("Cotton", "Fertilizers & Seeds", "Agro-Chemicals")
-    )
-
-    private val vehicleWeightMap = mapOf(
-        "Small Farm Truck" to listOf("Up to 500 kg", "500 - 1000 kg"),
-        "Medium Farm Truck" to listOf("1000 - 3000 kg", "3000 - 5000 kg"),
-        "Large Farm Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg"),
-        "Tractor with Trailer" to listOf("10000 - 20000 kg", "More than 20000 kg"),
-        "Pickup Truck" to listOf("Up to 500 kg", "500 - 1000 kg"),
-        "Refrigerated Truck" to listOf("1000 - 3000 kg", "3000 - 5000 kg"),
-        "Livestock Transport Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg"),
-        "Grain Hauler" to listOf("10000 - 20000 kg", "More than 20000 kg"),
-        "Flatbed Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg", "More than 20000 kg")
-    )
+//    private lateinit var vehicleTypeSpinner: Spinner
+//    private lateinit var productTypeSpinner: Spinner
+//    private lateinit var weightSpinner: Spinner
+//    // Maps
+//    private val vehicleProductMap = mapOf(
+//        "Small Farm Truck" to listOf("Vegetables", "Fruits", "Poultry", "Animal Feed"),
+//        "Medium Farm Truck" to listOf("Vegetables", "Fruits", "Grains", "Poultry", "Dairy Products"),
+//        "Large Farm Truck" to listOf("Livestock", "Grains", "Dairy Products", "Fertilizers & Seeds"),
+//        "Tractor with Trailer" to listOf("Grains", "Sugarcane", "Cotton", "Fertilizers & Seeds"),
+//        "Pickup Truck" to listOf("Vegetables", "Fruits", "Fishery Products", "Agro-Chemicals"),
+//        "Refrigerated Truck" to listOf("Dairy Products", "Fishery Products", "Poultry"),
+//        "Livestock Transport Truck" to listOf("Livestock", "Poultry"),
+//        "Grain Hauler" to listOf("Grains"),
+//        "Flatbed Truck" to listOf("Cotton", "Fertilizers & Seeds", "Agro-Chemicals")
+//    )
+//
+//    private val vehicleWeightMap = mapOf(
+//        "Small Farm Truck" to listOf("Up to 500 kg", "500 - 1000 kg"),
+//        "Medium Farm Truck" to listOf("1000 - 3000 kg", "3000 - 5000 kg"),
+//        "Large Farm Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg"),
+//        "Tractor with Trailer" to listOf("10000 - 20000 kg", "More than 20000 kg"),
+//        "Pickup Truck" to listOf("Up to 500 kg", "500 - 1000 kg"),
+//        "Refrigerated Truck" to listOf("1000 - 3000 kg", "3000 - 5000 kg"),
+//        "Livestock Transport Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg"),
+//        "Grain Hauler" to listOf("10000 - 20000 kg", "More than 20000 kg"),
+//        "Flatbed Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg", "More than 20000 kg")
+//    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,33 +74,43 @@ class AddDeliveryActivity : AppCompatActivity() {
         val toButton: LinearLayout = findViewById(R.id.toButton)
         fromLocation = findViewById(R.id.from_location)
         toLocation = findViewById(R.id.to_location)
-        vehicleTypeSpinner = findViewById(R.id.vehicle_type_spinner)
-        productTypeSpinner = findViewById(R.id.product_type_spinner)
-        weightSpinner = findViewById(R.id.weight_spinner)
+        purposeSpinner = findViewById(R.id.purposeSpinner)
+        productTypeEditText = findViewById(R.id.productTypeEditText)
+        weightEditText = findViewById(R.id.weightEditText)
 
-        val vehicleTypes = listOf("Select Vehicle Type") + vehicleProductMap.keys
-        vehicleTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vehicleTypes)
+//        vehicleTypeSpinner = findViewById(R.id.vehicle_type_spinner)
+//        productTypeSpinner = findViewById(R.id.product_type_spinner)
+//        weightSpinner = findViewById(R.id.weight_spinner)
 
-        vehicleTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
-                if (selectedVehicle != "Select Vehicle Type") {
-                    updateProductAndWeightOptions(selectedVehicle)
-                }
-            }
+//        val vehicleTypes = listOf("Select Vehicle Type") + vehicleProductMap.keys
+//        vehicleTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vehicleTypes)
+//
+//        vehicleTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
+//                if (selectedVehicle != "Select Vehicle Type") {
+//                    updateProductAndWeightOptions(selectedVehicle)
+//                }
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>?) {}
+//        }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
+        // Create a list of items for the dropdown
+        val options = listOf("Select Purpose", "Livestock", "Crops", "Perishable Goods")
 
-        findViewById<Button>(R.id.search_button).setOnClickListener {
-            val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
-            val selectedProduct = productTypeSpinner.selectedItem.toString()
-            val selectedWeight = weightSpinner.selectedItem.toString()
+        purposeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
+        findViewById<Button>(R.id.proceedButton).setOnClickListener {
+            val selectedPurpose = purposeSpinner.selectedItem.toString()
+            val inputtedProduct = productTypeEditText.getText().toString().trim()
+            val inputtedWeight = weightEditText.getText().toString().trim()
 
-            if (selectedVehicle == "Select Vehicle Type" || selectedProduct == "Select Product Type" || selectedWeight == "Select Weight") {
-                Toast.makeText(this, "Please select all options", Toast.LENGTH_SHORT).show()
+            if (selectedPurpose == "Select Purpose" ) {
+                Toast.makeText(this, "Please select a purpose", Toast.LENGTH_SHORT).show()
+            } else if (TextUtils.isEmpty(inputtedProduct) || TextUtils.isEmpty(inputtedWeight)) {
+            Toast.makeText(this, "Please enter both product type and weight", Toast.LENGTH_SHORT).show();
             } else {
-                proceedToRecommendations(selectedVehicle, selectedProduct, selectedWeight)
+                proceedToRecommendations(selectedPurpose, inputtedProduct, inputtedWeight);
             }
         }
 
@@ -107,7 +119,7 @@ class AddDeliveryActivity : AppCompatActivity() {
         checkLocationPermissionAndFetch()
     }
 
-    private fun proceedToRecommendations(vehicleType: String, productType: String, weight: String) {
+    private fun proceedToRecommendations(purpose: String, productType: String, weight: String) {
         val pickupCoordinates = if (userLatitude != null && userLongitude != null)
             "${userLatitude},${userLongitude}" else "0.0,0.0"
 
@@ -117,20 +129,12 @@ class AddDeliveryActivity : AppCompatActivity() {
         val intent = Intent(this, RecommendationActivity::class.java).apply {
             putExtra("pickupLocation", pickupCoordinates)
             putExtra("destinationLocation", "10.331149791236012,123.9112171375494") // static for now
-            putExtra("vehicleType", vehicleType)
+            putExtra("purpose", purpose)
             putExtra("productType", productType)
             putExtra("farmerId", farmerId)
             putExtra("weight", weight)
         }
         startActivity(intent)
-    }
-
-    private fun updateProductAndWeightOptions(selectedVehicle: String) {
-        val productTypes = vehicleProductMap[selectedVehicle] ?: emptyList()
-        val weights = vehicleWeightMap[selectedVehicle] ?: emptyList()
-
-        productTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("Select Product Type") + productTypes)
-        weightSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("Select Weight") + weights)
     }
 
     @SuppressLint("MissingPermission")

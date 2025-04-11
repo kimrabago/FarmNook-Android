@@ -89,6 +89,7 @@ class ProfileActivity : AppCompatActivity() {
                         phoneNumTextView.text = phoneNumber
                         dateJoinedTextView.text = dateJoined
 
+
                         if (userType == "Hauler" && !businessID.isNullOrEmpty()) {
                             database.collection("users").document(businessID).get(Source.CACHE)
                                 .addOnSuccessListener { adminDoc ->

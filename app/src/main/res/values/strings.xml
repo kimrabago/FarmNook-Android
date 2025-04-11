@@ -84,7 +84,7 @@
     <string name="vehicle_type">Vehicle Type</string>
     <string name="select">Select</string>
     <string name="product_type">Product Type</string>
-    <string name="weight">Weight</string>
+    <string name="weight">Weight (kg)</string>
     <string name="search">Search</string>
     <string name="cancel">Cancel</string>
     <string name="add_delivery">Add Delivery</string>

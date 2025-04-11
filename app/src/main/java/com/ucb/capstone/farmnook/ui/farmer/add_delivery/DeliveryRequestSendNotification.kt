@@ -32,19 +32,24 @@ object DeliveryRequestSendNotification {
 
         db.collection("users").document(businessId).get()
             .addOnSuccessListener { doc ->
-                val playerId = doc.getString("playerId")
-                if (!playerId.isNullOrEmpty()) {
-                    sendPushToBusiness(context, playerId,
-                        notification["title"]!!.toString(), notification["message"]!!.toString()
+                val playerIds = doc.get("playerIds") as? List<String>
+                if (!playerIds.isNullOrEmpty()) {
+                    sendPushToBusiness(
+                        context,
+                        playerIds,
+                        notification["title"]!!.toString(),
+                        notification["message"]!!.toString()
                     )
+                } else {
+                    Log.w("Push", "🚫 No playerId found for businessId: $businessId")
                 }
             }
     }
 
-    private fun sendPushToBusiness(context: Context, playerId: String, title: String, message: String) {
+    private fun sendPushToBusiness(context: Context, playerIds: List<String>, title: String, message: String) {
         val json = JSONObject().apply {
             put("app_id", ONE_SIGNAL_APP_ID)
-            put("include_player_ids", JSONArray().put(playerId))
+            put("include_player_ids", JSONArray(playerIds)) // ✅ Send to all devices
             put("headings", JSONObject().put("en", title))
             put("contents", JSONObject().put("en", message))
             put("data", JSONObject().put("openTarget", "BusinessDashboard"))

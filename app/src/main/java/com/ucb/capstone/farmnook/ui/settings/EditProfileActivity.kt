@@ -118,20 +118,23 @@ class EditProfileActivity : AppCompatActivity() {
                         phoneNumEditText.setText(document.getString("phoneNum") ?: "")
 
                         val userType = document.getString("userType") ?: ""
+                        Log.d("EditProfileActivity", "User Type: $userType")
                         val businessName = document.getString("businessName") ?: ""
                         val businessID = document.getString("businessAdminId")
+                        businessNameEditText.visibility = View.GONE
 
-                        if (userType == "Hauler") {
-                            // Make businessName a TextView for Hauler users (not editable)
-                            businessNameEditText.visibility = View.VISIBLE
-                            businessNameEditText.setText(businessName, TextView.BufferType.NORMAL)
-                            businessNameEditText.isEnabled = false // Disable editing
 
-                        } else if (userType == "Hauler Business Admin") {
+                        if (userType == "Hauler Business Admin") {
                             // Make businessNameEditText editable for Hauler Business Admin
                             businessNameEditText.visibility = View.VISIBLE
                             businessNameEditText.setText(businessName, TextView.BufferType.EDITABLE)
                             businessNameEditText.isEnabled = true // Enable editing
+
+                        } else if (userType == "Hauler") {
+                            // Make businessName a TextView for Hauler users (not editable)
+                            businessNameEditText.visibility = View.VISIBLE
+                            businessNameEditText.setText(businessName, TextView.BufferType.NORMAL)
+                            businessNameEditText.isEnabled = false // Disable editing
                         } else {
                             // Hide businessName for other user types (optional, based on your design)
                             businessNameEditText.visibility = View.GONE

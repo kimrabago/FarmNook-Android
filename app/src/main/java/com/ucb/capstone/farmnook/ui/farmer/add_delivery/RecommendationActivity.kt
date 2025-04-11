@@ -24,7 +24,7 @@ class RecommendationActivity : AppCompatActivity() {
     // Delivery fields passed from AddDeliveryActivity
     private lateinit var pickupLocation: String
     private lateinit var destinationLocation: String
-    private lateinit var vehicleType: String
+    private lateinit var purpose: String
     private lateinit var productType: String
     private lateinit var weight: String
 
@@ -40,7 +40,7 @@ class RecommendationActivity : AppCompatActivity() {
         // Extract delivery data from intent
         pickupLocation = intent.getStringExtra("pickupLocation") ?: ""
         destinationLocation = intent.getStringExtra("destinationLocation") ?: ""
-        vehicleType = intent.getStringExtra("vehicleType") ?: ""
+        purpose = intent.getStringExtra("purpose") ?: ""
         productType = intent.getStringExtra("productType") ?: ""
         weight = intent.getStringExtra("weight") ?: ""
 
@@ -94,7 +94,7 @@ class RecommendationActivity : AppCompatActivity() {
         val delivery = Delivery(
             pickupLocation = pickupLocation,
             destinationLocation = destinationLocation,
-            vehicleType = vehicleType,
+            purpose = purpose,
             productType = productType,
             weight = weight,
             farmerId = farmerId,
@@ -121,7 +121,7 @@ class RecommendationActivity : AppCompatActivity() {
             "businessId" to vehicle.businessId,
             "pickupLocation" to delivery.pickupLocation,
             "destinationLocation" to delivery.destinationLocation,
-            "vehicleType" to delivery.vehicleType,
+            "purpose" to delivery.purpose,
             "productType" to delivery.productType,
             "farmerId" to delivery.farmerId,
             "timestamp" to delivery.timestamp,

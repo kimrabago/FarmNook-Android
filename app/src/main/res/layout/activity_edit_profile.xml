@@ -61,6 +61,7 @@
             android:singleLine="true"
             android:imeOptions="actionNext"
             android:visibility="gone"
+            android:enabled="false"
             android:textColorHint="@color/dark_green" />
 
         <TextView
