@@ -57,9 +57,10 @@
         android:layout_margin="10dp"/>
 
     <EditText
+        android:id="@+id/commentBox"
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:text="You can also give feedback to let us know!"
+        android:text="@string/you_can_also_give_feedback_to_let_us_know"
         android:textColor="@color/black"
         android:layout_marginBottom="10dp"
         android:gravity="center"/>
