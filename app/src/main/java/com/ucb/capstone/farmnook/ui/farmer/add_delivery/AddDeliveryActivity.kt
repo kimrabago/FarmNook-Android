@@ -15,6 +15,13 @@ import com.google.android.gms.location.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
+import com.ucb.capstone.farmnook.data.model.algo.RecommendationRequest
+import com.ucb.capstone.farmnook.data.model.algo.RecommendationResponse
+import com.ucb.capstone.farmnook.data.service.ApiService
+import com.ucb.capstone.farmnook.utils.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 
 @Suppress("DEPRECATION")
@@ -97,11 +104,13 @@ class AddDeliveryActivity : AppCompatActivity() {
 //        }
 
         // Create a list of items for the dropdown
-        val options = listOf("Select Purpose", "Livestock", "Crops", "Perishable Goods")
+        val options = listOf("Select Purpose", "Livestock", "Crops", "Perishable Crops")
 
         purposeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
+
+
         findViewById<Button>(R.id.proceedButton).setOnClickListener {
-            val selectedPurpose = purposeSpinner.selectedItem.toString()
+            val selectedPurpose = purposeSpinner.selectedItem.toString().lowercase()
             val inputtedProduct = productTypeEditText.getText().toString().trim()
             val inputtedWeight = weightEditText.getText().toString().trim()
 
@@ -125,6 +134,26 @@ class AddDeliveryActivity : AppCompatActivity() {
 
         //currentUserID
         val farmerId = FirebaseAuth.getInstance().currentUser?.uid
+
+        // ✅ Retrofit test call for recommendation API
+        val testRequest = RecommendationRequest(productType, weight.toInt(), purpose)
+        val retrofit = RetrofitClient.instance
+        val apiService = retrofit?.create(ApiService::class.java)
+
+        apiService?.getRecommendation(testRequest)?.enqueue(object : Callback<RecommendationResponse> {
+            override fun onResponse(call: Call<RecommendationResponse>, response: Response<RecommendationResponse>) {
+                if (response.isSuccessful) {
+                    val rec = response.body()
+                    Toast.makeText(this@AddDeliveryActivity, "✅ Recommended: ${rec?.vehicleType}", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this@AddDeliveryActivity, "❌ Error: ${response.code()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<RecommendationResponse>, t: Throwable) {
+                Toast.makeText(this@AddDeliveryActivity, "🚫 Failed: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
 
         val intent = Intent(this, RecommendationActivity::class.java).apply {
             putExtra("pickupLocation", pickupCoordinates)

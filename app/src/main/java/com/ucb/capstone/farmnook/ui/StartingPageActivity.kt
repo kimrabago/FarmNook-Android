@@ -3,14 +3,13 @@ package com.ucb.capstone.farmnook.ui
 import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
-import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.BuildConfig
 import com.google.firebase.auth.FirebaseAuth
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.auth.LoginActivity
-import com.ucb.capstone.farmnook.ui.menu.BottomNavigationBar
+import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 
 class StartingPageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +30,7 @@ class StartingPageActivity : AppCompatActivity() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
             // **Navigate directly to BottomNavigationBar**
-            val intent = Intent(this, BottomNavigationBar::class.java)
+            val intent = Intent(this, NavigationBar::class.java)
             startActivity(intent)
             finish() // Close StartingPageActivity
             return

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
+
 import android.widget.ImageView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -15,7 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.adapter.AssignedDeliveryAdapter
 import com.ucb.capstone.farmnook.data.model.DeliveryDisplayItem
-import com.ucb.capstone.farmnook.ui.menu.BottomNavigationBar
+import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -39,6 +40,7 @@ class HaulerDashboardFragment : Fragment() {
     ): View {
         val rootView = inflater.inflate(R.layout.fragment_hauler_dashboard, container, false)
 
+
         menuBurger = rootView.findViewById(R.id.menu_burger)
         profileIcon = rootView.findViewById(R.id.profile_icon)
         drawerLayout = requireActivity().findViewById(R.id.drawer_layout)
@@ -50,8 +52,10 @@ class HaulerDashboardFragment : Fragment() {
         }
 
         profileIcon.setOnClickListener {
-            (activity as? BottomNavigationBar)?.navigateToProfile()
+
+            (activity as? NavigationBar)?.navigateToProfile()
         }
+
 
         val recyclerView: RecyclerView = rootView.findViewById(R.id.deliveries_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())

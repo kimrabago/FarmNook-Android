@@ -18,7 +18,7 @@ import com.google.android.gms.common.api.ApiException
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.databinding.ActivityLoginBinding
 import com.ucb.capstone.farmnook.viewmodel.LoginViewModel
-import com.ucb.capstone.farmnook.ui.menu.BottomNavigationBar
+import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 
 class LoginActivity : AppCompatActivity() {
 
@@ -125,7 +125,7 @@ class LoginActivity : AppCompatActivity() {
     private fun navigateToDashboard(user: FirebaseUser?) {
         loginViewModel.getUserData(user) { firstName, lastName, email, userType ->
             if (firstName != null && lastName != null && email != null) {
-                val intent = Intent(this, BottomNavigationBar::class.java).apply {
+                val intent = Intent(this, NavigationBar::class.java).apply {
                     putExtra("USER_NAME", "$firstName $lastName")
                     putExtra("USER_EMAIL", email)
                     putExtra("USER_TYPE", userType) // Pass userType
