@@ -18,20 +18,9 @@
         android:icon="@drawable/about_settings"/>
 
         <item
-        android:id="@+id/subscription"
-        android:title="@string/subscription"
-        android:icon="@drawable/subscription"/>
-
-
-        <item
-        android:id="@+id/report"
-        android:title="@string/report"
-        android:icon="@drawable/report_settings"/>
-
-    <item
-        android:id="@+id/feedback"
-        android:title="@string/feedback"
-        android:icon="@drawable/feedback"/>
+            android:id="@+id/feedback"
+            android:title="@string/feedback"
+            android:icon="@drawable/feedback"/>
     </group>
 
     <item

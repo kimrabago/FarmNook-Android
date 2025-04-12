@@ -2,7 +2,7 @@ package com.ucb.capstone.farmnook.data.model
 
 import com.google.firebase.Timestamp
 
-data class Delivery(
+data class DeliveryRequest(
     val id: String? = null,
     val purpose: String? = null,
     val productType: String? = null,

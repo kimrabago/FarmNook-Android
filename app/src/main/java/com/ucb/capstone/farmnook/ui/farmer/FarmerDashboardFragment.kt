@@ -20,7 +20,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.ucb.capstone.farmnook.R
-import com.ucb.capstone.farmnook.ui.menu.BottomNavigationBar
+import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import android.content.Context
 import android.location.LocationManager
 import com.ucb.capstone.farmnook.ui.farmer.add_delivery.AddDeliveryActivity
@@ -66,7 +66,7 @@ class FarmerDashboardFragment : Fragment() {
         }
 
         profileIcon.setOnClickListener {
-            (activity as? BottomNavigationBar)?.navigateToProfile()
+            (activity as? NavigationBar)?.navigateToProfile()
         }
 
         addDeliveryBtn.setOnClickListener {

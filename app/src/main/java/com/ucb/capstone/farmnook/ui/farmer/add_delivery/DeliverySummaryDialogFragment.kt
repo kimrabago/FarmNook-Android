@@ -4,20 +4,20 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import com.ucb.capstone.farmnook.data.model.Delivery
+import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 
 class DeliverySummaryDialogFragment : DialogFragment() {
 
     private lateinit var vehicle: VehicleWithBusiness
-    private lateinit var delivery: Delivery
-    private var onHireConfirmed: ((Pair<VehicleWithBusiness, Delivery>) -> Unit)? = null
+    private lateinit var delivery: DeliveryRequest
+    private var onHireConfirmed: ((Pair<VehicleWithBusiness, DeliveryRequest>) -> Unit)? = null
 
     companion object {
         fun newInstance(
             vehicle: VehicleWithBusiness,
-            delivery: Delivery,
-            onHire: (Pair<VehicleWithBusiness, Delivery>) -> Unit
+            delivery: DeliveryRequest,
+            onHire: (Pair<VehicleWithBusiness, DeliveryRequest>) -> Unit
         ): DeliverySummaryDialogFragment {
             val fragment = DeliverySummaryDialogFragment()
             fragment.vehicle = vehicle

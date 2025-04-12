@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
-import com.ucb.capstone.farmnook.data.model.Delivery
+import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 import com.ucb.capstone.farmnook.ui.adapter.RecommendationAdapter
 
@@ -91,7 +91,7 @@ class RecommendationActivity : AppCompatActivity() {
 
     private fun onAvailableClicked(vehicle: VehicleWithBusiness) {
         val farmerId = intent.getStringExtra("farmerId") ?: ""
-        val delivery = Delivery(
+        val delivery = DeliveryRequest(
             pickupLocation = pickupLocation,
             destinationLocation = destinationLocation,
             purpose = purpose,
@@ -110,7 +110,7 @@ class RecommendationActivity : AppCompatActivity() {
         dialog.show(supportFragmentManager, "DeliverySummary")
     }
 
-    private fun saveToDeliveryRequests(vehicle: VehicleWithBusiness, delivery: Delivery) {
+    private fun saveToDeliveryRequests(vehicle: VehicleWithBusiness, delivery: DeliveryRequest) {
         val deliveryRequestsRef = firestore.collection("deliveryRequests")
         val newRequestRef = deliveryRequestsRef.document()
         val requestId = newRequestRef.id
@@ -123,6 +123,7 @@ class RecommendationActivity : AppCompatActivity() {
             "destinationLocation" to delivery.destinationLocation,
             "purpose" to delivery.purpose,
             "productType" to delivery.productType,
+            "weight" to delivery.weight,
             "farmerId" to delivery.farmerId,
             "timestamp" to delivery.timestamp,
             "isAccepted" to delivery.isAccepted

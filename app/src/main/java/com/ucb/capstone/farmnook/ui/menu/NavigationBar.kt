@@ -23,18 +23,16 @@ import com.ucb.capstone.farmnook.ui.farmer.DeliveryStatusFragment
 import com.ucb.capstone.farmnook.ui.farmer.FarmerDashboardFragment
 import com.ucb.capstone.farmnook.ui.hauler.DeliveryHistoryFragment
 import com.ucb.capstone.farmnook.ui.hauler.HaulerDashboardFragment
-import com.ucb.capstone.farmnook.ui.hauler.subscription.SubscriptionActivity
 import com.ucb.capstone.farmnook.ui.message.InboxFragment
 import com.ucb.capstone.farmnook.ui.settings.AboutActivity
 import com.ucb.capstone.farmnook.ui.settings.FeedbackActivity
 import com.ucb.capstone.farmnook.ui.settings.ProfileActivity
 import com.ucb.capstone.farmnook.ui.settings.NotificationActivity
-import com.ucb.capstone.farmnook.ui.settings.ReportActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class BottomNavigationBar : AppCompatActivity() {
+class NavigationBar : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var database: FirebaseFirestore
@@ -82,8 +80,6 @@ class BottomNavigationBar : AppCompatActivity() {
                 R.id.profile -> navigateToProfile()
                 R.id.notification -> startActivity(Intent(this, NotificationActivity::class.java))
                 R.id.about -> startActivity(Intent(this, AboutActivity::class.java))
-                R.id.subscription -> startActivity(Intent(this, SubscriptionActivity::class.java))
-                R.id.report -> startActivity(Intent(this, ReportActivity::class.java))
                 R.id.feedback -> startActivity(Intent(this, FeedbackActivity::class.java))
                 R.id.nav_logout -> {
                     firebaseAuth.signOut() // Logout user
@@ -169,11 +165,6 @@ class BottomNavigationBar : AppCompatActivity() {
                     } else {
                         profileImage.setImageResource(R.drawable.profile_circle)
                     }
-
-                    val menu = navigationView.menu
-                    val subscriptionMenuItem = menu.findItem(R.id.subscription)
-                    subscriptionMenuItem.isVisible = userType == "Hauler Business Admin"
-
 
                     Log.d("FirestoreDebug", "Fetched userType: $userType")
                     // ✅ Now call resetToDashboard() since userType is updated

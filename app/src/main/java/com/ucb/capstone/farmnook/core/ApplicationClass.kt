@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook
+package com.ucb.capstone.farmnook.core
 
 import android.app.Application
 import android.content.Intent
@@ -6,7 +6,6 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
 import com.onesignal.notifications.INotificationClickEvent
