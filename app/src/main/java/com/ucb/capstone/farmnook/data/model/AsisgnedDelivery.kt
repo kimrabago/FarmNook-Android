@@ -4,5 +4,5 @@ data class AsisgnedDelivery(
     val deliveryId: String = "",
     val requestId: String = "",
     val haulerAssignedId: String = "",
-    val createdAt: com.google.firebase.Timestamp? = null
+    val dateJoined: com.google.firebase.Timestamp? = null
 )

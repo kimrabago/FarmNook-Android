@@ -44,31 +44,43 @@ class ApplicationClass : Application() {
         })
 
         // Save playerId to Firestore
+        // Save playerId to Firestore based on userType
         CoroutineScope(Dispatchers.IO).launch {
-            val farmerId = FirebaseAuth.getInstance().currentUser?.uid
-            Log.d("OneSignal", "📥 Firebase UID: $farmerId")
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val uid = currentUser?.uid
 
-            val playerId = OneSignal.User.pushSubscription.id
-            Log.d("OneSignal", "📡 OneSignal playerId: $playerId")
+            if (uid != null) {
+                // Fetch the user document to get the userType
+                FirebaseFirestore.getInstance().collection("users").document(uid)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        val userType = document.getString("userType")
+                        // Fetch and update OneSignal playerId
+                        val playerId = OneSignal.User.pushSubscription.id
+                        Log.d("OneSignal", "Updated playerId for role: $playerId")
 
-            if (farmerId != null && playerId != null) {
-                FirebaseFirestore.getInstance()
-                    .collection("users")
-                    .document(farmerId)
-                    .update("playerIds", FieldValue.arrayUnion(playerId)) // <- This creates or updates the array
-                    .addOnSuccessListener {
-                        Log.d("OneSignal", "✅ playerId added to playerIds array")
+// Update Firestore with the new playerId
+                        val uid = FirebaseAuth.getInstance().currentUser?.uid
+                        if (uid != null && !playerId.isNullOrEmpty()) {
+                            val fieldToUpdate = if (userType == "Hauler") "haulerId" else "farmerId"
+                            FirebaseFirestore.getInstance()
+                                .collection("users")
+                                .document(uid)
+                                .update(
+                                    "playerIds",
+                                    FieldValue.arrayUnion(playerId),
+                                    fieldToUpdate,
+                                    uid
+                                )
+                                .addOnSuccessListener {
+                                    Log.d("Firestore", "Successfully updated playerId in Firestore")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("Firestore", "Failed to update playerId", e)
+                                }
+                        }
                     }
-                    .addOnFailureListener { e ->
-                        Log.e("OneSignal", "❌ Failed to update playerIds", e)
-                    }
-                } else {
-                    Log.w("OneSignal", "⚠️ playerId is null, cannot save")
-                }
+            }
         }
-
-        Log.d("AppInit", "✅ App onCreate finished")
-
     }
-
 }

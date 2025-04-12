@@ -120,7 +120,7 @@ class EditProfileActivity : AppCompatActivity() {
                         val userType = document.getString("userType") ?: ""
                         Log.d("EditProfileActivity", "User Type: $userType")
                         val businessName = document.getString("businessName") ?: ""
-                        val businessID = document.getString("businessAdminId")
+                        val businessID = document.getString("businessId")
                         businessNameEditText.visibility = View.GONE
 
 
