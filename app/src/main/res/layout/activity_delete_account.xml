@@ -48,7 +48,7 @@
         android:id="@+id/btn_cancel_delete"
         android:layout_width="325dp"
         android:layout_height="wrap_content"
-        android:text="Cancel"
+        android:text="@string/cancell"
         android:textAllCaps="false"
         android:layout_gravity="center"
         android:fontFamily="@font/poppins_semibold"

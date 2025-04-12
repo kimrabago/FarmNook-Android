@@ -29,7 +29,7 @@
             android:id="@+id/faq"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Confirmation"
+            android:text="@string/confirmation"
             android:fontFamily="@font/poppins_bold"
             android:textColor="@color/dark_green"
             android:textSize="24sp"
@@ -162,7 +162,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Product"
+                android:text="@string/product"
                 android:textStyle="bold"
                 android:textSize="14sp"
                 android:paddingTop="8dp"
@@ -178,7 +178,7 @@
                     android:id="@+id/productType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Livestock/Pig"
+                    android:text="@string/livestock_pig"
                     android:textSize="14sp"
                     android:textColor="@color/dark_green"/>
 
@@ -186,7 +186,7 @@
                     android:id="@+id/capacity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="20,000kg"
+                    android:text="@string/_20_000kg"
                     android:textSize="14sp"
                     android:textColor="@color/dark_green"
                     android:layout_below="@id/productType"/>

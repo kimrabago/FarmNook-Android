@@ -21,7 +21,7 @@
             android:src="@drawable/profile_circle"
             app:strokeColor="#FF0000"
             app:shapeAppearanceOverlay="@style/Circular"
-            android:contentDescription="Person's Image"
+            android:contentDescription="@string/person_s_image"
             android:scaleType="centerCrop" />
 
         <LinearLayout
@@ -35,7 +35,7 @@
                 android:id="@+id/senderNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sender's Name"
+                android:text="@string/sender_s_name"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -47,7 +47,7 @@
                     android:id="@+id/messageContentTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Message content"
+                    android:text="@string/message_content"
                     android:textSize="14sp"
                     android:layout_alignParentStart="true"
                     android:layout_toStartOf="@+id/messageTimestampTextView" />
@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
                     android:textColor="@android:color/darker_gray"
-                    android:text="Timestamp"
+                    android:text="@string/timestamp"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true" />
             </RelativeLayout>

@@ -48,7 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/user_name"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:textColor="@color/dark_green"
         android:fontFamily="@font/poppins_semibold"/>
 
@@ -57,7 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/status"
-        android:textSize="15dp"
+        android:textSize="15sp"
         android:layout_below="@id/user_name"
         android:textColor="@color/black"
         android:fontFamily="@font/poppins_semibold"/>

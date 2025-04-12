@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:maxWidth="250dp"
             android:paddingEnd="4dp"
-            android:text="Hello, how are you?"
+            android:text="@string/hello_how_are_you"
             android:textColor="@color/white"
             android:textSize="14sp" />
 
