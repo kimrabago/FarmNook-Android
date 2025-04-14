@@ -11,6 +11,7 @@ import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
 import com.onesignal.notifications.INotificationClickEvent
 import com.onesignal.notifications.INotificationClickListener
+import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,6 +58,11 @@ class ApplicationClass : Application() {
                     "BusinessDashboard" -> {
                         Intent(applicationContext, com.ucb.capstone.farmnook.ui.settings.NotificationActivity::class.java)
                     }
+                    "HaulerDashboard", "FarmerDashboard" -> {
+                        Intent(applicationContext, NavigationBar::class.java).apply {
+                            putExtra("targetFragment", openTarget)
+                        }
+                    }
                     else -> null
                 }
 
@@ -74,23 +80,30 @@ class ApplicationClass : Application() {
                 val uid = user?.uid
 
                 if (uid != null) {
-                    FirebaseFirestore.getInstance().collection("users").document(uid)
-                        .get()
+                    val userRef = FirebaseFirestore.getInstance().collection("users").document(uid)
+                    userRef.get()
                         .addOnSuccessListener { document ->
                             val userType = document.getString("userType")
                             val playerId = OneSignal.User.pushSubscription.id
 
                             if (!playerId.isNullOrEmpty()) {
-                                val fieldToUpdate = if (userType == "Hauler") "haulerId" else "farmerId"
-                                FirebaseFirestore.getInstance()
-                                    .collection("users")
-                                    .document(uid)
-                                    .update(
-                                        "playerIds", FieldValue.arrayUnion(playerId),
-                                        fieldToUpdate, uid
-                                    )
+                                val updateMap = hashMapOf<String, Any>(
+                                    "playerIds" to FieldValue.arrayUnion(playerId)
+                                )
+
+                                val typeField = when (userType) {
+                                    "Hauler" -> "haulerId"
+                                    "Farmer" -> "farmerId"
+                                    else -> null
+                                }
+
+                                if (typeField != null) {
+                                    updateMap[typeField] = uid
+                                }
+
+                                userRef.update(updateMap)
                                     .addOnSuccessListener {
-                                        Log.d("Firestore", "✅ Updated playerId: $playerId")
+                                        Log.d("Firestore", "✅ Updated playerId for $userType: $playerId")
                                     }
                                     .addOnFailureListener { e ->
                                         Log.e("Firestore", "❌ Failed to update playerId", e)
@@ -104,6 +117,5 @@ class ApplicationClass : Application() {
                 }
             }
         }
-
     }
 }
