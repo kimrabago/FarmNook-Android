@@ -89,38 +89,39 @@ class ProfileActivity : AppCompatActivity() {
                         phoneNumTextView.text = phoneNumber
                         dateJoinedTextView.text = dateJoined
 
+                        if ((userType == "Hauler" || userType == "Hauler Business Admin")) {
+                            val documentId = if (userType == "Hauler") businessID else userId
 
-                        if (userType == "Hauler" && !businessID.isNullOrEmpty()) {
-                            database.collection("users").document(businessID).get(Source.CACHE)
-                                .addOnSuccessListener { adminDoc ->
-                                    if (adminDoc.exists()) {
-                                        val businessName = adminDoc.getString("businessName") ?: "N/A"
-                                        runOnUiThread {
-                                            businessNameTextView.text = businessName
-                                            businessNameTextView.visibility = View.VISIBLE
+                            if (!documentId.isNullOrEmpty()) {
+                                database.collection("users").document(documentId).get(Source.CACHE)
+                                    .addOnSuccessListener { adminDoc ->
+                                        if (adminDoc.exists()) {
+                                            val businessName = adminDoc.getString("businessName") ?: "N/A"
+                                            runOnUiThread {
+                                                businessNameTextView.text = businessName
+                                                businessNameTextView.visibility = View.VISIBLE
+                                            }
                                         }
-                                        Log.d("ProfileActivity", "businessID: $businessID")
                                     }
-                                }
-                                .addOnFailureListener { exception ->
-                                    exception.printStackTrace()
-                                }
+                                    .addOnFailureListener { exception ->
+                                        exception.printStackTrace()
+                                    }
+                            } else {
+                                businessNameTextView.visibility = View.GONE
+                            }
                         } else {
                             businessNameTextView.visibility = View.GONE
                         }
 
-
                         if (!profileImageUrl.isNullOrEmpty()) {
-                            // **Load image using Glide**
                             Glide.with(this)
                                 .load(profileImageUrl)
-                                .diskCacheStrategy(DiskCacheStrategy.ALL) // Cache both the original and resized images
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .override(100, 100) // Define a fixed image size
                                 .placeholder(R.drawable.profile_circle)
                                 .error(R.drawable.profile_circle)
                                 .into(profileImage)
                         } else {
-                            // Set default profile image if no image is found
                             profileImage.setImageResource(R.drawable.profile_circle)
                         }
                     }

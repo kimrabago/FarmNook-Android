@@ -1,11 +1,11 @@
-package com.ucb.capstone.farmnook.ui.farmer.add_delivery
-
 import android.app.Dialog
+import android.location.Geocoder
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
+import java.util.Locale
 
 class DeliverySummaryDialogFragment : DialogFragment() {
 
@@ -28,6 +28,10 @@ class DeliverySummaryDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        val pickupAddress = getAddressFromLatLng(delivery.pickupLocation, geocoder)
+        val destinationAddress = getAddressFromLatLng(delivery.destinationLocation, geocoder)
+
         return AlertDialog.Builder(requireContext())
             .setTitle("Confirm Hire")
             .setMessage(
@@ -36,8 +40,8 @@ class DeliverySummaryDialogFragment : DialogFragment() {
                 Vehicle: ${vehicle.vehicleType} - ${vehicle.model}
                 Plate Number: ${vehicle.plateNumber}
                 
-                Pickup: ${delivery.pickupLocation}
-                Destination: ${delivery.destinationLocation}
+                Pickup: $pickupAddress
+                Destination: $destinationAddress
                 Purpose: ${delivery.purpose}
                 Product Type: ${delivery.productType}
                 Weight: ${delivery.weight} kg
@@ -50,5 +54,29 @@ class DeliverySummaryDialogFragment : DialogFragment() {
             }
             .setNegativeButton("Cancel", null)
             .create()
+    }
+
+    private fun getAddressFromLatLng(locationStr: String?, geocoder: Geocoder): String {
+        return try {
+            if (!locationStr.isNullOrBlank()) {
+                val parts = locationStr.split(",")
+                if (parts.size == 2) {
+                    val lat = parts[0].toDouble()
+                    val lng = parts[1].toDouble()
+                    val addressList = geocoder.getFromLocation(lat, lng, 1)
+                    if (!addressList.isNullOrEmpty()) {
+                        addressList[0].getAddressLine(0)
+                    } else {
+                        "Unknown location"
+                    }
+                } else {
+                    "Invalid coordinates"
+                }
+            } else {
+                "Not specified"
+            }
+        } catch (e: Exception) {
+            "Error resolving address"
+        }
     }
 }

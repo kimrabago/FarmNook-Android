@@ -13,6 +13,7 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 import com.ucb.capstone.farmnook.ui.adapter.RecommendationAdapter
+import kotlin.math.pow
 
 class RecommendationActivity : AppCompatActivity() {
 
@@ -56,43 +57,60 @@ class RecommendationActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun fetchVehiclesWithBusinessInfo() {
+        val pickupCoords = pickupLocation.split(",").mapNotNull { it.toDoubleOrNull() }
+        if (pickupCoords.size != 2) {
+            Toast.makeText(this, "Invalid pickup location.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val pickupLat = pickupCoords[0]
+        val pickupLng = pickupCoords[1]
+
         firestore.collection("vehicles")
             .get()
             .addOnSuccessListener { vehiclesSnapshot ->
                 val vehicles = vehiclesSnapshot.documents
+                    .filter { it.getString("vehicleType")?.equals(recommendedType, ignoreCase = true) == true }
+
                 val businessIds = vehicles.mapNotNull { it.getString("businessId") }.toSet()
 
                 firestore.collection("users")
                     .whereIn("userId", businessIds.toList())
                     .get()
                     .addOnSuccessListener { usersSnapshot ->
+
                         val businessMap = usersSnapshot.documents.associateBy(
                             { it.getString("userId") ?: "" },
-                            { it.getString("businessName") ?: "Unknown Business" }
+                            { Pair(it.getString("businessName") ?: "Unknown Business", it.getString("location") ?: "") }
                         )
 
-                        vehicleList.clear()
+                        val vehicleWithDistance = mutableListOf<Pair<VehicleWithBusiness, Double>>()
+
                         for (doc in vehicles) {
-                            val type = doc.getString("vehicleType") ?: continue
-
-                            // ✅ Skip if it doesn't match the recommended type
-                            if (type.lowercase() != recommendedType.lowercase()) continue
-
                             val busId = doc.getString("businessId") ?: continue
-                            val businessName = businessMap[busId] ?: "Unknown Business"
+                            val (businessName, locationStr) = businessMap[busId] ?: continue
 
-                            vehicleList.add(
-                                VehicleWithBusiness(
-                                    vehicleId = doc.id,
-                                    vehicleType = type,
-                                    model = doc.getString("model") ?: "Unknown Model",
-                                    plateNumber = doc.getString("plateNumber") ?: "Unknown Plate",
-                                    businessName = businessName,
-                                    businessId = busId
-                                )
+                            val locationCoords = locationStr.split(",")
+                            if (locationCoords.size != 2) continue
+
+                            val lat = locationCoords[0].toDoubleOrNull() ?: continue
+                            val lng = locationCoords[1].toDoubleOrNull() ?: continue
+                            val distance = haversine(pickupLat, pickupLng, lat, lng)
+
+                            val vehicleObj = VehicleWithBusiness(
+                                vehicleId = doc.id,
+                                vehicleType = doc.getString("vehicleType") ?: "Unknown",
+                                model = doc.getString("model") ?: "Unknown Model",
+                                plateNumber = doc.getString("plateNumber") ?: "Unknown Plate",
+                                businessName = businessName,
+                                businessId = busId
                             )
+
+                            vehicleWithDistance.add(Pair(vehicleObj, distance))
                         }
 
+                        vehicleList.clear()
+                        vehicleList.addAll(vehicleWithDistance.sortedBy { it.second }.map { it.first }) // Nearest first
                         adapter.notifyDataSetChanged()
 
                         if (vehicleList.isEmpty()) {
@@ -100,6 +118,17 @@ class RecommendationActivity : AppCompatActivity() {
                         }
                     }
             }
+    }
+
+    private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val R = 6371e3 // Radius of the Earth in meters
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = Math.sin(dLat / 2).pow(2.0) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2).pow(2.0)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return R * c
     }
 
     private fun onAvailableClicked(vehicle: VehicleWithBusiness) {

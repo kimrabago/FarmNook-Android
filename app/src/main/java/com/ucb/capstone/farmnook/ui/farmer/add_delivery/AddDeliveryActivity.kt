@@ -146,29 +146,90 @@ class AddDeliveryActivity : AppCompatActivity() {
             override fun onResponse(call: Call<RecommendationResponse>, response: Response<RecommendationResponse>) {
                 if (response.isSuccessful) {
                     val rec = response.body()
-                    Toast.makeText(this@AddDeliveryActivity, "✅ Recommended: ${rec?.vehicleType}", Toast.LENGTH_LONG).show()
+                    val matchedVehicleType = rec?.vehicleType ?: return
 
-                    // ✅ start RecommendationActivity only after we get the result
-                    val intent = Intent(this@AddDeliveryActivity, RecommendationActivity::class.java).apply {
-                        putExtra("pickupLocation", pickupCoordinates)
-                        putExtra("destinationLocation", destinationCoordinates)
-                        putExtra("purpose", purpose)
-                        putExtra("productType", productType)
-                        putExtra("farmerId", farmerId)
-                        putExtra("weight", weight)
-                        putExtra("recommendedType", rec?.vehicleType) // ✅ include recommended type here
-                    }
-                    startActivity(intent)
+                    firestore.collection("vehicles")
+                        .whereEqualTo("vehicleType", matchedVehicleType)
+                        .get()
+                        .addOnSuccessListener { vehicleDocs ->
+                            if (vehicleDocs.isEmpty) {
+                                Toast.makeText(this@AddDeliveryActivity, "No businesses with $matchedVehicleType found.", Toast.LENGTH_SHORT).show()
+                                return@addOnSuccessListener
+                            }
 
+                            val vehiclesToDistance = mutableListOf<Triple<String, Double, String>>() // businessId, distance, vehicleId
+                            val pickupLat = userLatitude ?: return@addOnSuccessListener
+                            val pickupLng = userLongitude ?: return@addOnSuccessListener
+
+                            var processed = 0
+
+                            for (vehicleDoc in vehicleDocs) {
+                                val vehicleId = vehicleDoc.id
+                                val businessId = vehicleDoc.getString("businessId")
+                                if (!businessId.isNullOrEmpty()) {
+                                    firestore.collection("users").document(businessId).get()
+                                        .addOnSuccessListener { businessDoc ->
+                                            val location = businessDoc.getString("location")
+                                            if (!location.isNullOrEmpty()) {
+                                                val coords = location.split(",")
+                                                if (coords.size == 2) {
+                                                    val lat = coords[0].toDoubleOrNull()
+                                                    val lng = coords[1].toDoubleOrNull()
+                                                    if (lat != null && lng != null) {
+                                                        val dist = haversine(pickupLat, pickupLng, lat, lng)
+                                                        vehiclesToDistance.add(Triple(businessId, dist, vehicleId))
+                                                    }
+                                                }
+                                            }
+                                            processed++
+                                            if (processed == vehicleDocs.size()) {
+                                                if (vehiclesToDistance.isEmpty()) {
+                                                    Toast.makeText(this@AddDeliveryActivity, "No valid hauler locations found.", Toast.LENGTH_SHORT).show()
+                                                    return@addOnSuccessListener
+                                                }
+
+                                                // Sort by distance ascending
+                                                val sortedVehicles = vehiclesToDistance.sortedBy { it.second }
+
+                                                val intent = Intent(this@AddDeliveryActivity, RecommendationActivity::class.java).apply {
+                                                    putExtra("pickupLocation", pickupCoordinates)
+                                                    putExtra("destinationLocation", destinationCoordinates)
+                                                    putExtra("purpose", purpose)
+                                                    putExtra("productType", productType)
+                                                    putExtra("farmerId", farmerId)
+                                                    putExtra("weight", weight)
+                                                    putExtra("recommendedType", matchedVehicleType)
+                                                    putStringArrayListExtra("sortedBusinessIds", ArrayList(sortedVehicles.map { it.first }))
+                                                    putStringArrayListExtra("sortedVehicleIds", ArrayList(sortedVehicles.map { it.third }))
+                                                }
+                                                startActivity(intent)
+                                            }
+                                        }
+                                } else {
+                                    processed++
+                                }
+                            }
+                        }
                 } else {
-                    Toast.makeText(this@AddDeliveryActivity, "❌ Error: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AddDeliveryActivity, "❌ API Error: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<RecommendationResponse>, t: Throwable) {
-                Toast.makeText(this@AddDeliveryActivity, "🚫 Failed: ${t.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AddDeliveryActivity, "🚫 API Failed: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val R = 6371e3 // meters
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return R * c
     }
 
     @SuppressLint("MissingPermission")
