@@ -71,7 +71,7 @@ class ProfileActivity : AppCompatActivity() {
                         val email = document.getString("email") ?: ""
                         val phoneNumber = document.getString("phoneNum") ?: ""
                         val userType = document.getString("userType") ?: ""
-                        val businessID = document.getString("businessAdminId")
+                        val businessID = document.getString("businessId")
                         val dateJoined = document.getString("dateJoined") ?: ""
                         val profileImageUrl = document.getString("profileImageUrl")
 

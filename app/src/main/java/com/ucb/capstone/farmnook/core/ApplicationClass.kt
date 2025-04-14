@@ -36,39 +36,69 @@ class ApplicationClass : Application() {
         OneSignal.Notifications.addClickListener(object : INotificationClickListener {
             override fun onClick(event: INotificationClickEvent) {
                 Log.d("OneSignal", "🔔 Notification clicked: ${event.notification.notificationId}")
-                val intent = Intent(applicationContext, com.ucb.capstone.farmnook.ui.settings.NotificationActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                val data = event.notification.additionalData
+                val openTarget = data?.optString("openTarget")
+
+                val intent = when (openTarget) {
+                    "MessageActivity" -> {
+                        // Extract receiverId and receiverName if you added them in data
+                        val receiverId = data.optString("receiverId")
+                        val receiverName = data.optString("receiverName")
+                        Intent(applicationContext, com.ucb.capstone.farmnook.ui.message.MessageActivity::class.java).apply {
+                            putExtra("receiverId", receiverId)
+                            putExtra("receiverName", receiverName)
+                        }
+                    }
+                    "BusinessDashboard" -> {
+                        Intent(applicationContext, com.ucb.capstone.farmnook.ui.settings.NotificationActivity::class.java)
+                    }
+                    else -> null
                 }
-                startActivity(intent)
+
+                intent?.apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(this)
+                }
             }
         })
 
-        // Save playerId to Firestore
+        // Save playerId to Firestore based on userType
         CoroutineScope(Dispatchers.IO).launch {
-            val farmerId = FirebaseAuth.getInstance().currentUser?.uid
-            Log.d("OneSignal", "📥 Firebase UID: $farmerId")
+            FirebaseAuth.getInstance().addAuthStateListener { auth ->
+                val user = auth.currentUser
+                val uid = user?.uid
 
-            val playerId = OneSignal.User.pushSubscription.id
-            Log.d("OneSignal", "📡 OneSignal playerId: $playerId")
+                if (uid != null) {
+                    FirebaseFirestore.getInstance().collection("users").document(uid)
+                        .get()
+                        .addOnSuccessListener { document ->
+                            val userType = document.getString("userType")
+                            val playerId = OneSignal.User.pushSubscription.id
 
-            if (farmerId != null && playerId != null) {
-                FirebaseFirestore.getInstance()
-                    .collection("users")
-                    .document(farmerId)
-                    .update("playerIds", FieldValue.arrayUnion(playerId)) // <- This creates or updates the array
-                    .addOnSuccessListener {
-                        Log.d("OneSignal", "✅ playerId added to playerIds array")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("OneSignal", "❌ Failed to update playerIds", e)
-                    }
+                            if (!playerId.isNullOrEmpty()) {
+                                val fieldToUpdate = if (userType == "Hauler") "haulerId" else "farmerId"
+                                FirebaseFirestore.getInstance()
+                                    .collection("users")
+                                    .document(uid)
+                                    .update(
+                                        "playerIds", FieldValue.arrayUnion(playerId),
+                                        fieldToUpdate, uid
+                                    )
+                                    .addOnSuccessListener {
+                                        Log.d("Firestore", "✅ Updated playerId: $playerId")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("Firestore", "❌ Failed to update playerId", e)
+                                    }
+                            } else {
+                                Log.w("OneSignal", "⚠️ playerId is null or not ready yet.")
+                            }
+                        }
                 } else {
-                    Log.w("OneSignal", "⚠️ playerId is null, cannot save")
+                    Log.d("Auth", "🔒 No authenticated user.")
                 }
+            }
         }
 
-        Log.d("AppInit", "✅ App onCreate finished")
-
     }
-
 }

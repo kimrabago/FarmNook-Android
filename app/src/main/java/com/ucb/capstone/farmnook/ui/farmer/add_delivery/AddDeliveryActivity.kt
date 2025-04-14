@@ -132,10 +132,8 @@ class AddDeliveryActivity : AppCompatActivity() {
         val pickupCoordinates = if (userLatitude != null && userLongitude != null)
             "${userLatitude},${userLongitude}" else "0.0,0.0"
 
-        //currentUserID
         val farmerId = FirebaseAuth.getInstance().currentUser?.uid
 
-        // ✅ Retrofit test call for recommendation API
         val testRequest = RecommendationRequest(productType, weight.toInt(), purpose)
         val retrofit = RetrofitClient.instance
         val apiService = retrofit?.create(ApiService::class.java)
@@ -145,6 +143,19 @@ class AddDeliveryActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val rec = response.body()
                     Toast.makeText(this@AddDeliveryActivity, "✅ Recommended: ${rec?.vehicleType}", Toast.LENGTH_LONG).show()
+
+                    // ✅ start RecommendationActivity only after we get the result
+                    val intent = Intent(this@AddDeliveryActivity, RecommendationActivity::class.java).apply {
+                        putExtra("pickupLocation", pickupCoordinates)
+                        putExtra("destinationLocation", "10.331149791236012,123.9112171375494")
+                        putExtra("purpose", purpose)
+                        putExtra("productType", productType)
+                        putExtra("farmerId", farmerId)
+                        putExtra("weight", weight)
+                        putExtra("recommendedType", rec?.vehicleType) // ✅ include recommended type here
+                    }
+                    startActivity(intent)
+
                 } else {
                     Toast.makeText(this@AddDeliveryActivity, "❌ Error: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
@@ -154,16 +165,6 @@ class AddDeliveryActivity : AppCompatActivity() {
                 Toast.makeText(this@AddDeliveryActivity, "🚫 Failed: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
-
-        val intent = Intent(this, RecommendationActivity::class.java).apply {
-            putExtra("pickupLocation", pickupCoordinates)
-            putExtra("destinationLocation", "10.331149791236012,123.9112171375494") // static for now
-            putExtra("purpose", purpose)
-            putExtra("productType", productType)
-            putExtra("farmerId", farmerId)
-            putExtra("weight", weight)
-        }
-        startActivity(intent)
     }
 
     @SuppressLint("MissingPermission")

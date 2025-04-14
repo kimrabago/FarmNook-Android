@@ -147,11 +147,22 @@
             </RadioGroup>
 
             <EditText
-                android:id="@+id/et_business_name"
+                android:id="@+id/businessName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="Business Name"
                 android:hint="@string/business_name"
+                android:inputType="text"
+                android:visibility="gone"
+                android:singleLine="true"
+                android:imeOptions="actionNext"/>
+
+            <EditText
+                android:id="@+id/businessLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="Business Name"
+                android:hint="@string/location_textview"
                 android:inputType="text"
                 android:visibility="gone"
                 android:singleLine="true"

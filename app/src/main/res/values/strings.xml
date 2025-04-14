@@ -58,7 +58,11 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="save">Save</string>
     <string name="about">About</string>
-    <string name="about_farmNook">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Odio ut enim blandit volutpat maecenas volutpat blandit. Volutpat lacus laoreet non curabitur gravida arcu ac. Quam nulla porttitor massa id neque aliquam vestibulum morbi. Ipsum nunc aliquet bibendum enim facilisis gravida neque convallis a.</string>
+    <string name="about_farmNook">FarmNook is a mobile platform that helps farmers find the right
+        transport for their agricultural needs. From fresh produce to livestock, the app connects
+        farmers with trusted haulers and vehicles available in their area. FarmNook aims to improve
+        delivery access, support local farming communities, and make hauling more convenient and
+        reliable for everyone involved.</string>
     <string name="faq">FAQ</string>
     <string name="we_are_here_to_help_you">We are here to help you!</string>
     <string name="how_to_use_the_app">How to use the app?</string>
@@ -198,5 +202,6 @@
     <string name="message_content">Message content</string>
     <string name="timestamp">Timestamp</string>
     <string name="hello_how_are_you">Hello, how are you?</string>
+    <string name="multicab_suzuki">Multicab - Suzuki</string>
 
 </resources>

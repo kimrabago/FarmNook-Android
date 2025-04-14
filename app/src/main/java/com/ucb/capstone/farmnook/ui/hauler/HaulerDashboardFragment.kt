@@ -88,8 +88,8 @@ class HaulerDashboardFragment : Fragment() {
                 for (doc in docs) {
                     val deliveryId = doc.id
                     val requestId = doc.getString("requestId") ?: continue
-                    val createdAt = doc.getTimestamp("createdAt")?.toDate()
-                    val formattedTime = createdAt?.let {
+                    val dateJoined = doc.getTimestamp("dateJoined")?.toDate()
+                    val formattedTime = dateJoined?.let {
                         SimpleDateFormat("MMM dd, yyyy - hh:mm a", Locale.getDefault()).format(it)
                     } ?: "Unknown"
 

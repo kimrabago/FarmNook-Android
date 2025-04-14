@@ -16,6 +16,7 @@ import com.google.firebase.firestore.Query
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.Message
 import com.ucb.capstone.farmnook.ui.adapter.MessageAdapter
+import com.ucb.capstone.farmnook.ui.farmer.add_delivery.SendPushNotification
 
 class MessageActivity : AppCompatActivity() {
 
@@ -150,6 +151,14 @@ class MessageActivity : AppCompatActivity() {
                 chatRef.collection("messages").add(message)
                     .addOnSuccessListener {
                         replyEditText.text.clear()
+
+                        // ✅ Send push notification to the receiver
+                        SendPushNotification.sendMessageNotification(
+                            context = this,
+                            receiverId = receiverId!!,
+                            senderName = senderName,
+                            message = content
+                        )
                     }
                     .addOnFailureListener {
                         Toast.makeText(this, "Failed to send message", Toast.LENGTH_SHORT).show()

@@ -33,9 +33,8 @@ class DeliverySummaryDialogFragment : DialogFragment() {
             .setMessage(
                 """
                 Business: ${vehicle.businessName}
-                Vehicle: ${vehicle.model} (${vehicle.size})
+                Vehicle: ${vehicle.vehicleType} - ${vehicle.model}
                 Plate Number: ${vehicle.plateNumber}
-                Max Weight: ${vehicle.maxWeightKg} kg
                 
                 Pickup: ${delivery.pickupLocation}
                 Destination: ${delivery.destinationLocation}

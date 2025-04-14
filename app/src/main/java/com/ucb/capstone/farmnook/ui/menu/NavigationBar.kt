@@ -135,7 +135,7 @@ class NavigationBar : AppCompatActivity() {
     private fun fetchUserData() {
         val userId = firebaseAuth.currentUser?.uid ?: return
 
-        database.collection("users").document(userId).get(Source.CACHE)
+        database.collection("users").document(userId).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val profileImageUrl = document.getString("profileImageUrl")
@@ -148,6 +148,7 @@ class NavigationBar : AppCompatActivity() {
 
                     val dateJoined = document.getString("dateJoined") ?: ""
                     val formattedDate = formatDateJoined(dateJoined)
+
 
                     val headerView: View = navigationView.getHeaderView(0)
                     headerView.findViewById<TextView>(R.id.full_name).text = fullName
