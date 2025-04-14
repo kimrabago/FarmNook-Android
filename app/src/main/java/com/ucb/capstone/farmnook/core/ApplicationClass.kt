@@ -3,6 +3,7 @@ package com.ucb.capstone.farmnook.core
 import android.app.Application
 import android.content.Intent
 import android.util.Log
+import com.google.android.libraries.places.api.Places
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -20,6 +21,10 @@ class ApplicationClass : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), "AIzaSyBgn5YSLD0N6p62OrEHqjVqVsfijHdupY8");
+        }
 
         // Initialize OneSignal
         Log.d("OneSignal", "🔧 Initializing OneSignal with APP_ID: $ONESIGNAL_APP_ID")
