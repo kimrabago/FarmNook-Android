@@ -35,6 +35,10 @@
 
         </activity>
         <activity
+            android:name=".ui.farmer.add_delivery.RateDelivery"
+            android:exported="true" />
+
+        <activity
             android:name=".ui.message.NewMessageActivity"
             android:exported="true">
 
