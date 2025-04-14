@@ -4,10 +4,9 @@ import java.io.Serializable
 
 data class VehicleWithBusiness(
     val vehicleId: String,
+    val vehicleType: String,
     val model: String,
     val plateNumber: String,
-    val maxWeightKg: Int,
-    val size: String,
     val businessName: String,
     val businessId: String
 ) : Serializable

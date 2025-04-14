@@ -10,7 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import org.json.JSONArray
 import org.json.JSONObject
 
-object DeliveryRequestSendNotification {
+object SendPushNotification {
 
     private const val ONE_SIGNAL_APP_ID = "4e5673fb-8d4d-4ee6-a268-7fab9d390be7"
     private const val ONE_SIGNAL_API_KEY = "os_v2_app_jzlhh64njvhonitip6vz2oil46g64bdagwdumafaqquyisuuucapph6jnfwofmjcs3oaauutfhxzdq6sbyu72jgbiktprkewj5uty5y" // Replace with your actual OneSignal REST API key
@@ -71,5 +71,47 @@ object DeliveryRequestSendNotification {
         }
 
         Volley.newRequestQueue(context).add(request)
+
+    }
+
+    fun sendMessageNotification(context: Context, receiverId: String, senderName: String, message: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(receiverId).get()
+            .addOnSuccessListener { doc ->
+                val playerIds = doc.get("playerIds") as? List<String>
+                if (!playerIds.isNullOrEmpty()) {
+                    val json = JSONObject().apply {
+                        put("app_id", ONE_SIGNAL_APP_ID)
+                        put("include_player_ids", JSONArray(playerIds))
+                        put("headings", JSONObject().put("en", "Message from $senderName"))
+                        put("contents", JSONObject().put("en", message))
+                        put("data", JSONObject().apply {
+                            put("openTarget", "MessageActivity")
+                            put("receiverId", receiverId)
+                            put("receiverName", senderName)
+                        })
+                    }
+
+                    val request = object : JsonObjectRequest(
+                        Request.Method.POST,
+                        "https://onesignal.com/api/v1/notifications",
+                        json,
+                        { response -> Log.d("Push", "✅ Chat push sent: $response") },
+                        { error -> Log.e("Push", "❌ Failed to send chat push", error) }
+                    ) {
+                        override fun getHeaders(): MutableMap<String, String> {
+                            return mutableMapOf(
+                                "Authorization" to "Basic $ONE_SIGNAL_API_KEY",
+                                "Content-Type" to "application/json"
+                            )
+                        }
+                    }
+
+                    Volley.newRequestQueue(context).add(request)
+                } else {
+                    Log.w("Push", "🚫 No player ID found for user: $receiverId")
+                }
+            }
     }
 }

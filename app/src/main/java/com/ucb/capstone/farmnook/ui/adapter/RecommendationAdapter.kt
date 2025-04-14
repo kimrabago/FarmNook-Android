@@ -16,7 +16,7 @@ class RecommendationAdapter(
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val businessName: TextView = view.findViewById(R.id.business_name)
-        val modelName: TextView = view.findViewById(R.id.vehicle_model)
+        val vehicle: TextView = view.findViewById(R.id.vehicle)
         val weight: TextView = view.findViewById(R.id.vehicle_weight)
         val availableBtn: Button = view.findViewById(R.id.available_button)
     }
@@ -32,8 +32,8 @@ class RecommendationAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = vehicles[position]
         holder.businessName.text = item.businessName
-        holder.modelName.text = "Model: ${item.model}"
-        holder.weight.text = "Max Weight: ${item.maxWeightKg} kg"
+        holder.vehicle.text = "${item.vehicleType} - ${item.model}"
+//        holder.weight.text = "Max Weight: ${item.maxWeightKg} kg"
 
         holder.availableBtn.setOnClickListener {
             onAvailableClicked(item)

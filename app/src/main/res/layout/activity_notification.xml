@@ -50,7 +50,8 @@
         android:layout_height="match_parent"
         android:background="@drawable/half_border"
         android:orientation="vertical"
-        android:padding="15dp">
+        android:paddingHorizontal="15dp"
+        android:paddingTop="20dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/notificationRecyclerView"

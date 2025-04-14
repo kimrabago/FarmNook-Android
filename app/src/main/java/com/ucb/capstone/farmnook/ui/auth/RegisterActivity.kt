@@ -43,9 +43,11 @@ class RegisterActivity : AppCompatActivity() {
 
         binding.rgUserType.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.rb_business) {
-                binding.etBusinessName.visibility = View.VISIBLE
+                binding.businessName.visibility = View.VISIBLE
+                binding.businessLocation.visibility = View.VISIBLE
             } else {
-                binding.etBusinessName.visibility = View.GONE
+                binding.businessName.visibility = View.GONE
+                binding.businessLocation.visibility = View.GONE
             }
         }
 
@@ -83,7 +85,7 @@ class RegisterActivity : AppCompatActivity() {
             else -> ""
         }
 
-        val businessName = if (userType == "Hauler Business Admin") binding.etBusinessName.text.toString().trim() else ""
+        val businessName = if (userType == "Hauler Business Admin") binding.businessName.text.toString().trim() else ""
 
         registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, userType, businessName)
     }

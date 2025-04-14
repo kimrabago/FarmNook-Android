@@ -27,10 +27,13 @@ class RecommendationActivity : AppCompatActivity() {
     private lateinit var purpose: String
     private lateinit var productType: String
     private lateinit var weight: String
+    private lateinit var recommendedType: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recommendation)
+
+        recommendedType = intent.getStringExtra("recommendedType") ?: ""
 
         recyclerView = findViewById(R.id.recommended_haulers_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -70,21 +73,31 @@ class RecommendationActivity : AppCompatActivity() {
 
                         vehicleList.clear()
                         for (doc in vehicles) {
+                            val type = doc.getString("vehicleType") ?: continue
+
+                            // ✅ Skip if it doesn't match the recommended type
+                            if (type.lowercase() != recommendedType.lowercase()) continue
+
                             val busId = doc.getString("businessId") ?: continue
                             val businessName = businessMap[busId] ?: "Unknown Business"
+
                             vehicleList.add(
                                 VehicleWithBusiness(
                                     vehicleId = doc.id,
+                                    vehicleType = type,
                                     model = doc.getString("model") ?: "Unknown Model",
                                     plateNumber = doc.getString("plateNumber") ?: "Unknown Plate",
-                                    maxWeightKg = doc.getLong("maxWeightKg")?.toInt() ?: 0,
-                                    size = doc.getString("size") ?: "N/A",
                                     businessName = businessName,
                                     businessId = busId
                                 )
                             )
                         }
+
                         adapter.notifyDataSetChanged()
+
+                        if (vehicleList.isEmpty()) {
+                            Toast.makeText(this, "No matching vehicles found for '$recommendedType'", Toast.LENGTH_LONG).show()
+                        }
                     }
             }
     }
@@ -140,7 +153,7 @@ class RecommendationActivity : AppCompatActivity() {
                         .addOnSuccessListener { farmerDoc ->
                             val farmerName = farmerDoc.getString("firstName") + " " + farmerDoc.getString("lastName")
                             delivery.businessId?.let { it1 ->
-                                DeliveryRequestSendNotification.notifyBusinessOfRequest(
+                                SendPushNotification.notifyBusinessOfRequest(
                                     context = this,
                                     businessId = it1,
                                     farmerName = farmerName ?: "A farmer"
