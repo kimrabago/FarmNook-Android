@@ -1,0 +1,172 @@
+[33mefc0b2f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mespiritu[m[33m, [m[1;31morigin/espiritu[m[33m)[m Merge remote-tracking branch 'origin/espiritu' into espiritu
+[33med343a3[m Merge pull request #38 from kimrabago/main
+[33m84920be[m mapping till the admin dashboard
+[33m94e3be7[m Merge pull request #37 from kimrabago/espiritu
+[33m0da7272[m Merge pull request #36 from kimrabago/main
+[33m03a9773[m Merge pull request #35 from kimrabago/espiritu
+[33mdb4bba9[m Merge branch 'main' into espiritu
+[33m2d15630[m Merge remote-tracking branch 'origin/espiritu' into espiritu
+[33m4776c83[m mapping till the admin dashboard
+[33m19570d7[m Merge pull request #34 from kimrabago/rabago
+[33m354ed56[m[33m ([m[1;31morigin/rabago[m[33m)[m remove vehicle type, add delivery overview
+[33m0195cd9[m Merge pull request #33 from kimrabago/main
+[33m852027e[m Merge pull request #32 from kimrabago/espiritu
+[33m785478f[m working farmer dashboard
+[33m4688728[m[33m ([m[1;32mespiritu2[m[33m)[m working dashboard farmer
+[33me454233[m Merge pull request #31 from kimrabago/rabago
+[33m866c299[m collection changed to users
+[33mf54e31a[m Merge pull request #30 from kimrabago/rabago
+[33mda3cbee[m Done suggesting places when search
+[33m465aa77[m Merge pull request #29 from kimrabago/rabago
+[33m4f707ab[m farmer: rating gone; image restore to storage firebase: done and fetching;TO DO: ADD AUTH TOKEN? AND USE BACKEND VSCODE?
+[33m8154302[m Merge pull request #28 from kimrabago/rabago
+[33m97e3cbb[m search dependencies; not yet done
+[33m042481b[m updated appdelivery.kt for (from) functionality
+[33mb8230fb[m Updated Add delivery for (from)
+[33mfcfc4db[m Merge pull request #26 from kimrabago/rabago
+[33md71a238[m changes: package name(capstone), farmers and user_bus_admin collection, etc
+[33mc96fd17[m Merge pull request #25 from kimrabago/rabago
+[33m217f81e[m Latest: company name to the registration; To do: Edit profile
+[33mfc441d3[m Merge pull request #24 from kimrabago/rabago
+[33m1acca9e[m latest
+[33mdce35b1[m Merge pull request #23 from kimrabago/rabago
+[33mc6b2a48[m changing files/packages name
+[33m0e5a7d2[m Merge pull request #22 from kimrabago/rabago
+[33mc61c24f[m register: hauler changed to business
+[33m1e9cd89[m Merge pull request #21 from kimrabago/rabago
+[33m45a6c55[m last delivery status bottomsheet
+[33m02cd182[m Merge pull request #20 from kimrabago/bihag
+[33mc137293[m add delivery;update message
+[33m9b39ef4[m Merge pull request #19 from kimrabago/bihag
+[33m818470a[m notifId in firebase
+[33mf90095b[m[33m ([m[1;32mmain[m[33m)[m Merge pull request #18 from kimrabago/rabago
+[33m896b4ae[m mapbox updated; problem: moving blue circle
+[33m49f4efa[m merging remember me
+[33m4c49030[m Merge pull request #17 from kimrabago/bihag
+[33me6541d3[m add remember me
+[33m4a7cee0[m add options for delivery details
+[33m6f65c3f[m add delivery connect to firebase
+[33m3aa3e48[m add delivery button and ui
+[33me07c5ff[m last: hauler to haulerdashboardfragment
+[33m07f57bb[m Merge pull request #15 from kimrabago/rabago
+[33me7cc874[m Merge branch 'main' of https://github.com/kimrabago/FarmNook-Android into rabago
+[33m07a768e[m done farmer to farmerdashboard, to do: sign google, forgot and change pass, etc.
+[33m75c861e[m Merge pull request #14 from kimrabago/bihag
+[33m81901fe[m update notifications and subscription
+[33mf0b26c8[m fetch username of the user and subscription status
+[33mdeb3c44[m Merge pull request #13 from kimrabago/rabago
+[33m1f1ecc3[m incomplete: sign in with google
+[33mfb86da4[m Merge pull request #12 from kimrabago/bihag
+[33m3393daa[m message not yet final
+[33md90bf4b[m notifications connect to firebase
+[33m19d998f[m Merge pull request #10 from kimrabago/rabago
+[33m12e5032[m last hashed pass, to do: email ver-signwithgoogle-forgotpass
+[33mb7c2678[m Merge pull request #7 from kimrabago/rabago
+[33m641c02f[m Merge branch 'main' into rabago
+[33m3ae9e6d[m latest commit
+[33m0cf53b7[m Merge pull request #6 from kimrabago/bihag
+[33mac66210[m bottom nav fragment
+[33mcd86640[m settings buttons
+[33m7cd21d6[m hauler profile calendar, fixed message ui
+[33m7700dc6[m hauler profile calendar
+[33me6325eb[m change password and delete button
+[33mfdb374d[m Merge pull request #5 from kimrabago/bihag
+[33md5b19ff[m bottom nav message
+[33mf5c1275[m hualer profile and edit profile
+[33mb3e375d[m login button
+[33mdea0b47[m forgot password
+[33mbddfa6d[m Merge pull request #4 from kimrabago/rabago
+[33mf8711d8[m updated device manager
+[33m36df9e1[m Merge pull request #3 from kimrabago/rabago
+[33m5d012b8[m Last: Message UI
+[33m1bb1405[m Merge pull request #2 from kimrabago/rabago
+[33mc85bc7b[m continuing UI design, Delivery Status last
+[33m05ad2ca[m Merge pull request #1 from kimrabago/rabago
+[33me4924bd[m commit2
+[33mc49ac35[m first commit
+[33mefc0b2f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mespiritu[m[33m, [m[1;31morigin/espiritu[m[33m)[m Merge remote-tracking branch 'origin/espiritu' into espiritu
+[33med343a3[m Merge pull request #38 from kimrabago/main
+[33m84920be[m mapping till the admin dashboard
+[33m94e3be7[m Merge pull request #37 from kimrabago/espiritu
+[33m0da7272[m Merge pull request #36 from kimrabago/main
+[33m03a9773[m Merge pull request #35 from kimrabago/espiritu
+[33mdb4bba9[m Merge branch 'main' into espiritu
+[33m2d15630[m Merge remote-tracking branch 'origin/espiritu' into espiritu
+[33m4776c83[m mapping till the admin dashboard
+[33m19570d7[m Merge pull request #34 from kimrabago/rabago
+[33m354ed56[m[33m ([m[1;31morigin/rabago[m[33m)[m remove vehicle type, add delivery overview
+[33m0195cd9[m Merge pull request #33 from kimrabago/main
+[33m852027e[m Merge pull request #32 from kimrabago/espiritu
+[33m785478f[m working farmer dashboard
+[33m4688728[m[33m ([m[1;32mespiritu2[m[33m)[m working dashboard farmer
+[33me454233[m Merge pull request #31 from kimrabago/rabago
+[33m866c299[m collection changed to users
+[33mf54e31a[m Merge pull request #30 from kimrabago/rabago
+[33mda3cbee[m Done suggesting places when search
+[33m465aa77[m Merge pull request #29 from kimrabago/rabago
+[33m4f707ab[m farmer: rating gone; image restore to storage firebase: done and fetching;TO DO: ADD AUTH TOKEN? AND USE BACKEND VSCODE?
+[33m8154302[m Merge pull request #28 from kimrabago/rabago
+[33m97e3cbb[m search dependencies; not yet done
+[33m042481b[m updated appdelivery.kt for (from) functionality
+[33mb8230fb[m Updated Add delivery for (from)
+[33mfcfc4db[m Merge pull request #26 from kimrabago/rabago
+[33md71a238[m changes: package name(capstone), farmers and user_bus_admin collection, etc
+[33mc96fd17[m Merge pull request #25 from kimrabago/rabago
+[33m217f81e[m Latest: company name to the registration; To do: Edit profile
+[33mfc441d3[m Merge pull request #24 from kimrabago/rabago
+[33m1acca9e[m latest
+[33mdce35b1[m Merge pull request #23 from kimrabago/rabago
+[33mc6b2a48[m changing files/packages name
+[33m0e5a7d2[m Merge pull request #22 from kimrabago/rabago
+[33mc61c24f[m register: hauler changed to business
+[33m1e9cd89[m Merge pull request #21 from kimrabago/rabago
+[33m45a6c55[m last delivery status bottomsheet
+[33m02cd182[m Merge pull request #20 from kimrabago/bihag
+[33mc137293[m add delivery;update message
+[33m9b39ef4[m Merge pull request #19 from kimrabago/bihag
+[33m818470a[m notifId in firebase
+[33mf90095b[m[33m ([m[1;32mmain[m[33m)[m Merge pull request #18 from kimrabago/rabago
+[33m896b4ae[m mapbox updated; problem: moving blue circle
+[33m49f4efa[m merging remember me
+[33m4c49030[m Merge pull request #17 from kimrabago/bihag
+[33me6541d3[m add remember me
+[33m4a7cee0[m add options for delivery details
+[33m6f65c3f[m add delivery connect to firebase
+[33m3aa3e48[m add delivery button and ui
+[33me07c5ff[m last: hauler to haulerdashboardfragment
+[33m07f57bb[m Merge pull request #15 from kimrabago/rabago
+[33me7cc874[m Merge branch 'main' of https://github.com/kimrabago/FarmNook-Android into rabago
+[33m07a768e[m done farmer to farmerdashboard, to do: sign google, forgot and change pass, etc.
+[33m75c861e[m Merge pull request #14 from kimrabago/bihag
+[33m81901fe[m update notifications and subscription
+[33mf0b26c8[m fetch username of the user and subscription status
+[33mdeb3c44[m Merge pull request #13 from kimrabago/rabago
+[33m1f1ecc3[m incomplete: sign in with google
+[33mfb86da4[m Merge pull request #12 from kimrabago/bihag
+[33m3393daa[m message not yet final
+[33md90bf4b[m notifications connect to firebase
+[33m19d998f[m Merge pull request #10 from kimrabago/rabago
+[33m12e5032[m last hashed pass, to do: email ver-signwithgoogle-forgotpass
+[33mb7c2678[m Merge pull request #7 from kimrabago/rabago
+[33m641c02f[m Merge branch 'main' into rabago
+[33m3ae9e6d[m latest commit
+[33m0cf53b7[m Merge pull request #6 from kimrabago/bihag
+[33mac66210[m bottom nav fragment
+[33mcd86640[m settings buttons
+[33m7cd21d6[m hauler profile calendar, fixed message ui
+[33m7700dc6[m hauler profile calendar
+[33me6325eb[m change password and delete button
+[33mfdb374d[m Merge pull request #5 from kimrabago/bihag
+[33md5b19ff[m bottom nav message
+[33mf5c1275[m hualer profile and edit profile
+[33mb3e375d[m login button
+[33mdea0b47[m forgot password
+[33mbddfa6d[m Merge pull request #4 from kimrabago/rabago
+[33mf8711d8[m updated device manager
+[33m36df9e1[m Merge pull request #3 from kimrabago/rabago
+[33m5d012b8[m Last: Message UI
+[33m1bb1405[m Merge pull request #2 from kimrabago/rabago
+[33mc85bc7b[m continuing UI design, Delivery Status last
+[33m05ad2ca[m Merge pull request #1 from kimrabago/rabago
+[33me4924bd[m commit2
+[33mc49ac35[m first commit

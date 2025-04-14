@@ -1,5 +1,6 @@
 package com.ucb.capstone.farmnook.ui.hauler
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,6 +23,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class HaulerDashboardFragment : Fragment() {
 
@@ -59,7 +61,17 @@ class HaulerDashboardFragment : Fragment() {
 
         val recyclerView: RecyclerView = rootView.findViewById(R.id.deliveries_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        AssignedDeliveryAdapter = AssignedDeliveryAdapter(deliveryList)
+        AssignedDeliveryAdapter = AssignedDeliveryAdapter(deliveryList) { delivery ->
+            val intent = Intent(requireContext(), DeliveryDetailsActivity::class.java).apply {
+                putExtra("pickupAddress", delivery.pickupLocation)
+                putExtra("destinationAddress", delivery.destinationLocation)
+                putExtra("pickup", delivery.rawPickup)
+                putExtra("destination", delivery.rawDrop)
+                putExtra("estimatedTime", delivery.estimatedTime)
+            }
+            startActivity(intent)
+        }
+
         recyclerView.adapter = AssignedDeliveryAdapter
 
         loadDeliveries()
@@ -96,8 +108,12 @@ class HaulerDashboardFragment : Fragment() {
                                             deliveryId = deliveryId,
                                             pickupLocation = pickupAddress,
                                             destinationLocation = dropAddress,
-                                            estimatedTime = estimatedTime
+                                            rawPickup = pickup,
+                                            rawDrop = drop,
+                                            estimatedTime = estimatedTime,
+                                            requestId = requestId
                                         )
+
                                         deliveryList.add(item)
                                         AssignedDeliveryAdapter.notifyDataSetChanged()
                                     }
@@ -106,6 +122,7 @@ class HaulerDashboardFragment : Fragment() {
                         }
                 }
             }
+
     }
 
     private fun reverseGeocode(latLng: String, callback: (String) -> Unit) {
