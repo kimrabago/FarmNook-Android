@@ -1,5 +1,6 @@
 package com.ucb.capstone.farmnook.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -23,7 +24,7 @@ class RegistrationViewModel : ViewModel() {
     private val _emailVerificationStatus = MutableLiveData<String>()
     val emailVerificationStatus: LiveData<String> = _emailVerificationStatus
 
-    fun registerUser(firstName: String, lastName: String, email: String, password: String, confirmPass: String, userType: String, businessName: String) {
+    fun registerUser(firstName: String, lastName: String, email: String, password: String, confirmPass: String, userType: String, businessName: String, businessLocation: String?) {
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() ||
             password.isEmpty() || confirmPass.isEmpty() || userType.isEmpty() ||
             (userType == "Hauler Business Admin" && businessName.isEmpty())) {
@@ -41,7 +42,7 @@ class RegistrationViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val user = firebaseAuth.currentUser
                     user?.let {
-                        sendEmailVerification(it, firstName, lastName, userType, businessName)
+                        sendEmailVerification(it, firstName, lastName, userType, businessName, businessLocation)
                     }
                 } else {
                     handleAuthError(task.exception?.message)
@@ -49,19 +50,19 @@ class RegistrationViewModel : ViewModel() {
             }
     }
 
-    private fun sendEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, businessName: String?) {
+    private fun sendEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, businessName: String?, businessLocation: String?) {
         user.sendEmailVerification()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _emailVerificationStatus.value = "Verification email sent! Please check your inbox."
-                    checkEmailVerification(user, firstName, lastName, userType, businessName)
+                    checkEmailVerification(user, firstName, lastName, userType, businessName, businessLocation)
                 } else {
                     _emailVerificationStatus.value = "Failed to send verification email."
                 }
             }
     }
 
-    private fun checkEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, businessName: String?) {
+    private fun checkEmailVerification(user: FirebaseUser, firstName: String, lastName: String, userType: String, businessName: String?, businessLocation: String?) {
         val handler = android.os.Handler()
         val runnable = object : Runnable {
             override fun run() {
@@ -77,7 +78,7 @@ class RegistrationViewModel : ViewModel() {
                         dateJoined = getCurrentDate()
                     )
 
-                    saveUserToFirestore(userData, if (userType == "Hauler Business Admin") businessName else null)
+                    saveUserToFirestore(userData, if (userType == "Hauler Business Admin") businessName else null, if (userType == "Hauler Business Admin") businessLocation else null)
                 } else {
                     handler.postDelayed(this, 3000) // Check again after 3 seconds
                 }
@@ -88,7 +89,7 @@ class RegistrationViewModel : ViewModel() {
     }
 
 
-    private fun saveUserToFirestore(user: User, businessName: String?) {
+    private fun saveUserToFirestore(user: User, businessName: String?, businessLocation: String?) {
         val userMap = mutableMapOf(
             "userId" to user.userId,
             "firstName" to user.firstName,
@@ -101,7 +102,9 @@ class RegistrationViewModel : ViewModel() {
 
         if (user.userType == "Hauler Business Admin") {
             userMap["businessName"] = businessName
+            userMap["location"] = businessLocation // Add "10.33...,123.91..." format
         }
+        Log.d("FirestoreDebug", "Saving location to Firestore: ${businessLocation}")
 
         database.collection("users").document(user.userId)
             .set(userMap)

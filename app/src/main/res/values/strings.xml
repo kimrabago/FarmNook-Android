@@ -4,6 +4,9 @@
     <!--MAPBOX-->
     <string name="mapbox_access_token">pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg</string>
 
+    <!--PLACES API-->
+    <string name="google_maps_key">AIzaSyBgn5YSLD0N6p62OrEHqjVqVsfijHdupY8</string>
+
     <string name="app_name">FarmNook</string>
     <string name="email">Email</string>
     <string name="email_address">Email Address</string>

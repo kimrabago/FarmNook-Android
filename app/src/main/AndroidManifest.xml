@@ -63,9 +63,6 @@
             android:name=".ui.auth.DeleteAccountActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.hauler.subscription.AccountBoostedActivity"
-            android:exported="true" />
-        <activity
             android:name=".ui.auth.ChangePasswordActivity"
             android:exported="true" />
         <activity
@@ -73,12 +70,6 @@
             android:exported="true" />
         <activity
             android:name=".ui.settings.FeedbackActivity"
-            android:exported="true" />
-        <activity
-            android:name=".ui.settings.ReportActivity"
-            android:exported="true" />
-        <activity
-            android:name=".ui.hauler.subscription.SubscriptionActivity"
             android:exported="true" />
         <activity
             android:name=".ui.settings.AboutActivity"
@@ -98,15 +89,17 @@
         <activity
             android:name=".ui.StartingPageActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.auth.RegisterActivity"
-            android:exported="true" />
+            android:exported="true" >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
         <activity
             android:name=".ui.auth.ForgotPasswordActivity"
             android:exported="true" />

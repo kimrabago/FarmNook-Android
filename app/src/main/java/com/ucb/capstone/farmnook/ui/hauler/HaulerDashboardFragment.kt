@@ -31,7 +31,7 @@ class HaulerDashboardFragment : Fragment() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private val deliveryList = mutableListOf<DeliveryDisplayItem>()
-    private val mapboxToken = "your-mapbox-token-here"
+    private val mapboxToken = "pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg"
 
     // 🔄 Heartbeat variables
     private var heartbeatHandler: Handler? = null

@@ -1,11 +1,13 @@
 package com.ucb.capstone.farmnook.ui.auth
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
@@ -15,6 +17,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.databinding.ActivityRegisterBinding
+import com.ucb.capstone.farmnook.ui.farmer.LocationPickerActivity
 import com.ucb.capstone.farmnook.viewmodel.RegistrationViewModel
 
 class RegisterActivity : AppCompatActivity() {
@@ -24,6 +27,8 @@ class RegisterActivity : AppCompatActivity() {
 
     private var isPasswordVisible = false
     private var isConfirmPasswordVisible = false
+
+    private val LOCATION_REQUEST_CODE = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +56,25 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
+        binding.businessLocation.setOnClickListener{
+            val intent = Intent(this, LocationPickerActivity::class.java)
+            startActivityForResult(intent, LOCATION_REQUEST_CODE)
+        }
+
         observeViewModel()
+    }
+
+    // Handle the result from LocationPickerActivity
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == LOCATION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val selectedLocation = data?.getStringExtra("selectedLocation")
+            val selectedCoordinates = data?.getStringExtra("selectedCoordinates")
+
+            binding.businessLocation.setText(selectedLocation)
+            binding.businessLocation.tag = selectedCoordinates  // Store lat,lng as hidden metadata // Update the location input field
+        }
     }
 
     private fun observeViewModel() {
@@ -86,8 +109,13 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         val businessName = if (userType == "Hauler Business Admin") binding.businessName.text.toString().trim() else ""
+        val businessLocation = if (userType == "Hauler Business Admin") {
+            val tagValue = binding.businessLocation.tag
+            if (tagValue != null && tagValue.toString().lowercase() != "null") tagValue.toString() else null
+        } else null
 
-        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, userType, businessName)
+        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, userType, businessName, businessLocation)
+        Log.d("RegisterDebug", "Captured businessLocation: ${businessLocation}")
     }
 
     @SuppressLint("ClickableViewAccessibility")
