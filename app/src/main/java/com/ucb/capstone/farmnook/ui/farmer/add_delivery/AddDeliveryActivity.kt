@@ -2,6 +2,7 @@ package com.ucb.capstone.farmnook.ui.farmer.add_delivery
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
@@ -18,6 +19,7 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.algo.RecommendationRequest
 import com.ucb.capstone.farmnook.data.model.algo.RecommendationResponse
 import com.ucb.capstone.farmnook.data.service.ApiService
+import com.ucb.capstone.farmnook.ui.farmer.LocationPickerActivity
 import com.ucb.capstone.farmnook.utils.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -34,40 +36,18 @@ class AddDeliveryActivity : AppCompatActivity() {
     private lateinit var purposeSpinner: Spinner
     private lateinit var productTypeEditText: EditText
     private lateinit var weightEditText: EditText
+    private lateinit var pickUpLocButton: LinearLayout
+    private lateinit var destinationButton: LinearLayout
 
     private var userLatitude: Double? = null
     private var userLongitude: Double? = null
+    private var destinationLatitude: Double? = null
+    private var destinationLongitude: Double? = null
     companion object {
         private const val LOCATION_PERMISSION_REQUEST = 1001
+        private val PICKUP_LOCATION_REQUEST = 2001
+        private val DESTINATION_LOCATION_REQUEST = 2002
     }
-
-//    private lateinit var vehicleTypeSpinner: Spinner
-//    private lateinit var productTypeSpinner: Spinner
-//    private lateinit var weightSpinner: Spinner
-//    // Maps
-//    private val vehicleProductMap = mapOf(
-//        "Small Farm Truck" to listOf("Vegetables", "Fruits", "Poultry", "Animal Feed"),
-//        "Medium Farm Truck" to listOf("Vegetables", "Fruits", "Grains", "Poultry", "Dairy Products"),
-//        "Large Farm Truck" to listOf("Livestock", "Grains", "Dairy Products", "Fertilizers & Seeds"),
-//        "Tractor with Trailer" to listOf("Grains", "Sugarcane", "Cotton", "Fertilizers & Seeds"),
-//        "Pickup Truck" to listOf("Vegetables", "Fruits", "Fishery Products", "Agro-Chemicals"),
-//        "Refrigerated Truck" to listOf("Dairy Products", "Fishery Products", "Poultry"),
-//        "Livestock Transport Truck" to listOf("Livestock", "Poultry"),
-//        "Grain Hauler" to listOf("Grains"),
-//        "Flatbed Truck" to listOf("Cotton", "Fertilizers & Seeds", "Agro-Chemicals")
-//    )
-//
-//    private val vehicleWeightMap = mapOf(
-//        "Small Farm Truck" to listOf("Up to 500 kg", "500 - 1000 kg"),
-//        "Medium Farm Truck" to listOf("1000 - 3000 kg", "3000 - 5000 kg"),
-//        "Large Farm Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg"),
-//        "Tractor with Trailer" to listOf("10000 - 20000 kg", "More than 20000 kg"),
-//        "Pickup Truck" to listOf("Up to 500 kg", "500 - 1000 kg"),
-//        "Refrigerated Truck" to listOf("1000 - 3000 kg", "3000 - 5000 kg"),
-//        "Livestock Transport Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg"),
-//        "Grain Hauler" to listOf("10000 - 20000 kg", "More than 20000 kg"),
-//        "Flatbed Truck" to listOf("5000 - 10000 kg", "10000 - 20000 kg", "More than 20000 kg")
-//    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,31 +57,23 @@ class AddDeliveryActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Views Spinners
-        val fromButton: LinearLayout = findViewById(R.id.fromButton)
-        val toButton: LinearLayout = findViewById(R.id.toButton)
+        pickUpLocButton= findViewById(R.id.fromButton)
+        destinationButton= findViewById(R.id.toButton)
         fromLocation = findViewById(R.id.from_location)
         toLocation = findViewById(R.id.to_location)
         purposeSpinner = findViewById(R.id.purposeSpinner)
         productTypeEditText = findViewById(R.id.productTypeEditText)
         weightEditText = findViewById(R.id.weightEditText)
 
-//        vehicleTypeSpinner = findViewById(R.id.vehicle_type_spinner)
-//        productTypeSpinner = findViewById(R.id.product_type_spinner)
-//        weightSpinner = findViewById(R.id.weight_spinner)
+        pickUpLocButton.setOnClickListener {
+            val intent = Intent(this, LocationPickerActivity::class.java)
+            startActivityForResult(intent, PICKUP_LOCATION_REQUEST)
+        }
 
-//        val vehicleTypes = listOf("Select Vehicle Type") + vehicleProductMap.keys
-//        vehicleTypeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, vehicleTypes)
-//
-//        vehicleTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                val selectedVehicle = vehicleTypeSpinner.selectedItem.toString()
-//                if (selectedVehicle != "Select Vehicle Type") {
-//                    updateProductAndWeightOptions(selectedVehicle)
-//                }
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) {}
-//        }
+        destinationButton.setOnClickListener {
+            val intent = Intent(this, LocationPickerActivity::class.java)
+            startActivityForResult(intent, DESTINATION_LOCATION_REQUEST)
+        }
 
         // Create a list of items for the dropdown
         val options = listOf("Select Purpose", "Livestock", "Crops", "Perishable Crops")
@@ -114,12 +86,14 @@ class AddDeliveryActivity : AppCompatActivity() {
             val inputtedProduct = productTypeEditText.getText().toString().trim()
             val inputtedWeight = weightEditText.getText().toString().trim()
 
-            if (selectedPurpose == "Select Purpose" ) {
+            if (selectedPurpose == "Select Purpose") {
                 Toast.makeText(this, "Please select a purpose", Toast.LENGTH_SHORT).show()
             } else if (TextUtils.isEmpty(inputtedProduct) || TextUtils.isEmpty(inputtedWeight)) {
-            Toast.makeText(this, "Please enter both product type and weight", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter both product type and weight", Toast.LENGTH_SHORT).show()
+            } else if (destinationLatitude == null || destinationLongitude == null) {
+                Toast.makeText(this, "Please select a destination location.", Toast.LENGTH_SHORT).show()
             } else {
-                proceedToRecommendations(selectedPurpose, inputtedProduct, inputtedWeight);
+                proceedToRecommendations(selectedPurpose, inputtedProduct, inputtedWeight)
             }
         }
 
@@ -128,9 +102,39 @@ class AddDeliveryActivity : AppCompatActivity() {
         checkLocationPermissionAndFetch()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            val selectedLocation = data?.getStringExtra("selectedLocation")
+            val selectedCoordinates = data?.getStringExtra("selectedCoordinates")
+
+            if (!selectedLocation.isNullOrEmpty() && !selectedCoordinates.isNullOrEmpty()) {
+                val coords = selectedCoordinates.split(",")
+                if (coords.size == 2) {
+                    when (requestCode) {
+                        PICKUP_LOCATION_REQUEST -> {
+                            fromLocation.text = selectedLocation
+                            userLatitude = coords[0].toDoubleOrNull()
+                            userLongitude = coords[1].toDoubleOrNull()
+                        }
+                        DESTINATION_LOCATION_REQUEST -> {
+                            toLocation.text = selectedLocation
+                            destinationLatitude = coords[0].toDoubleOrNull()
+                            destinationLongitude = coords[1].toDoubleOrNull()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun proceedToRecommendations(purpose: String, productType: String, weight: String) {
         val pickupCoordinates = if (userLatitude != null && userLongitude != null)
             "${userLatitude},${userLongitude}" else "0.0,0.0"
+
+        val destinationCoordinates = if (destinationLatitude != null && destinationLongitude != null)
+            "${destinationLatitude},${destinationLongitude}" else "0.0,0.0"
 
         val farmerId = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -147,7 +151,7 @@ class AddDeliveryActivity : AppCompatActivity() {
                     // ✅ start RecommendationActivity only after we get the result
                     val intent = Intent(this@AddDeliveryActivity, RecommendationActivity::class.java).apply {
                         putExtra("pickupLocation", pickupCoordinates)
-                        putExtra("destinationLocation", "10.331149791236012,123.9112171375494")
+                        putExtra("destinationLocation", destinationCoordinates)
                         putExtra("purpose", purpose)
                         putExtra("productType", productType)
                         putExtra("farmerId", farmerId)
