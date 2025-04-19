@@ -56,6 +56,7 @@ class HaulerDashboardFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         assignedDeliveryAdapter = AssignedDeliveryAdapter(deliveryList) { delivery ->
             val intent = Intent(requireContext(), DeliveryDetailsActivity::class.java).apply {
+                putExtra("deliveryId", delivery.deliveryId)
                 putExtra("pickupAddress", delivery.pickupLocation)
                 putExtra("destinationAddress", delivery.destinationLocation)
                 putExtra("pickup", delivery.rawPickup)

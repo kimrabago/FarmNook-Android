@@ -43,7 +43,6 @@ class PlaceAutocompleteAdapter(
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 if (constraint == null || constraint.isEmpty()) return
 
-
                 val cebuBounds = RectangularBounds.newInstance(
                     LatLng(9.3719, 123.9950), // Southwest
                     LatLng(11.3720, 124.1830) // Northeast

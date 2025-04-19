@@ -39,10 +39,5 @@ class HaulerDetailsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.hireNowButton).setOnClickListener {
             // Implement hiring functionality here
         }
-
-        // Set Schedule button (Placeholder action)
-        findViewById<Button>(R.id.setScheduleButton).setOnClickListener {
-            // Implement scheduling functionality here
-        }
     }
 }

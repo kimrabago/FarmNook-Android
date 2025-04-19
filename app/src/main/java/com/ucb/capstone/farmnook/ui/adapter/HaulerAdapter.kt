@@ -21,7 +21,7 @@ class HaulerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HaulerViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.hauler_item, parent, false)
+            .inflate(R.layout.vehicle_recommend_item, parent, false)
         return HaulerViewHolder(view)
     }
 
@@ -93,7 +93,6 @@ class HaulerAdapter(
         val model = dialog.findViewById<TextView>(R.id.model)
         val capacity = dialog.findViewById<TextView>(R.id.capacity)
         val closeDialog = dialog.findViewById<ImageView>(R.id.closeDialog)
-        val setScheduleButton = dialog.findViewById<Button>(R.id.setScheduleButton)
         val hireNowButton = dialog.findViewById<Button>(R.id.hireNowButton)
 
         // Populate the dialog with driver details from the hauler object
@@ -104,10 +103,7 @@ class HaulerAdapter(
         model.text = hauler.model
         capacity.text = hauler.capacity
 
-        // Set up action buttons (implement functionality as needed)
-        setScheduleButton.setOnClickListener {
-            // TODO: Implement scheduling functionality
-        }
+
         hireNowButton.setOnClickListener {
             // TODO: Implement hiring functionality
         }

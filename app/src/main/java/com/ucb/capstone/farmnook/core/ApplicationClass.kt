@@ -81,38 +81,36 @@ class ApplicationClass : Application(), LifecycleObserver {
             }
         })
 
-        // 📬 Save playerId for push notifications
+        // Save playerId to Firestore based on userType
         CoroutineScope(Dispatchers.IO).launch {
-            auth.addAuthStateListener { auth ->
+            FirebaseAuth.getInstance().addAuthStateListener { auth ->
                 val user = auth.currentUser
-                val uid = user?.uid ?: return@addAuthStateListener
+                val uid = user?.uid
 
-                val userRef = firestore.collection("users").document(uid)
-                userRef.get().addOnSuccessListener { document ->
-                    val userType = document.getString("userType")
-                    val playerId = OneSignal.User.pushSubscription.id
+                if (uid != null) {
+                    val userRef = FirebaseFirestore.getInstance().collection("users").document(uid)
+                    userRef.get()
+                        .addOnSuccessListener { document ->
+                            val playerId = OneSignal.User.pushSubscription.id
 
-                    if (!playerId.isNullOrEmpty()) {
-                        val updateMap = hashMapOf<String, Any>(
-                            "playerIds" to FieldValue.arrayUnion(playerId)
-                        )
+                            if (!playerId.isNullOrEmpty()) {
+                                val updateMap = hashMapOf<String, Any>(
+                                    "playerIds" to FieldValue.arrayUnion(playerId)
+                                )
 
-                        val typeField = when (userType) {
-                            "Hauler" -> "haulerId"
-                            "Farmer" -> "farmerId"
-                            else -> null
+                                userRef.update(updateMap)
+                                    .addOnSuccessListener {
+                                        Log.d("Firestore", "✅ Updated playerId: $playerId")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("Firestore", "❌ Failed to update playerId", e)
+                                    }
+                            } else {
+                                Log.w("OneSignal", "⚠️ playerId is null or not ready yet.")
+                            }
                         }
-
-                        typeField?.let { updateMap[it] = uid }
-
-                        userRef.update(updateMap)
-                            .addOnSuccessListener {
-                                Log.d("Firestore", "✅ playerId saved for $userType: $playerId")
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("Firestore", "❌ Failed to update playerId", e)
-                            }
-                    }
+                } else {
+                    Log.d("Auth", "🔒 No authenticated user.")
                 }
             }
         }

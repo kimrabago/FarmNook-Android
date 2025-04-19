@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.os.Bundle
 import android.text.TextUtils
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -146,14 +145,14 @@ class AddDeliveryActivity : AppCompatActivity() {
             override fun onResponse(call: Call<RecommendationResponse>, response: Response<RecommendationResponse>) {
                 if (response.isSuccessful) {
                     val rec = response.body()
-                    val matchedVehicleType = rec?.vehicleType ?: return
+                    val matchedVehicleTypes = rec?.recommendedVehicleTypes ?: return
 
                     firestore.collection("vehicles")
-                        .whereEqualTo("vehicleType", matchedVehicleType)
+                        .whereIn("vehicleType", matchedVehicleTypes.take(10))
                         .get()
                         .addOnSuccessListener { vehicleDocs ->
                             if (vehicleDocs.isEmpty) {
-                                Toast.makeText(this@AddDeliveryActivity, "No businesses with $matchedVehicleType found.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@AddDeliveryActivity, "No businesses with $matchedVehicleTypes found.", Toast.LENGTH_SHORT).show()
                                 return@addOnSuccessListener
                             }
 
@@ -198,7 +197,7 @@ class AddDeliveryActivity : AppCompatActivity() {
                                                     putExtra("productType", productType)
                                                     putExtra("farmerId", farmerId)
                                                     putExtra("weight", weight)
-                                                    putExtra("recommendedType", matchedVehicleType)
+                                                    putStringArrayListExtra("recommendedTypes", ArrayList(matchedVehicleTypes))
                                                     putStringArrayListExtra("sortedBusinessIds", ArrayList(sortedVehicles.map { it.first }))
                                                     putStringArrayListExtra("sortedVehicleIds", ArrayList(sortedVehicles.map { it.third }))
                                                 }

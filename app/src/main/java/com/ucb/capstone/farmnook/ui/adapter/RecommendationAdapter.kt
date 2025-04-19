@@ -23,7 +23,7 @@ class RecommendationAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.hauler_item, parent, false)
+            .inflate(R.layout.vehicle_recommend_item, parent, false)
         return ViewHolder(view)
     }
 

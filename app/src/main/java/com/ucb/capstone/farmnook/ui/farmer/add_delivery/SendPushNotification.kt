@@ -114,4 +114,37 @@ object SendPushNotification {
                 }
             }
     }
+    // ✅ Helper to store Firestore + Send Message Notification (to Farmer or Business Admin)
+    fun sendCompletedDeliveryNotification(
+        recipientField: String, // "farmerId" or "businessId"
+        recipientId: String,
+        deliveryId: String,
+        title: String,
+        message: String,
+        timestamp: Timestamp,
+        context: Context
+    ) {
+        val firestore = FirebaseFirestore.getInstance()
+        val notifRef = firestore.collection("notifications").document()
+
+        val notification = mapOf(
+            "notificationId" to notifRef.id,
+            recipientField to recipientId,
+            "deliveryId" to deliveryId,
+            "title" to title,
+            "message" to message,
+            "timestamp" to timestamp,
+            "isRead" to false
+        )
+
+        notifRef.set(notification)
+
+        // Reuse existing push sender
+        sendMessageNotification(
+            context = context,
+            receiverId = recipientId,
+            senderName = "FarmNook",
+            message = message
+        )
+    }
 }

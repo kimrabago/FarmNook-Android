@@ -6,6 +6,7 @@ import androidx.fragment.app.DialogFragment
 import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 import java.util.Locale
+import com.ucb.capstone.farmnook.util.getAddressFromLatLng
 
 class DeliverySummaryDialogFragment : DialogFragment() {
 
@@ -56,27 +57,4 @@ class DeliverySummaryDialogFragment : DialogFragment() {
             .create()
     }
 
-    private fun getAddressFromLatLng(locationStr: String?, geocoder: Geocoder): String {
-        return try {
-            if (!locationStr.isNullOrBlank()) {
-                val parts = locationStr.split(",")
-                if (parts.size == 2) {
-                    val lat = parts[0].toDouble()
-                    val lng = parts[1].toDouble()
-                    val addressList = geocoder.getFromLocation(lat, lng, 1)
-                    if (!addressList.isNullOrEmpty()) {
-                        addressList[0].getAddressLine(0)
-                    } else {
-                        "Unknown location"
-                    }
-                } else {
-                    "Invalid coordinates"
-                }
-            } else {
-                "Not specified"
-            }
-        } catch (e: Exception) {
-            "Error resolving address"
-        }
-    }
 }

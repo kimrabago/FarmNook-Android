@@ -28,13 +28,13 @@ class RecommendationActivity : AppCompatActivity() {
     private lateinit var purpose: String
     private lateinit var productType: String
     private lateinit var weight: String
-    private lateinit var recommendedType: String
+    private lateinit var recommendedTypes: List<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recommendation)
 
-        recommendedType = intent.getStringExtra("recommendedType") ?: ""
+        recommendedTypes = intent.getStringArrayListExtra("recommendedTypes") ?: listOf()
 
         recyclerView = findViewById(R.id.recommended_haulers_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -70,7 +70,7 @@ class RecommendationActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { vehiclesSnapshot ->
                 val vehicles = vehiclesSnapshot.documents
-                    .filter { it.getString("vehicleType")?.equals(recommendedType, ignoreCase = true) == true }
+                    .filter { it.getString("vehicleType")?.let { type -> recommendedTypes.contains(type) } == true }
 
                 val businessIds = vehicles.mapNotNull { it.getString("businessId") }.toSet()
 
@@ -114,7 +114,7 @@ class RecommendationActivity : AppCompatActivity() {
                         adapter.notifyDataSetChanged()
 
                         if (vehicleList.isEmpty()) {
-                            Toast.makeText(this, "No matching vehicles found for '$recommendedType'", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, "No matching vehicles found for '$recommendedTypes'", Toast.LENGTH_LONG).show()
                         }
                     }
             }
