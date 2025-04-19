@@ -9,7 +9,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
@@ -33,18 +32,12 @@ class HaulerDashboardFragment : Fragment() {
     private val deliveryList = mutableListOf<DeliveryDisplayItem>()
     private val mapboxToken = "pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg"
 
-    // 🔄 Heartbeat variables
-    private var heartbeatHandler: Handler? = null
-    private var heartbeatRunnable: Runnable? = null
-    private val heartbeatInterval = 30_000L // 30 seconds
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val rootView = inflater.inflate(R.layout.fragment_hauler_dashboard, container, false)
 
-        // UI elements
         menuBurger = rootView.findViewById(R.id.menu_burger)
         profileIcon = rootView.findViewById(R.id.profile_icon)
         drawerLayout = requireActivity().findViewById(R.id.drawer_layout)
@@ -75,58 +68,9 @@ class HaulerDashboardFragment : Fragment() {
 
         loadDeliveries()
 
-        // ✅ Start session/heartbeat
-        val userId = auth.currentUser?.uid
-        userId?.let { startHeartbeat(it) }
-
         return rootView
     }
 
-    // ✅ Fires every 30 seconds to update lastSeen
-    private fun startHeartbeat(userId: String) {
-        val userRef = firestore.collection("users").document(userId)
-
-        // Set status = true and initial lastSeen
-        userRef.update(
-            mapOf(
-                "status" to true,
-                "lastSeen" to Timestamp.now()
-            )
-        )
-
-        // Loop that updates only lastSeen every 30 seconds
-        heartbeatHandler = Handler(Looper.getMainLooper())
-        heartbeatRunnable = object : Runnable {
-            override fun run() {
-                userRef.update("lastSeen", Timestamp.now())
-                heartbeatHandler?.postDelayed(this, heartbeatInterval)
-            }
-        }
-        heartbeatHandler?.post(heartbeatRunnable!!)
-    }
-
-    private fun stopHeartbeat() {
-        heartbeatHandler?.removeCallbacks(heartbeatRunnable!!)
-        heartbeatHandler = null
-    }
-
-    override fun onStop() {
-        super.onStop()
-        stopHeartbeat()
-
-        // Optional: Immediately mark offline when app backgrounded
-        auth.currentUser?.uid?.let { userId ->
-            firestore.collection("users").document(userId)
-                .update("status", false)
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        stopHeartbeat()
-    }
-
-    // Existing code...
     private fun loadDeliveries() {
         val userId = auth.currentUser?.uid ?: return
         firestore.collection("deliveries")
