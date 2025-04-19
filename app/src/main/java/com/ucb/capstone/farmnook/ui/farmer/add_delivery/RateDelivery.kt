@@ -10,6 +10,7 @@ import com.ucb.capstone.farmnook.R
 class RateDelivery : AppCompatActivity() {
 
     private lateinit var ratingBar: RatingBar
+    private lateinit var ratingValueText: TextView
     private lateinit var commentBox: EditText
     private lateinit var rateButton: Button
     private lateinit var closeDialog: ImageView
@@ -24,21 +25,24 @@ class RateDelivery : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rate_delivery)
 
-        // Initialize views
         ratingBar = findViewById(R.id.ratingBar)
+        ratingValueText = findViewById(R.id.ratingValueText)
         commentBox = findViewById(R.id.commentBox)
         rateButton = findViewById(R.id.rate_button)
         closeDialog = findViewById(R.id.closeDialog)
 
-        // Get IDs from intent
         deliveryId = intent.getStringExtra("deliveryId") ?: ""
         farmerId = intent.getStringExtra("farmerId") ?: ""
         haulerId = intent.getStringExtra("haulerId") ?: ""
 
-        // Close dialog
         closeDialog.setOnClickListener { finish() }
 
-        // Fetch farmer's name
+        // Realtime rating display
+        ratingValueText.text = "Rating: ${ratingBar.rating.toInt()}"
+        ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
+            ratingValueText.text = "Rating: ${rating.toInt()}"
+        }
+
         db.collection("users").document(farmerId).get()
             .addOnSuccessListener { document ->
                 val userType = document.getString("userType")
@@ -50,28 +54,31 @@ class RateDelivery : AppCompatActivity() {
 
                 val farmerName = "${document.getString("firstName")} ${document.getString("lastName")}"
 
-                // Handle rating submission
                 rateButton.setOnClickListener {
                     val comment = commentBox.text.toString().trim()
+                    val rating = ratingBar.rating.toInt()
+
+                    if (rating == 0) {
+                        Toast.makeText(this, "Please select a rating", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
 
                     if (comment.isEmpty()) {
                         Toast.makeText(this, "Please enter feedback", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
 
-                    // Prepare feedback data
                     val feedbackData = hashMapOf(
-                        "feedbackId" to "", // will be set after `.add()`
-                        "rating" to ratingBar.rating,
+                        "feedbackId" to "",
+                        "rating" to rating,
                         "comment" to comment,
                         "deliveryId" to deliveryId,
                         "farmerId" to farmerId,
-                        "farmerName" to farmerName,  // Save the full name
+                        "farmerName" to farmerName,
                         "haulerId" to haulerId,
                         "timestamp" to Timestamp.now()
                     )
 
-                    // Submit feedback to Firestore
                     db.collection("feedback")
                         .add(feedbackData)
                         .addOnSuccessListener { docRef ->
