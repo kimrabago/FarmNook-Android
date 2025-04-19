@@ -82,9 +82,30 @@ class NavigationBar : AppCompatActivity() {
                 R.id.about -> startActivity(Intent(this, AboutActivity::class.java))
                 R.id.feedback -> startActivity(Intent(this, FeedbackActivity::class.java))
                 R.id.nav_logout -> {
-                    firebaseAuth.signOut() // Logout user
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid
+                    if (userId != null) {
+                        FirebaseFirestore.getInstance().collection("users").document(userId)
+                            .update("status", false)
+                            .addOnSuccessListener {
+                                Log.d("Logout", "✅ Status set to false on logout")
+                                FirebaseAuth.getInstance().signOut() // ✅ Sign out AFTER status is set
+                                startActivity(Intent(this, LoginActivity::class.java))
+                                finish()
+                            }
+                            .addOnFailureListener {
+                                Log.e("Logout", "❌ Failed to set status=false on logout", it)
+                                // Fallback signOut even if update fails
+                                FirebaseAuth.getInstance().signOut()
+                                startActivity(Intent(this, LoginActivity::class.java))
+                                finish()
+                            }
+                    } else {
+                        Log.w("Logout", "⚠️ No userId during logout")
+                        FirebaseAuth.getInstance().signOut()
+                        startActivity(Intent(this, LoginActivity::class.java))
+                        finish()
+                    }
+
                 }
             }
             drawerLayout.closeDrawer(GravityCompat.START) // Close drawer after selection
