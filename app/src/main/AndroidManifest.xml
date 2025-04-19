@@ -8,10 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
 
     <application
         android:name=".core.ApplicationClass"
@@ -25,24 +23,25 @@
         android:theme="@style/Theme.FarmNook"
         tools:targetApi="31">
         <activity
-            android:name=".ui.farmer.LocationPickerActivity"
+            android:name=".ui.hauler.HistoryDetailsActivity"
             android:exported="true">
 
         </activity>
         <activity
+            android:name=".ui.hauler.DeliveryDoneActivity"
+            android:exported="true"></activity>
+        <activity
+            android:name=".ui.farmer.LocationPickerActivity"
+            android:exported="true" />
+        <activity
             android:name=".ui.message.MessageActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.farmer.add_delivery.RateDelivery"
             android:exported="true" />
-
         <activity
             android:name=".ui.message.NewMessageActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true" />
 
         <meta-data
             android:name="com.mapbox.token"
@@ -101,8 +100,7 @@
         </activity>
         <activity
             android:name=".ui.auth.RegisterActivity"
-            android:exported="true" >
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.auth.ForgotPasswordActivity"
             android:exported="true" />

@@ -206,5 +206,11 @@
     <string name="timestamp">Timestamp</string>
     <string name="hello_how_are_you">Hello, how are you?</string>
     <string name="multicab_suzuki">Multicab - Suzuki</string>
+    <string name="price_label">Price</string>
+    <string name="weight_label">Weight</string>
+    <string name="weight_amount">1000 kg</string>
+    <string name="pigs">Pigs</string>
+    <string name="history_details">History Details</string>
+    <string name="transactions">Transactions</string>
 
 </resources>

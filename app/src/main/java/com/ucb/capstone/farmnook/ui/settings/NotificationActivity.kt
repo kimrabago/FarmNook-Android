@@ -1,7 +1,9 @@
 package com.ucb.capstone.farmnook.ui.settings
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
@@ -12,6 +14,7 @@ import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.data.model.Notification
 import com.ucb.capstone.farmnook.databinding.ActivityNotificationBinding
 import com.ucb.capstone.farmnook.ui.adapter.NotificationAdapter
+import com.ucb.capstone.farmnook.ui.farmer.DeliveryConfirmationActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,6 +27,37 @@ class NotificationActivity : AppCompatActivity() {
                 .collection("notifications")
                 .document(notif.id)
                 .update("isRead", true)
+
+            // If the title is "Delivery Completed", proceed
+            if (notif.title == "Delivery Completed") {
+                val deliveryId = notif.deliveryId
+                val farmerId = notif.farmerId
+
+                // Fetch the delivery document to get the haulerId
+                FirebaseFirestore.getInstance()
+                    .collection("deliveries")
+                    .document(deliveryId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document != null && document.exists()) {
+                            val haulerId = document.getString("AssignedHaulerId") ?: ""
+                            // Proceed with the intent
+                            val intent = Intent(this, DeliveryConfirmationActivity::class.java).apply {
+                                putExtra("deliveryId", deliveryId)
+                                putExtra("farmerId", farmerId)
+                                putExtra("haulerId", haulerId)
+                            }
+                            startActivity(intent)
+                        } else {
+                            Log.e("NotificationActivity", "Delivery document not found for $deliveryId")
+                            Toast.makeText(this, "Delivery details not found", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("NotificationActivity", "Failed to fetch delivery info", exception)
+                        Toast.makeText(this, "Failed to fetch delivery info", Toast.LENGTH_SHORT).show()
+                    }
+            }
         }
     }
 
@@ -76,7 +110,9 @@ class NotificationActivity : AppCompatActivity() {
                         title = doc.getString("title") ?: "",
                         message = doc.getString("message") ?: "",
                         isRead = doc.getBoolean("isRead") ?: false,
-                        timestamp = sdf.format(ts)
+                        timestamp = sdf.format(ts),
+                        deliveryId = doc.getString("deliveryId") ?: "",
+                        farmerId = doc.getString("farmerId") ?: ""
                     )
                 }
 

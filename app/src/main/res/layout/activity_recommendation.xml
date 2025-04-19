@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="440dp"
             android:layout_below="@id/recommendation_description"
-            tools:listitem="@layout/hauler_item" />
+            tools:listitem="@layout/vehicle_recommend_item" />
 
         <Button
             android:id="@+id/cancel_button"

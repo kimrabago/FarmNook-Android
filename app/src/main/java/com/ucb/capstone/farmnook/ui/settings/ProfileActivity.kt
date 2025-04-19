@@ -35,27 +35,29 @@ class ProfileActivity : AppCompatActivity() {
         profileImage = findViewById(R.id.profileImage)
 
         val backButton = findViewById<ImageButton>(R.id.btn_back)
+        val editProfileButton = findViewById<ImageView>(R.id.edit_profile_btn)
+        val changePasswordButton = findViewById<Button>(R.id.change_password)
+        val deleteAccountButton = findViewById<Button>(R.id.delete_account)
+
         backButton.setOnClickListener {
             finish()
         }
 
-        val editProfileButton = findViewById<ImageView>(R.id.edit_profile_btn)
         editProfileButton.setOnClickListener {
             val intent = Intent(this, EditProfileActivity::class.java)
             editProfileLauncher.launch(intent)
         }
 
-        val changePasswordButton = findViewById<Button>(R.id.change_password)
         changePasswordButton.setOnClickListener {
             val intent = Intent(this, ChangePasswordActivity::class.java)
             startActivity(intent)
         }
 
-        val deleteAccountButton = findViewById<Button>(R.id.delete_account)
         deleteAccountButton.setOnClickListener {
             val intent = Intent(this, DeleteAccountActivity::class.java)
             startActivity(intent)
         }
+
         fetchUserData()
     }
 

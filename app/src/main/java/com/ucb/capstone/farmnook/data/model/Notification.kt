@@ -5,5 +5,7 @@ data class Notification(
     val title: String = "",
     val message: String = "",
     val isRead: Boolean = false,
-    val timestamp: String = ""
+    val timestamp: String = "",
+    val deliveryId: String = "",
+    val farmerId: String = ""
 )

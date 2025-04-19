@@ -33,7 +33,10 @@ class NotificationAdapter(
 
     override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
         holder.bind(items[position])
+
+
     }
+
 
     fun updateList(newItems: List<Notification>) {
         items = newItems

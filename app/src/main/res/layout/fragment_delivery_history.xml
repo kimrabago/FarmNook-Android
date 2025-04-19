@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/half_border"
-            android:padding="30dp">
+            android:padding="20dp">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -41,40 +41,22 @@
 
                 <!-- This Week Section -->
                 <TextView
-                    android:id="@+id/this_week_txtView"
+                    android:id="@+id/transTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/this_week"
+                    android:text="@string/transactions"
                     android:textSize="18sp"
                     android:textColor="@color/dark_green"
                     android:fontFamily="@font/poppins_bold"
                     android:paddingVertical="8dp" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/this_week_recycler"
+                    android:id="@+id/transRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:listitem="@layout/message_item"
                     android:nestedScrollingEnabled="false"/>
 
-                <!-- This Month Section -->
-                <TextView
-                    android:id="@+id/this_month_txtView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/this_month"
-                    android:textSize="18sp"
-                    android:textColor="@color/dark_green"
-                    android:fontFamily="@font/poppins_bold"
-                    android:paddingVertical="8dp"
-                    android:layout_marginTop="10dp"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/this_month_recycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:listitem="@layout/message_item"
-                    android:nestedScrollingEnabled="false"/>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
