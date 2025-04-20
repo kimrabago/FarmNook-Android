@@ -14,6 +14,7 @@ class RateDelivery : AppCompatActivity() {
     private lateinit var commentBox: EditText
     private lateinit var rateButton: Button
     private lateinit var closeDialog: ImageView
+    private lateinit var progressBar: ProgressBar  // Progress bar to show loading
 
     private lateinit var deliveryId: String
     private lateinit var farmerId: String
@@ -30,6 +31,10 @@ class RateDelivery : AppCompatActivity() {
         commentBox = findViewById(R.id.commentBox)
         rateButton = findViewById(R.id.rate_button)
         closeDialog = findViewById(R.id.closeDialog)
+        progressBar = findViewById(R.id.progressBar)  // Initialize progress bar
+
+        // Set progress bar visibility to invisible initially
+        progressBar.visibility = ProgressBar.INVISIBLE
 
         deliveryId = intent.getStringExtra("deliveryId") ?: ""
         farmerId = intent.getStringExtra("farmerId") ?: ""
@@ -68,29 +73,31 @@ class RateDelivery : AppCompatActivity() {
                         return@setOnClickListener
                     }
 
+                    // Show the progress bar while submitting feedback
+                    progressBar.visibility = ProgressBar.VISIBLE
+
+                    val feedbackRef = db.collection("feedback").document() // Generate unique feedback ID
                     val feedbackData = hashMapOf(
-                        "feedbackId" to "",
+                        "feedbackId" to feedbackRef.id,
                         "rating" to rating,
                         "comment" to comment,
                         "deliveryId" to deliveryId,
                         "farmerId" to farmerId,
                         "farmerName" to farmerName,
-                        "haulerId" to haulerId,
                         "timestamp" to Timestamp.now()
                     )
 
-                    db.collection("feedback")
-                        .add(feedbackData)
-                        .addOnSuccessListener { docRef ->
-                            db.collection("feedback").document(docRef.id)
-                                .update("feedbackId", docRef.id)
-                                .addOnSuccessListener {
-                                    Toast.makeText(this, "Thank you for your feedback!", Toast.LENGTH_SHORT).show()
-                                    finish()
-                                }
+                    feedbackRef.set(feedbackData)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Thank you for your feedback!", Toast.LENGTH_SHORT).show()
+                            finish() // Close the activity after submitting
                         }
                         .addOnFailureListener {
                             Toast.makeText(this, "Failed to submit feedback", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnCompleteListener {
+                            // Hide progress bar after feedback submission is complete
+                            progressBar.visibility = ProgressBar.INVISIBLE
                         }
                 }
             }
