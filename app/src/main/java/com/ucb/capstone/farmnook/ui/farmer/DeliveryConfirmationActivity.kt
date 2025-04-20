@@ -1,5 +1,6 @@
 package com.ucb.capstone.farmnook.ui.farmer
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
@@ -8,7 +9,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.util.getAddressFromLatLng
 import android.location.Geocoder
+import android.widget.Button
 import android.widget.ImageButton
+import com.ucb.capstone.farmnook.ui.farmer.add_delivery.RateDelivery
 import java.util.Locale
 
 class DeliveryConfirmationActivity : AppCompatActivity() {
@@ -56,6 +59,16 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         }
 
         fetchDeliveryDetails(deliveryId, haulerId)
+
+        val confirmButton = findViewById<Button>(R.id.confirm_button)
+        confirmButton.setOnClickListener {
+            // Navigate to the RateDelivery activity
+            val intent = Intent(this, RateDelivery::class.java)
+            intent.putExtra("deliveryId", deliveryId)
+            intent.putExtra("haulerId", haulerId)
+            intent.putExtra("farmerId", farmerId)
+            startActivity(intent)
+        }
     }
 
     private fun fetchDeliveryDetails(deliveryId: String, haulerId: String) {
@@ -75,7 +88,6 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
                 fetchHaulerDetails(haulerIdFromDoc)
             }
     }
-
 
     private fun fetchRequestDetails(requestId: String) {
         val db = FirebaseFirestore.getInstance()
@@ -102,7 +114,6 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
                 fetchVehicleDetails(vehicleId)
             }
     }
-
 
     private fun fetchVehicleDetails(vehicleId: String) {
         val db = FirebaseFirestore.getInstance()

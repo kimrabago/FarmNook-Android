@@ -30,41 +30,41 @@ class DeliveryStatusFragment : Fragment(R.layout.fragment_delivery_status) {
         bottomSheetBehavior.peekHeight = 200
         bottomSheetBehavior.isHideable = false
 
-        val btnRateDelivery = view.findViewById<Button>(R.id.btnRateDelivery)
-        btnRateDelivery.isEnabled = false // Disable until IDs are fetched
-
-        // Get the logged-in farmer's UID (assuming Firebase Auth is used)
-        auth.currentUser?.uid?.let { uid ->
-            farmerId = uid
-        }
-
-        // Fetch Hauler Business Admin userId from Firestore
-        db.collection("users")
-            .whereEqualTo("userType", "Hauler Business Admin")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val doc = snapshot.documents.firstOrNull()
-                haulerAdminId = doc?.getString("userId") ?: ""
-
-                if (farmerId.isNotBlank() && haulerAdminId.isNotBlank()) {
-                    btnRateDelivery.isEnabled = true
-                    btnRateDelivery.setOnClickListener {
-                        navigateToRateDelivery(deliveryId, farmerId, haulerAdminId)
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-                e.printStackTrace()
-                // TODO: Handle error (e.g., show a message to the user)
-            }
-    }
-
-    private fun navigateToRateDelivery(deliveryId: String, farmerId: String, haulerId: String) {
-        val intent = Intent(requireContext(), RateDelivery::class.java).apply {
-            putExtra("deliveryId", deliveryId)
-            putExtra("farmerId", farmerId)
-            putExtra("haulerId", haulerId)
-        }
-        startActivity(intent)
+//        val btnRateDelivery = view.findViewById<Button>(R.id.btnRateDelivery)
+//        btnRateDelivery.isEnabled = false // Disable until IDs are fetched
+//
+//        // Get the logged-in farmer's UID (assuming Firebase Auth is used)
+//        auth.currentUser?.uid?.let { uid ->
+//            farmerId = uid
+//        }
+//
+//        // Fetch Hauler Business Admin userId from Firestore
+//        db.collection("users")
+//            .whereEqualTo("userType", "Hauler Business Admin")
+//            .get()
+//            .addOnSuccessListener { snapshot ->
+//                val doc = snapshot.documents.firstOrNull()
+//                haulerAdminId = doc?.getString("userId") ?: ""
+//
+//                if (farmerId.isNotBlank() && haulerAdminId.isNotBlank()) {
+//                    btnRateDelivery.isEnabled = true
+//                    btnRateDelivery.setOnClickListener {
+//                        navigateToRateDelivery(deliveryId, farmerId, haulerAdminId)
+//                    }
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                e.printStackTrace()
+//                // TODO: Handle error (e.g., show a message to the user)
+//            }
+//    }
+//
+//    private fun navigateToRateDelivery(deliveryId: String, farmerId: String, haulerId: String) {
+//        val intent = Intent(requireContext(), RateDelivery::class.java).apply {
+//            putExtra("deliveryId", deliveryId)
+//            putExtra("farmerId", farmerId)
+//            putExtra("haulerId", haulerId)
+//        }
+//        startActivity(intent)
     }
 }

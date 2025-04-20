@@ -212,5 +212,6 @@
     <string name="pigs">Pigs</string>
     <string name="history_details">History Details</string>
     <string name="transactions">Transactions</string>
+    <string name="confirmm">Confirm</string>
 
 </resources>

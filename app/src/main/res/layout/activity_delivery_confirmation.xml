@@ -200,7 +200,7 @@
         android:id="@+id/confirm_button"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="Confirm"
+        android:text="@string/confirmm"
         android:background="@drawable/green_rounded_button"
         android:textColor="@android:color/white"
         android:padding="8dp"
