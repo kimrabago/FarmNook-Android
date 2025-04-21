@@ -23,6 +23,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
     private lateinit var modelTextView: TextView
     private lateinit var productTypeTextView: TextView
     private lateinit var capacityTextView: TextView
+    private var businessId: String? = null  // NEW
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,23 +39,21 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         capacityTextView = findViewById(R.id.capacity)
         val backButton = findViewById<ImageButton>(R.id.btn_back)
 
-        backButton.setOnClickListener {
-            finish()
-        }
+        backButton.setOnClickListener { finish() }
 
         val deliveryId = intent.getStringExtra("deliveryId") ?: run {
             Log.e("DeliveryConfirmation", "deliveryId is missing")
-            finish()  // Finish the activity if deliveryId is missing
+            finish()
             return
         }
         val haulerId = intent.getStringExtra("haulerId") ?: run {
             Log.e("DeliveryConfirmation", "haulerId is missing")
-            finish()  // Finish the activity if haulerId is missing
+            finish()
             return
         }
         val farmerId = intent.getStringExtra("farmerId") ?: run {
             Log.e("DeliveryConfirmation", "farmerId is missing")
-            finish()  // Finish the activity if farmerId is missing
+            finish()
             return
         }
 
@@ -62,10 +61,14 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
 
         val confirmButton = findViewById<Button>(R.id.confirm_button)
         confirmButton.setOnClickListener {
-            // Navigate to the RateDelivery activity
+            if (businessId == null) {
+                Log.e("DeliveryConfirmation", "businessId is null, cannot proceed to rate.")
+                return@setOnClickListener
+            }
+
             val intent = Intent(this, RateDelivery::class.java)
             intent.putExtra("deliveryId", deliveryId)
-            intent.putExtra("haulerId", haulerId)
+            intent.putExtra("businessId", businessId)
             intent.putExtra("farmerId", farmerId)
             startActivity(intent)
         }
@@ -100,8 +103,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
                 }
 
                 val productType = requestDoc.getString("productType") ?: ""
-                val purpose =
-                    requestDoc.getString("purpose")?.replaceFirstChar { it.uppercase() } ?: ""
+                val purpose = requestDoc.getString("purpose")?.replaceFirstChar { it.uppercase() } ?: ""
                 val vehicleId = requestDoc.getString("vehicleId") ?: ""
                 val destinationLocation = requestDoc.getString("destinationLocation") ?: ""
                 val geocoder = Geocoder(this, Locale.getDefault())
@@ -147,10 +149,10 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
 
                 val firstName = userDoc.getString("firstName") ?: ""
                 val lastName = userDoc.getString("lastName") ?: ""
-                val fullName =
-                    "${firstName.replaceFirstChar { it.uppercase() }} ${lastName.replaceFirstChar { it.uppercase() }}"
+                val fullName = "${firstName.replaceFirstChar { it.uppercase() }} ${lastName.replaceFirstChar { it.uppercase() }}"
 
                 haulerNameTextView.text = fullName
+                businessId = userDoc.getString("businessId") // NEW
             }
     }
 }

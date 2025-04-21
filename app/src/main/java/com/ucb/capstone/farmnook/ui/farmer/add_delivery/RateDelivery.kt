@@ -1,7 +1,11 @@
 package com.ucb.capstone.farmnook.ui.farmer.add_delivery
 
 import android.os.Bundle
-import android.widget.*
+import android.util.Log
+import android.widget.Button
+import android.widget.EditText
+import android.widget.RatingBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -10,100 +14,52 @@ import com.ucb.capstone.farmnook.R
 class RateDelivery : AppCompatActivity() {
 
     private lateinit var ratingBar: RatingBar
-    private lateinit var ratingValueText: TextView
     private lateinit var commentBox: EditText
     private lateinit var rateButton: Button
-    private lateinit var closeDialog: ImageView
-    private lateinit var progressBar: ProgressBar  // Progress bar to show loading
-
-    private lateinit var deliveryId: String
-    private lateinit var farmerId: String
-    private lateinit var haulerId: String
-
-    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rate_delivery)
 
         ratingBar = findViewById(R.id.ratingBar)
-        ratingValueText = findViewById(R.id.ratingValueText)
         commentBox = findViewById(R.id.commentBox)
         rateButton = findViewById(R.id.rate_button)
-        closeDialog = findViewById(R.id.closeDialog)
-        progressBar = findViewById(R.id.progressBar)  // Initialize progress bar
 
-        // Set progress bar visibility to invisible initially
-        progressBar.visibility = ProgressBar.INVISIBLE
+        val deliveryId = intent.getStringExtra("deliveryId")
+        val businessId = intent.getStringExtra("businessId")
+        val farmerId = intent.getStringExtra("farmerId")
 
-        deliveryId = intent.getStringExtra("deliveryId") ?: ""
-        farmerId = intent.getStringExtra("farmerId") ?: ""
-        haulerId = intent.getStringExtra("haulerId") ?: ""
+        rateButton.setOnClickListener {
+            val rating = ratingBar.rating
+            val comment = commentBox.text.toString()
 
-        closeDialog.setOnClickListener { finish() }
+            if (deliveryId.isNullOrEmpty() || businessId.isNullOrEmpty() || farmerId.isNullOrEmpty()) {
+                Toast.makeText(this, "Missing data. Cannot submit feedback.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-        // Realtime rating display
-        ratingValueText.text = "Rating: ${ratingBar.rating.toInt()}"
-        ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
-            ratingValueText.text = "Rating: ${rating.toInt()}"
-        }
+            val db = FirebaseFirestore.getInstance()
+            val feedbackRef = db.collection("feedback").document() // Auto-generate doc ID
 
-        db.collection("users").document(farmerId).get()
-            .addOnSuccessListener { document ->
-                val userType = document.getString("userType")
-                if (userType != "Farmer") {
-                    Toast.makeText(this, "Only Farmers can leave feedback.", Toast.LENGTH_SHORT).show()
+            val feedback = hashMapOf(
+                "feedbackId" to feedbackRef.id, // Match doc ID
+                "deliveryId" to deliveryId,
+                "farmerId" to farmerId,
+                "businessId" to businessId,
+                "rating" to rating,
+                "comment" to comment,
+                "timestamp" to Timestamp.now()
+            )
+
+            feedbackRef.set(feedback)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Feedback submitted!", Toast.LENGTH_SHORT).show()
                     finish()
-                    return@addOnSuccessListener
                 }
-
-                val farmerName = "${document.getString("firstName")} ${document.getString("lastName")}"
-
-                rateButton.setOnClickListener {
-                    val comment = commentBox.text.toString().trim()
-                    val rating = ratingBar.rating.toInt()
-
-                    if (rating == 0) {
-                        Toast.makeText(this, "Please select a rating", Toast.LENGTH_SHORT).show()
-                        return@setOnClickListener
-                    }
-
-                    if (comment.isEmpty()) {
-                        Toast.makeText(this, "Please enter feedback", Toast.LENGTH_SHORT).show()
-                        return@setOnClickListener
-                    }
-
-                    // Show the progress bar while submitting feedback
-                    progressBar.visibility = ProgressBar.VISIBLE
-
-                    val feedbackRef = db.collection("feedback").document() // Generate unique feedback ID
-                    val feedbackData = hashMapOf(
-                        "feedbackId" to feedbackRef.id,
-                        "rating" to rating,
-                        "comment" to comment,
-                        "deliveryId" to deliveryId,
-                        "farmerId" to farmerId,
-                        "farmerName" to farmerName,
-                        "timestamp" to Timestamp.now()
-                    )
-
-                    feedbackRef.set(feedbackData)
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "Thank you for your feedback!", Toast.LENGTH_SHORT).show()
-                            finish() // Close the activity after submitting
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(this, "Failed to submit feedback", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnCompleteListener {
-                            // Hide progress bar after feedback submission is complete
-                            progressBar.visibility = ProgressBar.INVISIBLE
-                        }
+                .addOnFailureListener { e ->
+                    Log.e("RateDelivery", "Failed to submit feedback", e)
+                    Toast.makeText(this, "Error submitting feedback.", Toast.LENGTH_SHORT).show()
                 }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to verify user", Toast.LENGTH_SHORT).show()
-                finish()
-            }
+        }
     }
 }
