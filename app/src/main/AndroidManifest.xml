@@ -86,6 +86,8 @@
         <activity
             android:name=".ui.hauler.DeliveryDetailsActivity"
             android:exported="true" />
+        <activity android:name=".ui.hauler.DeliveryLiveTrackingActivity" />
+        <service android:name=".ui.hauler.services.DeliveryLocationService" />
         <activity
             android:name=".ui.menu.NavigationBar"
             android:exported="true" />

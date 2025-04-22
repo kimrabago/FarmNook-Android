@@ -16,7 +16,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.auth.LoginActivity
 import com.ucb.capstone.farmnook.ui.farmer.DeliveryStatusFragment
@@ -24,13 +23,9 @@ import com.ucb.capstone.farmnook.ui.farmer.FarmerDashboardFragment
 import com.ucb.capstone.farmnook.ui.hauler.DeliveryHistoryFragment
 import com.ucb.capstone.farmnook.ui.hauler.HaulerDashboardFragment
 import com.ucb.capstone.farmnook.ui.message.InboxFragment
-import com.ucb.capstone.farmnook.ui.settings.AboutActivity
-import com.ucb.capstone.farmnook.ui.settings.FeedbackActivity
-import com.ucb.capstone.farmnook.ui.settings.ProfileActivity
-import com.ucb.capstone.farmnook.ui.settings.NotificationActivity
+import com.ucb.capstone.farmnook.ui.settings.*
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class NavigationBar : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -42,7 +37,6 @@ class NavigationBar : AppCompatActivity() {
 
     private var userType: String = "farmer"
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bottom_navigation_bar)
@@ -51,18 +45,14 @@ class NavigationBar : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation_view)
         firebaseAuth = FirebaseAuth.getInstance()
-
         database = FirebaseFirestore.getInstance()
-        // Drawer Toggle setup
-        drawerToggle = ActionBarDrawerToggle(
-            this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
+
+        drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true) // Enable back button in toolbar
-
-        // Handle Bottom Navigation Clicks
+        // Set nav item listener
         bottomNavigationView.setOnItemSelectedListener { menu ->
             when (menu.itemId) {
                 R.id.home -> resetToDashboard()
@@ -74,84 +64,87 @@ class NavigationBar : AppCompatActivity() {
             true
         }
 
-        // Handle Navigation Menu Clicks
+        // Set drawer listener
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.profile -> navigateToProfile()
                 R.id.notification -> startActivity(Intent(this, NotificationActivity::class.java))
                 R.id.about -> startActivity(Intent(this, AboutActivity::class.java))
                 R.id.feedback -> startActivity(Intent(this, FeedbackActivity::class.java))
-                R.id.nav_logout -> {
-                    val userId = FirebaseAuth.getInstance().currentUser?.uid
-                    if (userId != null) {
-                        FirebaseFirestore.getInstance().collection("users").document(userId)
-                            .update("status", false)
-                            .addOnSuccessListener {
-                                Log.d("Logout", "✅ Status set to false on logout")
-                                FirebaseAuth.getInstance().signOut() // ✅ Sign out AFTER status is set
-                                startActivity(Intent(this, LoginActivity::class.java))
-                                finish()
-                            }
-                            .addOnFailureListener {
-                                Log.e("Logout", "❌ Failed to set status=false on logout", it)
-                                // Fallback signOut even if update fails
-                                FirebaseAuth.getInstance().signOut()
-                                startActivity(Intent(this, LoginActivity::class.java))
-                                finish()
-                            }
-                    } else {
-                        Log.w("Logout", "⚠️ No userId during logout")
-                        FirebaseAuth.getInstance().signOut()
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
-                    }
-
-                }
+                R.id.nav_logout -> handleLogout()
             }
-            drawerLayout.closeDrawer(GravityCompat.START) // Close drawer after selection
+            drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
-        // Load default fragment
-        if (savedInstanceState == null) {
-            Log.d("FirestoreDebug", "Updated userType: $userType") // Debug
-            resetToDashboard()
+        fetchUserData {
+            // Only navigate to delivery status once userType has been loaded
+            val navigateTo = intent.getStringExtra("navigateTo")
+            if (navigateTo == "DeliveryStatus") {
+                val fragment = DeliveryStatusFragment().apply {
+                    arguments = Bundle().apply {
+                        putString("deliveryId", intent.getStringExtra("deliveryId"))
+                        putString("pickup", intent.getStringExtra("pickup"))
+                        putString("destination", intent.getStringExtra("destination"))
+                        putString("pickupAddress", intent.getStringExtra("pickupAddress"))
+                        putString("destinationAddress", intent.getStringExtra("destinationAddress"))
+                    }
+                }
+                replaceFragment(fragment)
+                bottomNavigationView.selectedItemId = R.id.delivery
+            } else {
+                resetToDashboard()
+            }
         }
-        // Fetch and display user data in navigation header
-        fetchUserData()
     }
 
-    // Function to reset to dashboard (Home)
+    private fun handleLogout() {
+        val userId = firebaseAuth.currentUser?.uid
+        if (userId != null) {
+            database.collection("users").document(userId)
+                .update("status", false)
+                .addOnSuccessListener {
+                    firebaseAuth.signOut()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }
+                .addOnFailureListener {
+                    firebaseAuth.signOut()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }
+        } else {
+            firebaseAuth.signOut()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
+    }
+
     private fun resetToDashboard() {
-        Log.d("DashboardDebug", "Resetting to Dashboard. userType: $userType")
         supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        val dashboardFragment: Fragment = if (userType == "Hauler Business Admin" || userType == "Hauler"  ) {
-            Log.d("DashboardDebug", "Loading HaulerDashboardFragment")
+        val dashboardFragment: Fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
             HaulerDashboardFragment()
         } else {
-            Log.d("DashboardDebug", "Loading FarmerDashboardFragment")
             FarmerDashboardFragment()
         }
         replaceFragment(dashboardFragment)
     }
 
-    // Function to replace fragments
     private fun replaceFragment(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         val fragmentTag = fragment.javaClass.simpleName
         transaction.replace(R.id.navHost, fragment, fragmentTag)
-        transaction.addToBackStack(null) // Ensures back navigation works
+        transaction.addToBackStack(null)
         transaction.commit()
     }
 
-    // Handle Profile Navigation from Fragment
     fun navigateToProfile() {
         startActivity(Intent(this, ProfileActivity::class.java))
     }
 
-    // Fetch and display user data in navigation header
+    // Load user info and then execute continuation block
     @SuppressLint("SetTextI18n")
-    private fun fetchUserData() {
+    private fun fetchUserData(onFinished: () -> Unit) {
         val userId = firebaseAuth.currentUser?.uid ?: return
 
         database.collection("users").document(userId).get()
@@ -161,13 +154,10 @@ class NavigationBar : AppCompatActivity() {
                     val firstName = document.getString("firstName") ?: "User"
                     val lastName = document.getString("lastName") ?: ""
                     val fullName = "$firstName $lastName"
-
-                    userType = document.getString("userType") ?: "farmer" // ✅ Fetch userType dynamically
-                    Log.d("FirestoreDebug", "Fetched userType: $userType") // Debug log
+                    userType = document.getString("userType") ?: "farmer"
 
                     val dateJoined = document.getString("dateJoined") ?: ""
                     val formattedDate = formatDateJoined(dateJoined)
-
 
                     val headerView: View = navigationView.getHeaderView(0)
                     headerView.findViewById<TextView>(R.id.full_name).text = fullName
@@ -179,27 +169,23 @@ class NavigationBar : AppCompatActivity() {
                         Glide.with(this)
                             .load(profileImageUrl)
                             .override(100, 100)
-                            .placeholder(R.drawable.profile_circle) // Placeholder while loading
-                            .error(R.drawable.profile_circle) // Error image if loading fails
+                            .placeholder(R.drawable.profile_circle)
+                            .error(R.drawable.profile_circle)
                             .into(profileImage)
                     } else {
                         profileImage.setImageResource(R.drawable.profile_circle)
                     }
 
                     Log.d("FirestoreDebug", "Fetched userType: $userType")
-                    // ✅ Now call resetToDashboard() since userType is updated
-                    Log.d("DashboardDebug", "userType at resetToDashboard: $userType")
-                    resetToDashboard()
-
+                    onFinished()
                 }
             }
-            .addOnFailureListener { exception ->
-                exception.printStackTrace()
+            .addOnFailureListener { e ->
+                Log.e("FirestoreDebug", "Failed to fetch user", e)
+                onFinished()
             }
     }
 
-
-    // Function to format dateJoined as "January 2025"
     private fun formatDateJoined(dateString: String?): String {
         if (dateString.isNullOrEmpty()) return "N/A"
         return try {
@@ -212,7 +198,6 @@ class NavigationBar : AppCompatActivity() {
         }
     }
 
-
     override fun onSupportNavigateUp(): Boolean {
         return if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawers()
@@ -222,5 +207,4 @@ class NavigationBar : AppCompatActivity() {
             true
         }
     }
-
 }
