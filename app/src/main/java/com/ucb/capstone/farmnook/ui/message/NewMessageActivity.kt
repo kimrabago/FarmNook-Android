@@ -71,10 +71,15 @@ class NewMessageActivity : AppCompatActivity() {
     }
 
     private fun fetchUsers(currentUserType: String) {
-        val targetUserType = if (currentUserType == "Hauler") "Farmer" else "Hauler"
+        // If the current user is a "Farmer," fetch "Hauler" and "Hauler Business Admin"
+        val targetUserTypes = if (currentUserType == "Farmer") {
+            listOf("Hauler", "Hauler Business Admin")
+        } else {
+            listOf("Farmer") // If it's not a "Farmer," fetch "Farmer"
+        }
 
         firestore.collection("users")
-            .whereEqualTo("userType", targetUserType)
+            .whereIn("userType", targetUserTypes) // Fetch both Hauler and Hauler Business Admin for Farmers
             .get()
             .addOnSuccessListener { documents ->
                 nameList.clear()
@@ -97,6 +102,7 @@ class NewMessageActivity : AppCompatActivity() {
                 Toast.makeText(this, "Failed to load users: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun openChatScreen(userId: String, userName: String) {
         val intent = Intent(this, MessageActivity::class.java)

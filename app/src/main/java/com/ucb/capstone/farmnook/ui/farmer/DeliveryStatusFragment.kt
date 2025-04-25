@@ -9,7 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
-import com.ucb.capstone.farmnook.ui.farmer.add_delivery.RateDelivery
+import com.ucb.capstone.farmnook.ui.farmer.add_delivery.RateDeliveryDialog
 
 class DeliveryStatusFragment : Fragment(R.layout.fragment_delivery_status) {
 

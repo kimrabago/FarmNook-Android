@@ -96,13 +96,24 @@ class MessageActivity : AppCompatActivity() {
                 messageList.clear()
                 snapshots?.documents?.forEach { doc ->
                     val message = doc.toObject(Message::class.java)
-                    if (message != null) messageList.add(message)
+                    if (message != null) {
+                        // Format timestamp before adding to the list
+                        val formattedTimestamp = formatTimestamp(message.timestamp)
+                        messageList.add(message.copy(formattedTimestamp = formattedTimestamp))
+                    }
                 }
 
                 messageAdapter.notifyDataSetChanged()
                 messagesRecyclerView.scrollToPosition(messageList.size - 1)
             }
     }
+
+    private fun formatTimestamp(timestamp: Long): String {
+        val sdf = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
+        val date = java.util.Date(timestamp)
+        return sdf.format(date)
+    }
+
 
     private fun fetchSenderNameAndSendMessage() {
         val text = replyEditText.text.toString().trim()
