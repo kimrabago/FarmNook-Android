@@ -11,7 +11,7 @@ import com.ucb.capstone.farmnook.util.getAddressFromLatLng
 import android.location.Geocoder
 import android.widget.Button
 import android.widget.ImageButton
-import com.ucb.capstone.farmnook.ui.farmer.add_delivery.RateDelivery
+import com.ucb.capstone.farmnook.ui.farmer.add_delivery.RateDeliveryDialog
 import java.util.Locale
 
 class DeliveryConfirmationActivity : AppCompatActivity() {
@@ -58,20 +58,16 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         fetchDeliveryDetails(deliveryId, haulerId)
 
         val confirmButton = findViewById<Button>(R.id.confirm_button)
-
         confirmButton.setOnClickListener {
             if (businessId == null) {
                 Log.e("DeliveryConfirmation", "businessId is null, cannot proceed to rate.")
                 return@setOnClickListener
             }
 
-            val intent = Intent(this, RateDelivery::class.java)
-            intent.putExtra("deliveryId", deliveryId)
-            intent.putExtra("businessId", businessId)
-            intent.putExtra("farmerId", farmerId)
-
-            startActivity(intent)
+            val rateDialog = RateDeliveryDialog.newInstance(deliveryId, businessId!!, farmerId)
+            rateDialog.show(supportFragmentManager, "RateDeliveryDialog")
         }
+
     }
 
     private fun fetchDeliveryDetails(deliveryId: String, haulerId: String) {

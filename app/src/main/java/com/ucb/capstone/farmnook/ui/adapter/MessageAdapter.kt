@@ -22,6 +22,7 @@ class MessageAdapter(private val messageList: List<Message>, private val current
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
         val message = messageList[position]
         holder.messageContentTextView.text = message.content
+        holder.messageTimestampTextView.text = message.formattedTimestamp // Set the formatted timestamp
     }
 
     override fun getItemCount(): Int = messageList.size
@@ -32,6 +33,8 @@ class MessageAdapter(private val messageList: List<Message>, private val current
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val messageContentTextView: TextView = itemView.findViewById(R.id.messageContentTextView)
+        val messageTimestampTextView: TextView = itemView.findViewById(R.id.messageTimestampTextView) // Add reference to the timestamp TextView
     }
 }
+
 

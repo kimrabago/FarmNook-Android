@@ -4,6 +4,7 @@ data class Message(
     val senderId: String = "",
     val receiverId: String = "",
     val content: String = "",
-    val timestamp: Long = 0,
-    var senderName: String = "" // Add sender's name
+    val timestamp: Long = 0L,
+    val senderName: String = "",
+    val formattedTimestamp: String = ""  // New field for formatted timestamp
 )

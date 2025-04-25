@@ -11,31 +11,36 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/message_bubble"
         android:backgroundTint="@color/dark_green"
         android:clipToOutline="true"
-        android:elevation="4dp"
+        android:elevation="6dp"
         android:gravity="end"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/messageContentTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="250dp"
-            android:paddingEnd="4dp"
+            android:maxWidth="280dp"
             android:text="@string/hello_how_are_you"
             android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:textSize="15sp"
+            android:lineSpacingExtra="4dp"
+            android:paddingEnd="8dp"
+            android:ellipsize="end"
+            android:singleLine="false"
+            android:scrollHorizontally="false"/>
 
         <TextView
             android:id="@+id/messageTimestampTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:gravity="end"
+            android:lineSpacingExtra="2dp"
             android:textColor="@android:color/darker_gray"
             android:textSize="12sp" />
     </LinearLayout>
