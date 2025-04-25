@@ -20,6 +20,7 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryHistory
 import com.ucb.capstone.farmnook.ui.farmer.add_delivery.SendPushNotification
 import com.ucb.capstone.farmnook.ui.hauler.services.DeliveryLocationService
+import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 
 class DeliveryDetailsActivity : AppCompatActivity() {
 
@@ -63,7 +64,8 @@ class DeliveryDetailsActivity : AppCompatActivity() {
             // Navigate to NavigationBar with intent to show DeliveryStatusFragment
             val deliveryId = intent.getStringExtra("deliveryId") ?: return@setOnClickListener
 
-            val intent = Intent(this, DeliveryLiveTrackingActivity::class.java).apply {
+            val intent = Intent(this, NavigationBar::class.java).apply {
+                putExtra("navigateTo", "DeliveryStatus")
                 putExtra("deliveryId", deliveryId)
                 putExtra("pickup", pickup)
                 putExtra("destination", destination)
@@ -72,7 +74,6 @@ class DeliveryDetailsActivity : AppCompatActivity() {
             }
             startService(Intent(this, DeliveryLocationService::class.java)) // ✅ Keep tracking
             startActivity(intent)
-
             finish()
         }
 
@@ -81,7 +82,7 @@ class DeliveryDetailsActivity : AppCompatActivity() {
             val deliveryId = intent.getStringExtra("deliveryId") ?: return@setOnClickListener
             val builder = android.app.AlertDialog.Builder(this)
             builder.setTitle("Confirm Delivery Completion")
-                .setMessage("Are you sure you’ve completed delivering the products?")
+                .setMessage("Are you sure you've completed delivering the products?")
                 .setPositiveButton("Yes") { dialog, _ ->
                     dialog.dismiss()
                     val firestore = FirebaseFirestore.getInstance()

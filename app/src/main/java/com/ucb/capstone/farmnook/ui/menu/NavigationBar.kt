@@ -22,6 +22,7 @@ import com.ucb.capstone.farmnook.ui.farmer.DeliveryStatusFragment
 import com.ucb.capstone.farmnook.ui.farmer.FarmerDashboardFragment
 import com.ucb.capstone.farmnook.ui.hauler.DeliveryHistoryFragment
 import com.ucb.capstone.farmnook.ui.hauler.HaulerDashboardFragment
+import com.ucb.capstone.farmnook.ui.hauler.HaulerDeliveryStatusFragment
 import com.ucb.capstone.farmnook.ui.message.InboxFragment
 import com.ucb.capstone.farmnook.ui.settings.*
 import java.text.SimpleDateFormat
@@ -52,19 +53,8 @@ class NavigationBar : AppCompatActivity() {
         drawerToggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Set nav item listener
-        bottomNavigationView.setOnItemSelectedListener { menu ->
-            when (menu.itemId) {
-                R.id.home -> resetToDashboard()
-                R.id.history -> replaceFragment(DeliveryHistoryFragment())
-                R.id.delivery -> replaceFragment(DeliveryStatusFragment())
-                R.id.message -> replaceFragment(InboxFragment())
-                else -> return@setOnItemSelectedListener false
-            }
-            true
-        }
+        setupBottomNavigation()
 
-        // Set drawer listener
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.profile -> navigateToProfile()
@@ -78,16 +68,17 @@ class NavigationBar : AppCompatActivity() {
         }
 
         fetchUserData {
-            // Only navigate to delivery status once userType has been loaded
             val navigateTo = intent.getStringExtra("navigateTo")
+            val deliveryId = intent.getStringExtra("deliveryId")
+
             if (navigateTo == "DeliveryStatus") {
-                val fragment = DeliveryStatusFragment().apply {
-                    arguments = Bundle().apply {
-                        putString("deliveryId", intent.getStringExtra("deliveryId"))
-                        putString("pickup", intent.getStringExtra("pickup"))
-                        putString("destination", intent.getStringExtra("destination"))
-                        putString("pickupAddress", intent.getStringExtra("pickupAddress"))
-                        putString("destinationAddress", intent.getStringExtra("destinationAddress"))
+                val fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
+                    HaulerDeliveryStatusFragment().apply {
+                        arguments = Bundle().apply { putString("deliveryId", deliveryId) }
+                    }
+                } else {
+                    DeliveryStatusFragment().apply {
+                        arguments = Bundle().apply { putString("deliveryId", deliveryId) }
                     }
                 }
                 replaceFragment(fragment)
@@ -95,6 +86,26 @@ class NavigationBar : AppCompatActivity() {
             } else {
                 resetToDashboard()
             }
+        }
+    }
+
+    private fun setupBottomNavigation() {
+        bottomNavigationView.setOnItemSelectedListener { menu ->
+            when (menu.itemId) {
+                R.id.home -> resetToDashboard()
+                R.id.history -> replaceFragment(DeliveryHistoryFragment())
+                R.id.delivery -> {
+                    val fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
+                        HaulerDeliveryStatusFragment()
+                    } else {
+                        DeliveryStatusFragment()
+                    }
+                    replaceFragment(fragment)
+                }
+                R.id.message -> replaceFragment(InboxFragment())
+                else -> return@setOnItemSelectedListener false
+            }
+            true
         }
     }
 
@@ -142,7 +153,6 @@ class NavigationBar : AppCompatActivity() {
         startActivity(Intent(this, ProfileActivity::class.java))
     }
 
-    // Load user info and then execute continuation block
     @SuppressLint("SetTextI18n")
     private fun fetchUserData(onFinished: () -> Unit) {
         val userId = firebaseAuth.currentUser?.uid ?: return
