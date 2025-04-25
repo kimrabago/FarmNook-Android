@@ -56,6 +56,8 @@ class DeliveryHistoryFragment : Fragment() {
                                         val name = "${farmerDoc.getString("firstName") ?: ""} ${farmerDoc.getString("lastName") ?: ""}"
                                         farmerNameMap[deliveryId] = name
 
+                                        val pickupAddress = reqDoc.getString("pickupLocation") ?: "Unknown"
+                                        val destinationAddress = reqDoc.getString("destinationLocation") ?: "Unknown"
                                         if (cal.get(Calendar.WEEK_OF_YEAR) == now.get(Calendar.WEEK_OF_YEAR)) {
                                             transactionList.add(history)
                                             transRecycler.adapter = DeliveryHistoryAdapter(
@@ -64,6 +66,8 @@ class DeliveryHistoryFragment : Fragment() {
                                             ) { selectedDeliveryId ->
                                                 val intent = Intent(requireContext(), HistoryDetailsActivity::class.java)
                                                 intent.putExtra("deliveryId", selectedDeliveryId)
+                                                intent.putExtra("pickupAddress", pickupAddress)
+                                                intent.putExtra("destinationAddress", destinationAddress)
                                                 startActivity(intent)
                                             }
                                         }

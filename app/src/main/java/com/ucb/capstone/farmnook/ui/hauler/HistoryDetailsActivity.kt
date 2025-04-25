@@ -4,15 +4,16 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebView
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
+import com.ucb.capstone.farmnook.util.getAddressFromLatLng
 import java.text.SimpleDateFormat
 import java.util.Locale
+import android.location.Geocoder
 
 class HistoryDetailsActivity : AppCompatActivity() {
 
@@ -32,8 +33,6 @@ class HistoryDetailsActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 
         val deliveryId = intent.getStringExtra("deliveryId") ?: return
-        val pickupAddress = intent.getStringExtra("pickupAddress") ?: "Unknown"
-        val destinationAddress = intent.getStringExtra("destinationAddress") ?: "Unknown"
 
         val historyQuery = FirebaseFirestore.getInstance().collection("deliveryHistory")
             .whereEqualTo("deliveryId", deliveryId)
@@ -66,6 +65,9 @@ class HistoryDetailsActivity : AppCompatActivity() {
                         requestRef.get().addOnSuccessListener { req ->
                             val pickup = req.getString("pickupLocation") ?: ""
                             val drop = req.getString("destinationLocation") ?: ""
+                            val geocoder = Geocoder(this, Locale.getDefault())
+                            val pickupAddress = getAddressFromLatLng(pickup, geocoder)
+                            val dropAddress = getAddressFromLatLng(drop, geocoder)
                             val weight = req.get("weight").toString()
                             val productType = req.getString("productType") ?: "Unknown"
                             val purpose = req.getString("purpose") ?: "General"
@@ -74,7 +76,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
                             // Set readable addresses (from Intent)
                             findViewById<TextView>(R.id.provincePickup).text = pickupAddress
                             findViewById<TextView>(R.id.provinceDestination).text =
-                                destinationAddress
+                                dropAddress
                             findViewById<TextView>(R.id.weightAmount).text = "$weight kg"
                             findViewById<TextView>(R.id.productType).text = "$purpose\n$productType"
 

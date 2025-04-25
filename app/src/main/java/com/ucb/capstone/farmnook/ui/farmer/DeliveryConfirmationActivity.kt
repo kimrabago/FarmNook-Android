@@ -29,6 +29,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_delivery_confirmation)
 
+
         // Bind views
         haulerNameTextView = findViewById(R.id.haulerName)
         plateNumberTextView = findViewById(R.id.plateNumber)
@@ -42,17 +43,14 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         backButton.setOnClickListener { finish() }
 
         val deliveryId = intent.getStringExtra("deliveryId") ?: run {
-            Log.e("DeliveryConfirmation", "deliveryId is missing")
             finish()
             return
         }
         val haulerId = intent.getStringExtra("haulerId") ?: run {
-            Log.e("DeliveryConfirmation", "haulerId is missing")
             finish()
             return
         }
         val farmerId = intent.getStringExtra("farmerId") ?: run {
-            Log.e("DeliveryConfirmation", "farmerId is missing")
             finish()
             return
         }
@@ -60,6 +58,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         fetchDeliveryDetails(deliveryId, haulerId)
 
         val confirmButton = findViewById<Button>(R.id.confirm_button)
+
         confirmButton.setOnClickListener {
             if (businessId == null) {
                 Log.e("DeliveryConfirmation", "businessId is null, cannot proceed to rate.")
@@ -70,6 +69,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
             intent.putExtra("deliveryId", deliveryId)
             intent.putExtra("businessId", businessId)
             intent.putExtra("farmerId", farmerId)
+
             startActivity(intent)
         }
     }
@@ -150,9 +150,21 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
                 val firstName = userDoc.getString("firstName") ?: ""
                 val lastName = userDoc.getString("lastName") ?: ""
                 val fullName = "${firstName.replaceFirstChar { it.uppercase() }} ${lastName.replaceFirstChar { it.uppercase() }}"
-
                 haulerNameTextView.text = fullName
-                businessId = userDoc.getString("businessId") // NEW
+
+                // Determine businessId from user
+                val userType = userDoc.getString("userType") ?: ""
+                val userId = userDoc.getString("userId") ?: ""
+
+                // Set businessId conditionally
+                businessId = userDoc.getString("businessId")
+
+                // Fallback if this is the Business Admin herself
+                if (businessId == null && userType == "Hauler Business Admin") {
+                    businessId = userId
+                }
+
+                Log.d("DeliveryConfirmation", "Resolved businessId: $businessId")
             }
     }
 }

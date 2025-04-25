@@ -59,7 +59,9 @@
                 android:text="@string/ratings_count"
                 android:textSize="12sp"
                 android:textColor="@android:color/darker_gray"
-                android:layout_marginStart="5dp"/>
+                android:layout_marginStart="5dp"
+                android:drawableStart="@drawable/star_ic"
+                android:drawablePadding="3dp"/>
             </LinearLayout>
         </LinearLayout>
 

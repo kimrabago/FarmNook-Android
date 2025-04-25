@@ -28,11 +28,10 @@ class NotificationActivity : AppCompatActivity() {
                 .document(notif.id)
                 .update("isRead", true)
 
-            // If the title is "Delivery Completed", proceed
-            if (notif.title == "Delivery Completed") {
-                val deliveryId = notif.deliveryId
-                val farmerId = notif.farmerId
+            val deliveryId = notif.deliveryId
+            val farmerId = notif.farmerId
 
+            if (notif.title == "Delivery Completed" && deliveryId != null) {
                 // Fetch the delivery document to get the haulerId
                 FirebaseFirestore.getInstance()
                     .collection("deliveries")
@@ -41,7 +40,6 @@ class NotificationActivity : AppCompatActivity() {
                     .addOnSuccessListener { document ->
                         if (document != null && document.exists()) {
                             val haulerId = document.getString("AssignedHaulerId") ?: ""
-                            // Proceed with the intent
                             val intent = Intent(this, DeliveryConfirmationActivity::class.java).apply {
                                 putExtra("deliveryId", deliveryId)
                                 putExtra("farmerId", farmerId)
@@ -57,6 +55,9 @@ class NotificationActivity : AppCompatActivity() {
                         Log.e("NotificationActivity", "Failed to fetch delivery info", exception)
                         Toast.makeText(this, "Failed to fetch delivery info", Toast.LENGTH_SHORT).show()
                     }
+            } else {
+                // For general notifications without deliveryId
+                Toast.makeText(this, notif.message, Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -89,10 +90,16 @@ class NotificationActivity : AppCompatActivity() {
         val db = FirebaseFirestore.getInstance()
 
         db.collection("notifications")
-            .whereEqualTo("farmerId", userId)
+            .whereEqualTo("recipientId", userId)
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null || snapshot == null) return@addSnapshotListener
+
+                Log.d("NotificationDebug", "Snapshot size: ${snapshot.size()}")
+
+                for (doc in snapshot.documents) {
+                    Log.d("NotificationDebug", "Doc ID: ${doc.id}, Data: ${doc.data}")
+                }
 
                 val notifications = snapshot.documents.mapNotNull { doc ->
                     val ts = try {
@@ -106,13 +113,13 @@ class NotificationActivity : AppCompatActivity() {
                     val sdf = SimpleDateFormat("MMM dd, yyyy - hh:mm a", Locale.getDefault())
 
                     Notification(
-                        id = doc.id,
+                        id = doc.getString("notificationId") ?: doc.id,
                         title = doc.getString("title") ?: "",
                         message = doc.getString("message") ?: "",
                         isRead = doc.getBoolean("isRead") ?: false,
                         timestamp = sdf.format(ts),
-                        deliveryId = doc.getString("deliveryId") ?: "",
-                        farmerId = doc.getString("farmerId") ?: ""
+                        deliveryId = doc.getString("deliveryId"),
+                        farmerId = doc.getString("recipientId")
                     )
                 }
 
@@ -124,7 +131,7 @@ class NotificationActivity : AppCompatActivity() {
         val db = FirebaseFirestore.getInstance()
 
         db.collection("notifications")
-            .whereEqualTo("farmerId", userId)
+            .whereEqualTo("recipientId", userId)
             .get()
             .addOnSuccessListener { snapshot ->
                 val batch = db.batch()
