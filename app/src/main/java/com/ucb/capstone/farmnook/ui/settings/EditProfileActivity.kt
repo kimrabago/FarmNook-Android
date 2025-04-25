@@ -154,7 +154,7 @@ class EditProfileActivity : AppCompatActivity() {
                                 .addOnFailureListener { exception ->
                                     exception.printStackTrace()
                                 }
-                        } else {
+                        } else if (userType != "Hauler Business Admin") {
                             businessNameEditText.visibility = View.GONE
                         }
 

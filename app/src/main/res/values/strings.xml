@@ -95,7 +95,7 @@
     <string name="search">Search</string>
     <string name="cancel">Cancel</string>
     <string name="add_delivery">Add Delivery</string>
-    <string name="fill_in_your_preferences_to_get_matched_with_a_suitable_hauler">Fill in your preferences to get matched with a suitable hauler.</string>
+    <string name="add_delivery_description">Fill in your preferences to get matched with a suitable vehicle.</string>
     <string name="recommendation">Recommendation</string>
     <string name="available">Available</string>
     <string name="price">₱ 350.00</string>
@@ -213,5 +213,12 @@
     <string name="history_details">History Details</string>
     <string name="transactions">Transactions</string>
     <string name="confirmm">Confirm</string>
+
+    <string name="contact_message">Got a problem? Report it to our email. <u><font color='red'>farmnook@gmail.com</font></u></string>
+
+    <string-array name="filter_options">
+        <item>Location</item>
+        <item>Ratings</item>
+    </string-array>
 
 </resources>

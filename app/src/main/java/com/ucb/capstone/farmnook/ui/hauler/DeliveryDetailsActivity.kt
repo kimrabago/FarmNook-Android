@@ -104,8 +104,10 @@ class DeliveryDetailsActivity : AppCompatActivity() {
                                                 val fullName = "${haulerDoc.getString("firstName") ?: ""} ${haulerDoc.getString("lastName") ?: ""}"
                                                 val message = "$fullName has completed the delivery."
                                                 val title = "Delivery Completed"
-                                                SendPushNotification.sendCompletedDeliveryNotification("farmerId", farmerId, deliveryId, title, message, completedAt, this)
+                                                
+                                                SendPushNotification.sendCompletedDeliveryNotification("recipientId", farmerId, deliveryId, title, message, completedAt, this)
                                                 SendPushNotification.sendCompletedDeliveryNotification("businessId", businessId, deliveryId, title, message, completedAt, this)
+
                                                 stopService(Intent(this, DeliveryLocationService::class.java))
                                                 val nextIntent = Intent(this, HistoryDetailsActivity::class.java).apply {
                                                     putExtra("deliveryId", deliveryId)

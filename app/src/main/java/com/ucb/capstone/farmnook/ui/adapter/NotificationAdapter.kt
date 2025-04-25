@@ -37,7 +37,6 @@ class NotificationAdapter(
 
     }
 
-
     fun updateList(newItems: List<Notification>) {
         items = newItems
         notifyDataSetChanged()

@@ -92,12 +92,12 @@
         <!-- Location -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="75dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingTop="8dp"
                 android:text="@string/location_textview"
@@ -111,8 +111,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/location"
+                android:maxLines="3"
+                android:ellipsize="end"
                 android:textColor="@color/dark_green"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:paddingTop="8dp"/>
         </LinearLayout>
         <!-- Vehicle Information -->
         <LinearLayout

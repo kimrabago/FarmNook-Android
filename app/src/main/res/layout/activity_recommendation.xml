@@ -32,26 +32,40 @@
             android:fontFamily="@font/poppins_bold"
             android:textColor="@color/dark_green"
             android:textSize="20sp"
-            android:layout_marginVertical="30dp"
+            android:layout_marginVertical="15dp"
             android:gravity="center"/>
+
+        <!-- Filter Spinner -->
+        <Spinner
+            android:id="@+id/filter_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:spinnerMode="dropdown"
+            android:entries="@array/filter_options"
+            android:layout_below="@id/recommendation_description"
+            android:layout_marginBottom="10dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recommended_haulers_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="440dp"
-            android:layout_below="@id/recommendation_description"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/filter_spinner"
+            android:layout_above="@id/cancel_button"
+            android:layout_marginBottom="5dp"
             tools:listitem="@layout/vehicle_recommend_item" />
 
         <Button
             android:id="@+id/cancel_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/recommended_haulers_recycler_view"
+            android:layout_alignParentBottom="true"
             android:background="@drawable/red_rounded_button"
             android:text="@string/cancel"
             android:textSize="20sp"
             android:textColor="@color/white"
             android:textAllCaps="false"
-            android:fontFamily="@font/dm_sans_bold"/>
+            android:fontFamily="@font/dm_sans_bold"
+            android:layout_marginBottom="10dp"/>
     </RelativeLayout>
 </LinearLayout>

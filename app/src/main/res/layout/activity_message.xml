@@ -35,16 +35,6 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_centerInParent="true" />
-
-        <ImageButton
-            android:id="@+id/three_dots"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@null"
-            android:src="@drawable/new_msg"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="10dp"
-            android:contentDescription="@string/back_button" />
     </RelativeLayout>
 
     <!-- ScrollView with id -->

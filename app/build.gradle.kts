@@ -69,7 +69,7 @@ dependencies {
     implementation("com.mapbox.maps:android:11.9.2")
     implementation("androidx.annotation:annotation:1.9.1")
 
-    // Search
+    // Search TO BE REMOVE
     implementation("com.mapbox.search:autofill:2.7.0")
     implementation("com.mapbox.search:discover:2.7.0")
     implementation("com.mapbox.search:place-autocomplete:2.7.0")

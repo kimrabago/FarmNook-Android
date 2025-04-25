@@ -71,7 +71,6 @@ object SendPushNotification {
         }
 
         Volley.newRequestQueue(context).add(request)
-
     }
 
     fun sendMessageNotification(context: Context, receiverId: String, senderName: String, message: String) {
