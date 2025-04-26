@@ -4,8 +4,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 
@@ -17,7 +19,8 @@ class RecommendationAdapter(
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val businessName: TextView = view.findViewById(R.id.business_name)
         val vehicle: TextView = view.findViewById(R.id.vehicle)
-        val weight: TextView = view.findViewById(R.id.vehicle_weight)
+        val ratings: TextView = view.findViewById(R.id.ratings)
+        val profileImage: ImageView = view.findViewById(R.id.profileImage)
         val availableBtn: Button = view.findViewById(R.id.available_button)
     }
 
@@ -33,7 +36,18 @@ class RecommendationAdapter(
         val item = vehicles[position]
         holder.businessName.text = item.businessName
         holder.vehicle.text = "${item.vehicleType} - ${item.model}"
-//        holder.weight.text = "Max Weight: ${item.maxWeightKg} kg"
+
+        if (!item.profileImage.isNullOrEmpty()) {
+            Glide.with(holder.itemView.context)
+                .load(item.profileImage)
+                .placeholder(R.drawable.profile_circle)
+                .error(R.drawable.profile_circle)
+                .into(holder.profileImage)
+        } else {
+            holder.profileImage.setImageResource(R.drawable.profile_circle)
+        }
+
+        holder.ratings.text = "${String.format("%.1f", item.averageRating ?: 0.0)}"
 
         holder.availableBtn.setOnClickListener {
             onAvailableClicked(item)

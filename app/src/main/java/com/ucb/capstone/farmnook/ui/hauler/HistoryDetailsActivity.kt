@@ -11,6 +11,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.util.getAddressFromLatLng
+import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import java.text.SimpleDateFormat
 import java.util.Locale
 import android.location.Geocoder
@@ -24,10 +25,11 @@ class HistoryDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history_details)
 
-        val bottomSheet = findViewById<View>(R.id.bottomSheet)
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-        bottomSheetBehavior.peekHeight = 200
-        bottomSheetBehavior.isHideable = false
+        bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottomSheet)).apply {
+            peekHeight = 100
+            isHideable = false
+            state = BottomSheetBehavior.STATE_EXPANDED
+        }
 
         // Back button
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
@@ -96,19 +98,8 @@ class HistoryDetailsActivity : AppCompatActivity() {
                                     }
                             }
 
-                            // Load map using raw coordinates
-                            val encodedPickup = pickup.replace(" ", "")
-                            val encodedDrop = drop.replace(" ", "")
-                            val mapUrl =
-                                "https://farmnook-web.vercel.app/map-viewer?pickup=$encodedPickup&drop=$encodedDrop"
-
                             val webView = findViewById<WebView>(R.id.mapView)
-                            webView.settings.javaScriptEnabled = true
-                            webView.settings.cacheMode = android.webkit.WebSettings.LOAD_NO_CACHE
-                            webView.settings.domStorageEnabled = true
-                            webView.webViewClient = android.webkit.WebViewClient()
-                            webView.loadUrl(mapUrl)
-                            findViewById<WebView>(R.id.mapView).loadUrl(mapUrl)
+                            loadMapInWebView(webView, pickup, drop)
                         }
                     }
                 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,256 +7,201 @@
     android:layout_height="match_parent"
     tools:context=".ui.farmer.WaitingDeliveryActivity">
 
-    <ImageButton
-        android:id="@+id/btn_back"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@null"
-        android:src="@drawable/back_arrow"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:contentDescription="@string/back_button"/>
-
-    <TextView
-        android:id="@+id/add_delivery_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/add_delivery"
-        android:fontFamily="@font/poppins_bold"
-        android:textColor="@color/dark_green"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_toEndOf="@id/btn_back"/>
-
-    <com.mapbox.maps.MapView
-        android:id="@+id/mapView"
-        android:layout_width="match_parent"
-        android:layout_height="460dp"
-        android:layout_below="@id/add_delivery_title"
-        android:layout_marginTop="10dp"/>
-
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/mapView"
-        android:fillViewport="true">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/mapView"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:background="@drawable/half_border">
+            android:layout_height="wrap_content"
+            android:padding="5dp">
 
-            <!-- Loading State inside CardView -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/loadingLayout"
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="8dp"
+                android:background="@null"
+                android:contentDescription="@string/back_button"
+                android:src="@drawable/back_arrow" />
+
+            <TextView
+                android:id="@+id/waiting_confirm_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_toEndOf="@id/btn_back"
+                android:fontFamily="@font/poppins_bold"
+                android:text="@string/waiting_confirmation"
+                android:textColor="@color/dark_green"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <!-- WebView map area -->
+        <WebView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <!-- Bottom Sheet Layout -->
+    <LinearLayout
+        android:id="@+id/bottomSheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/half_border"
+        android:orientation="vertical"
+        android:padding="10dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <!-- Loading State inside CardView -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/loadingLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="13dp"
+            android:visibility="visible"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="8dp"
-                android:visibility="gone">
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="13dp">
 
-                <LinearLayout
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/white"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:fontFamily="@font/poppins_semibold"
+                    android:gravity="center"
+                    android:text="@string/wait_for_confirmation"
+                    android:textColor="@color/dark_green"
+                    android:textSize="14sp" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/wait_for_hauler_confirmation"
-                        android:textSize="14sp"
-                        android:gravity="center"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:textColor="@color/dark_green"
-                        app:drawableStartCompat="@drawable/truck"/>
-
-                    <ProgressBar
-                        android:id="@+id/loadingBar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="?android:attr/progressBarStyleLarge"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/confirmationLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="8dp"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <Button
+                    android:id="@+id/cancelButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/white"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:text="@string/cancel_request"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:background="@drawable/red_rounded_button"
+                    android:textColor="@color/white"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/hauler_confirmed"
-                        android:textSize="16sp"
-                        android:paddingTop="10dp"
-                        android:drawablePadding="10dp"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:textColor="@color/dark_green"
-                        app:drawableStartCompat="@drawable/truck" />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/confirmationLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="13dp"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
 
-                    <ImageView
-                        android:id="@+id/confirmed_hauler_check"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:contentDescription="@string/hauler_confirmed"
-                        android:src="@drawable/success_icon" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Hauler To Pickup State -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/haulerToPickupLayout"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
-                android:visibility="gone"
-                android:background="@color/white">
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="10dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/white"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:gravity="center"
+                    android:text="@string/delivery_confirmed"
+                    android:textColor="@color/dark_green"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/hauler_on_route_to_the_farmer_location"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:textColor="@color/dark_green"
-                        android:gravity="center"
-                        android:layout_marginBottom="8dp"/>
+                <!-- Include hauler details layout -->
+                <include layout="@layout/hauler_details_layout" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-                    <!-- Image and Grid Layout in Horizontal Row -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center">
+        <!-- Hauler To Pickup State -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/haulerToPickupLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:visibility="gone"
+            android:layout_margin="13dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp">
 
-                        <!-- Driver Image on Left -->
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/profileImage"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
-                            android:src="@drawable/profile_circle"
-                            android:layout_marginEnd="16dp"/>
-
-                        <!-- Driver Details Table on Right -->
-                        <GridLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:columnCount="2"
-                            android:rowCount="4"
-                            android:padding="8dp">
-
-                            <TextView
-                                android:text="@string/driver_id_textView"
-                                android:textSize="14sp"
-                                android:textStyle="bold"/>
-
-                            <TextView
-                                android:id="@+id/driverID"
-                                android:text="@string/driver_id"
-                                android:textSize="14sp"
-                                android:layout_marginStart="5dp"/>
-
-                            <TextView
-                                android:text="@string/name_textView"
-                                android:textSize="14sp"
-                                android:textStyle="bold"/>
-                            <TextView
-                                android:id="@+id/driverName"
-                                android:text="@string/driver_name"
-                                android:textSize="14sp"
-                                android:layout_marginStart="5dp"/>
-
-                            <TextView
-                                android:text="@string/vehicle_type_textview"
-                                android:textSize="14sp"
-                                android:textStyle="bold"/>
-                            <TextView
-                                android:id="@+id/vehicleType"
-                                android:text="@string/vehicle_type1"
-                                android:textSize="14sp"
-                                android:layout_marginStart="5dp" />
-
-                            <TextView
-                                android:text="@string/plate_no_textview"
-                                android:textSize="14sp"
-                                android:textStyle="bold"/>
-
-                            <TextView
-                                android:id="@+id/plateNumber"
-                                android:text="@string/plate_num"
-                                android:textSize="14sp"
-                                android:layout_marginStart="5dp"/>
-                        </GridLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/haulerArrival"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="8dp"
-                android:visibility="gone">
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="150dp"
-                    android:background="@android:color/white"
-                    android:padding="16dp"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:gravity="center"
+                    android:text="@string/hauler_on_route_to_the_farmer_location"
+                    android:textColor="@color/dark_green"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-                    <ImageView
-                        android:layout_width="80dp"
-                        android:layout_height="70dp"
-                        android:src="@drawable/delivery_man"
-                        android:layout_marginEnd="10dp"/>
+                <!-- Include hauler details layout -->
+                <include layout="@layout/hauler_details_layout" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/your_hauler_is_here"
-                        android:textSize="16sp"
-                        android:drawablePadding="10dp"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:textColor="@color/dark_green" />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/haulerArrival"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="13dp"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
 
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-</RelativeLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/profileImage"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/profile_circle"
+                    android:layout_marginEnd="16dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="@string/your_hauler_is_here"
+                    android:textColor="@color/dark_green"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

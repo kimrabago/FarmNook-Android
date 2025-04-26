@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="10dp"
+    android:background="@color/cream"
+    tools:ignore="ContentDescription">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/summaryTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delivery_summary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_green"
+            android:layout_gravity="center" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/profile_circle" />
+
+        <TextView
+            android:id="@+id/businessName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/business_name"
+            android:textColor="@color/dark_green"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/businessLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/business_location"
+            android:textColor="@color/dark_green"
+            android:textSize="12sp"
+            android:layout_gravity="center"
+            app:drawableStartCompat="@drawable/pin_ic" />
+
+        <!-- Details Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="10dp">
+
+            <!-- Plate Number -->
+            <include layout="@layout/item_detail_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/plateRow"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Pickup Address -->
+            <include layout="@layout/item_detail_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/pickupRow"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Destination Address -->
+            <include layout="@layout/item_detail_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/destinationRow"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Vehicle Info -->
+            <include layout="@layout/item_detail_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/vehicleRow"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Purpose -->
+            <include layout="@layout/item_detail_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/purposeRow"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Product Type -->
+            <include layout="@layout/item_detail_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/productRow"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Weight -->
+            <include layout="@layout/item_detail_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/weightRow"
+                android:layout_marginBottom="8dp"/>
+        </LinearLayout>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/cancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel"
+                android:background="@drawable/red_rounded_button"
+                android:textColor="@android:color/white"/>
+
+            <Button
+                android:id="@+id/hireButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hire"
+                android:background="@drawable/green_rounded_button"
+                android:textColor="@android:color/white"
+                android:layout_marginStart="20dp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

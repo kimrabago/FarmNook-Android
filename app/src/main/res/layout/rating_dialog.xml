@@ -1,92 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:background="@android:color/white"> <!-- Changed background for testing -->
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="10dp"
+    app:cardPreventCornerOverlap="false"
+    tools:ignore="ContentDescription">
 
-    <ImageView
-        android:id="@+id/closeDialog"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="end"
-        android:src="@drawable/close_button"
-        android:padding="4dp"/>
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/success_icon"
-        android:layout_gravity="center"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/transaction_successful"
-        android:textSize="20sp"
-        android:fontFamily="@font/poppins_bold"
-        android:textColor="@color/dark_green"
-        android:layout_margin="10dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/thank_you_for_using_our_application"
-        android:textSize="15sp"
-        android:fontFamily="@font/poppins"
-        android:textColor="@color/dark_green"
-        android:gravity="center"
-        android:layout_margin="5dp"/>
-
-    <RatingBar
-        android:id="@+id/ratingBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:numStars="5"
-        android:stepSize="1"
-        android:rating="0"
-        android:isIndicator="false"
-        android:layout_gravity="center"
-        android:layout_margin="20dp"
-        android:progressTint="@color/dark_green"
-        android:secondaryProgressTint="@color/dark_green"
-        android:thumbTint="@color/dark_green"
-        android:theme="@style/Widget.AppCompat.RatingBar"/>
-
-    <EditText
-        android:id="@+id/commentBox"
+    <!-- CardView wrapper for the dialog content -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@drawable/register_rounded_box"
-        android:hint="@string/you_can_also_give_feedback_to_let_us_know"
-        android:textColor="@color/black"
-        android:fontFamily="@font/poppins"
-        android:layout_marginBottom="10dp"
-        android:maxLength="100"
-        android:gravity="top"
-        android:inputType="textMultiLine|textCapSentences"/>
-
-    <Button
-        android:id="@+id/rate_button"
-        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="@string/rate"
-        android:background="@drawable/green_rounded_button"
-        android:textColor="@android:color/white"
-        android:padding="8dp"
-        android:fontFamily="@font/poppins_bold"
-        android:textSize="14sp"
-        android:layout_gravity="center"/>
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <!-- ProgressBar for feedback submission -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
-</LinearLayout>
+        <ImageView
+            android:id="@+id/closeDialog"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end"
+            android:padding="4dp"
+            android:src="@drawable/close_button" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/success_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:fontFamily="@font/poppins_bold"
+            android:text="@string/transaction_successful"
+            android:textColor="@color/dark_green"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:fontFamily="@font/poppins"
+            android:gravity="center"
+            android:text="@string/thank_you_for_using_our_application"
+            android:textColor="@color/dark_green"
+            android:textSize="15sp" />
+
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="20dp"
+            android:isIndicator="false"
+            android:numStars="5"
+            android:progressTint="@color/dark_green"
+            android:rating="0"
+            android:secondaryProgressTint="@color/dark_green"
+            android:stepSize="1"
+            android:theme="@style/Widget.AppCompat.RatingBar"
+            android:thumbTint="@color/dark_green" />
+
+        <EditText
+            android:id="@+id/commentBox"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/register_rounded_box"
+            android:fontFamily="@font/poppins"
+            android:gravity="top"
+            android:hint="@string/you_can_also_give_feedback_to_let_us_know"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLength="100"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/rate_button"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/green_rounded_button"
+            android:fontFamily="@font/poppins_bold"
+            android:padding="8dp"
+            android:text="@string/rate"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+
+        <!-- ProgressBar for feedback submission -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

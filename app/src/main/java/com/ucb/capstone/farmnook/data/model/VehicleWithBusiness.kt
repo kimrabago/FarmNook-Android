@@ -8,5 +8,8 @@ data class VehicleWithBusiness(
     val model: String,
     val plateNumber: String,
     val businessName: String,
-    val businessId: String
+    val businessId: String,
+    val businessLocation: String,
+    val profileImage: String? = null,
+    val averageRating: Double?,
 ) : Serializable

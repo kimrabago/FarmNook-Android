@@ -47,13 +47,16 @@
                 val rating = ratingBar.rating
                 val comment = commentBox.text.toString()
 
-                // Ensure necessary data is available
+                if (rating == 0f) {
+                    Toast.makeText(context, "Please provide a rating.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
                 if (deliveryId.isNullOrEmpty() || businessId.isNullOrEmpty() || farmerId.isNullOrEmpty()) {
                     Toast.makeText(context, "Missing data. Cannot submit feedback.", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
-                // Save feedback to Firestore
                 val db = FirebaseFirestore.getInstance()
                 val feedbackRef = db.collection("feedback").document() // Auto-generate doc ID
 
@@ -70,7 +73,7 @@
                 feedbackRef.set(feedback)
                     .addOnSuccessListener {
                         Toast.makeText(context, "Feedback submitted!", Toast.LENGTH_SHORT).show()
-                        dismiss()  // Close the dialog after submitting feedback
+                        dismiss()
                     }
                     .addOnFailureListener { e ->
                         Log.e("RateDelivery", "Failed to submit feedback", e)
@@ -87,6 +90,11 @@
         // Function to close the dialog (could be used in other places if needed)
         private fun closeDialog() {
             dismiss()  // Close the dialog
+        }
+
+        override fun onStart() {
+            super.onStart()
+            dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
         }
 
         companion object {
