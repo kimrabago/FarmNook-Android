@@ -17,5 +17,6 @@ data class DeliveryRequest(
     val businessId: String? = null,
     val vehicleID: String? = null,
     val isAccepted: Boolean? = false,
+    val requestId: String? = null
     // val profileImage: String? = null // if used
 )

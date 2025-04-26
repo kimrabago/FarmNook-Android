@@ -1,8 +1,12 @@
 package com.ucb.capstone.farmnook.ui.farmer.add_delivery
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +17,7 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 import com.ucb.capstone.farmnook.ui.adapter.RecommendationAdapter
+import com.ucb.capstone.farmnook.ui.farmer.WaitingDeliveryActivity
 import kotlin.math.pow
 
 class RecommendationActivity : AppCompatActivity() {
@@ -22,7 +27,6 @@ class RecommendationActivity : AppCompatActivity() {
     private val vehicleList = mutableListOf<VehicleWithBusiness>()
     private val firestore = FirebaseFirestore.getInstance()
 
-    // Delivery fields passed from AddDeliveryActivity
     private lateinit var pickupLocation: String
     private lateinit var destinationLocation: String
     private lateinit var purpose: String
@@ -41,13 +45,30 @@ class RecommendationActivity : AppCompatActivity() {
         adapter = RecommendationAdapter(vehicleList, ::onAvailableClicked)
         recyclerView.adapter = adapter
 
-        // Extract delivery data from intent
         pickupLocation = intent.getStringExtra("pickupLocation") ?: ""
         destinationLocation = intent.getStringExtra("destinationLocation") ?: ""
         purpose = intent.getStringExtra("purpose") ?: ""
         productType = intent.getStringExtra("productType") ?: ""
         weight = intent.getStringExtra("weight") ?: ""
 
+        //filter (Location, Ratings)
+        val filterSpinner: Spinner = findViewById(R.id.filter_spinner)
+        filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                when (position) {
+                    0 -> { // Location
+                        sortByLocation()
+                    }
+                    1 -> { // Ratings
+                        sortByRatings()
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Do nothing
+            }
+        }
         fetchVehiclesWithBusinessInfo()
 
         findViewById<Button>(R.id.cancel_button).setOnClickListener {
@@ -79,16 +100,27 @@ class RecommendationActivity : AppCompatActivity() {
                     .get()
                     .addOnSuccessListener { usersSnapshot ->
 
+                        //fetch data
                         val businessMap = usersSnapshot.documents.associateBy(
                             { it.getString("userId") ?: "" },
-                            { Pair(it.getString("businessName") ?: "Unknown Business", it.getString("location") ?: "") }
+                            {  val avgRating = when (val avgField = it.get("averageRating")) {
+                                is Number -> avgField.toDouble()
+                                is String -> avgField.toDoubleOrNull() ?: 0.0
+                                else -> 0.0
+                            }
+                                Triple(
+                                    it.getString("businessName") ?: "Unknown Business",
+                                    it.getString("location") ?: "",
+                                    it.getString("profileImageUrl")
+                                ) to avgRating }
                         )
 
                         val vehicleWithDistance = mutableListOf<Pair<VehicleWithBusiness, Double>>()
 
                         for (doc in vehicles) {
                             val busId = doc.getString("businessId") ?: continue
-                            val (businessName, locationStr) = businessMap[busId] ?: continue
+                            val (businessInfo, avgRating) = businessMap[busId] ?: continue
+                            val (businessName, locationStr, profileImage) = businessInfo
 
                             val locationCoords = locationStr.split(",")
                             if (locationCoords.size != 2) continue
@@ -103,14 +135,18 @@ class RecommendationActivity : AppCompatActivity() {
                                 model = doc.getString("model") ?: "Unknown Model",
                                 plateNumber = doc.getString("plateNumber") ?: "Unknown Plate",
                                 businessName = businessName,
-                                businessId = busId
+                                businessId = busId,
+                                businessLocation = locationStr,
+                                profileImage = profileImage,
+                                averageRating = avgRating
                             )
 
                             vehicleWithDistance.add(Pair(vehicleObj, distance))
                         }
 
                         vehicleList.clear()
-                        vehicleList.addAll(vehicleWithDistance.sortedBy { it.second }.map { it.first }) // Nearest first
+                        vehicleList.addAll(vehicleWithDistance.map { it.first })
+                        sortByLocation()
                         adapter.notifyDataSetChanged()
 
                         if (vehicleList.isEmpty()) {
@@ -120,6 +156,33 @@ class RecommendationActivity : AppCompatActivity() {
             }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun sortByLocation() {
+        val pickupCoords = pickupLocation.split(",").mapNotNull { it.toDoubleOrNull() }
+        if (pickupCoords.size != 2) return
+
+        val pickupLat = pickupCoords[0]
+        val pickupLng = pickupCoords[1]
+
+        vehicleList.sortBy { vehicle ->
+            val locationCoords = vehicle.businessLocation.split(",")
+            if (locationCoords.size != 2) Double.MAX_VALUE
+            else {
+                val lat = locationCoords[0].toDoubleOrNull() ?: Double.MAX_VALUE
+                val lng = locationCoords[1].toDoubleOrNull() ?: Double.MAX_VALUE
+                haversine(pickupLat, pickupLng, lat, lng)
+            }
+        }
+        adapter.notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun sortByRatings() {
+        vehicleList.sortByDescending { it.averageRating ?: 0.0 }
+        adapter.notifyDataSetChanged()
+    }
+
+    //Finding nearest
     private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val R = 6371e3 // Radius of the Earth in meters
         val dLat = Math.toRadians(lat2 - lat1)
@@ -147,12 +210,18 @@ class RecommendationActivity : AppCompatActivity() {
         )
 
         val dialog = DeliverySummaryDialogFragment.newInstance(vehicle, delivery) {
-            saveToDeliveryRequests(it.first, it.second)
+            saveToDeliveryRequests(it.first, it.second) { generatedRequestId ->
+                // ✅ This runs after saving to Firestore
+                val intent = Intent(this, WaitingDeliveryActivity::class.java)
+                intent.putExtra("requestId", generatedRequestId)
+                startActivity(intent)
+            }
         }
+
         dialog.show(supportFragmentManager, "DeliverySummary")
     }
 
-    private fun saveToDeliveryRequests(vehicle: VehicleWithBusiness, delivery: DeliveryRequest) {
+    private fun saveToDeliveryRequests(vehicle: VehicleWithBusiness, delivery: DeliveryRequest,  onSuccess: (String) -> Unit ) {
         val deliveryRequestsRef = firestore.collection("deliveryRequests")
         val newRequestRef = deliveryRequestsRef.document()
         val requestId = newRequestRef.id
@@ -173,7 +242,8 @@ class RecommendationActivity : AppCompatActivity() {
 
         newRequestRef.set(requestData)
             .addOnSuccessListener {
-                Toast.makeText(this, "Delivery request sent!", Toast.LENGTH_SHORT).show()
+
+                onSuccess(requestId) // ✅ Call this callback after success
 
                 val farmerId = delivery.farmerId
                 if (farmerId != null) {

@@ -117,8 +117,8 @@
     <string name="capacity">20,000 kg</string>
     <string name="set_schedule">Set Schedule</string>
     <string name="hire_now">Hire Now</string>
-    <string name="hauler_confirmed">Hauler Confirmed!</string>
-    <string name="wait_for_hauler_confirmation">Please wait for the hauler to confirm...</string>
+    <string name="delivery_confirmed">Your delivery request is confirmed! \n The delivery will begin once the hauler departs.</string>
+    <string name="wait_for_confirmation">Please wait for confirmation...</string>
     <string name="hauler_on_route_to_the_farmer_location">Hauler is on route to your location.</string>
     <string name="driver_id_textView">Driver ID:</string>
     <string name="driver_id">75c48dhqukas56</string>
@@ -175,7 +175,6 @@
     <string name="initial_estimated_cost">Initial Estimated Cost:</string>
     <string name="p_600">P 600</string>
     <string name="proceed">Proceed</string>
-    <string name="cancell">Cancel</string>
     <string name="confirmation">Confirmation</string>
     <string name="product">Product</string>
     <string name="livestock_pig">Livestock/Pig</string>
@@ -215,6 +214,13 @@
     <string name="confirmm">Confirm</string>
 
     <string name="contact_message">Got a problem? Report it to our email. <u><font color='red'>farmnook@gmail.com</font></u></string>
+    <string name="waiting_confirmation">Waiting Confirmation</string>
+    <string name="hire">Hire</string>
+    <string name="cancel_request">Cancel Request?</string>
+    <string name="delivery_summary">Delivery Summary</string>
+    <string name="business_location">Business Location</string>
+    <string name="label">Label:</string>
+    <string name="value">Value</string>
 
     <string-array name="filter_options">
         <item>Location</item>
