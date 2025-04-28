@@ -17,7 +17,8 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 import com.ucb.capstone.farmnook.ui.adapter.RecommendationAdapter
-import com.ucb.capstone.farmnook.ui.farmer.WaitingDeliveryActivity
+import com.ucb.capstone.farmnook.ui.menu.NavigationBar
+import com.ucb.capstone.farmnook.utils.SendPushNotification
 import kotlin.math.pow
 
 class RecommendationActivity : AppCompatActivity() {
@@ -211,13 +212,15 @@ class RecommendationActivity : AppCompatActivity() {
 
         val dialog = DeliverySummaryDialogFragment.newInstance(vehicle, delivery) {
             saveToDeliveryRequests(it.first, it.second) { generatedRequestId ->
-                // ✅ This runs after saving to Firestore
-                val intent = Intent(this, WaitingDeliveryActivity::class.java)
-                intent.putExtra("requestId", generatedRequestId)
+                // ✅ Navigate to NavigationBar with DeliveryStatusFragment
+                val intent = Intent(this, NavigationBar::class.java).apply {
+                    putExtra("navigateTo", "DeliveryStatus")
+                    putExtra("requestId", generatedRequestId)
+                }
                 startActivity(intent)
+                finish()  // ✅ Optional: Close current activity if needed
             }
         }
-
         dialog.show(supportFragmentManager, "DeliverySummary")
     }
 

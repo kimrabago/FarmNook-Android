@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.farmer.add_delivery
+package com.ucb.capstone.farmnook.utils
 
 import android.content.Context
 import android.util.Log

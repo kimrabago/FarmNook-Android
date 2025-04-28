@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.webkit.WebSettings
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.TextView
 import android.widget.ImageButton
@@ -18,7 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryHistory
-import com.ucb.capstone.farmnook.ui.farmer.add_delivery.SendPushNotification
+import com.ucb.capstone.farmnook.utils.SendPushNotification
 import com.ucb.capstone.farmnook.ui.hauler.services.DeliveryLocationService
 import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
@@ -37,8 +35,9 @@ class DeliveryDetailsActivity : AppCompatActivity() {
 
         // Setup bottom sheet
         bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottomSheet)).apply {
-            peekHeight = 200
+            peekHeight = 100
             isHideable = false
+            state = BottomSheetBehavior.STATE_EXPANDED
         }
 
         val pickupAddress = intent.getStringExtra("pickupAddress")

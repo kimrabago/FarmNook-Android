@@ -80,6 +80,7 @@ class DeliverySummaryDialogFragment : DialogFragment() {
         view.findViewById<View>(R.id.hireButton).setOnClickListener {
             // Invoke the callback (onHireConfirmed) to perform any additional logic
             onHireConfirmed?.invoke(vehicleWtBusiness to deliveryReq)
+            dismiss()
         }
 
         view.findViewById<View>(R.id.cancelButton).setOnClickListener {

@@ -18,7 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.auth.LoginActivity
-import com.ucb.capstone.farmnook.ui.farmer.DeliveryStatusFragment
+import com.ucb.capstone.farmnook.ui.farmer.FarmerDeliveryStatusFragment
 import com.ucb.capstone.farmnook.ui.farmer.FarmerDashboardFragment
 import com.ucb.capstone.farmnook.ui.hauler.DeliveryHistoryFragment
 import com.ucb.capstone.farmnook.ui.hauler.HaulerDashboardFragment
@@ -35,6 +35,7 @@ class NavigationBar : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var drawerToggle: ActionBarDrawerToggle
+    var activeRequestId: String? = null
 
     private var userType: String = "farmer"
 
@@ -77,8 +78,9 @@ class NavigationBar : AppCompatActivity() {
                         arguments = Bundle().apply { putString("deliveryId", deliveryId) }
                     }
                 } else {
-                    DeliveryStatusFragment().apply {
-                        arguments = Bundle().apply { putString("deliveryId", deliveryId) }
+                    activeRequestId = intent.getStringExtra("requestId")
+                    FarmerDeliveryStatusFragment().apply {
+                        arguments = Bundle().apply { putString("requestId", activeRequestId) }
                     }
                 }
                 replaceFragment(fragment)
@@ -96,9 +98,18 @@ class NavigationBar : AppCompatActivity() {
                 R.id.history -> replaceFragment(DeliveryHistoryFragment())
                 R.id.delivery -> {
                     val fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
-                        HaulerDeliveryStatusFragment()
+                        val deliveryIdFromIntent = intent.getStringExtra("deliveryId")
+                        HaulerDeliveryStatusFragment().apply {
+                            arguments = Bundle().apply {
+                                putString("deliveryId", deliveryIdFromIntent)
+                            }
+                        }
                     } else {
-                        DeliveryStatusFragment()
+                        FarmerDeliveryStatusFragment().apply {
+                            arguments = Bundle().apply {
+                                putString("requestId", activeRequestId)
+                            }
+                        }
                     }
                     replaceFragment(fragment)
                 }
@@ -107,6 +118,34 @@ class NavigationBar : AppCompatActivity() {
             }
             true
         }
+    }
+
+    fun restoreActiveRequestId(onComplete: () -> Unit) {
+        if (userType != "Farmer") {
+            activeRequestId = null
+            onComplete()
+            return
+        }
+
+        val userId = firebaseAuth.currentUser?.uid ?: return
+
+        database.collection("deliveryRequests")
+            .whereEqualTo("farmerId", userId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val activeDoc = querySnapshot.documents.firstOrNull { doc ->
+                    val status = doc.getString("status") ?: ""
+                    status != "Cancelled" // ✅ Manually check status here!
+                }
+
+                activeRequestId = activeDoc?.getString("requestId")
+                Log.d("ActiveRequestRestore", "Restored activeRequestId: $activeRequestId")
+                onComplete()
+            }
+            .addOnFailureListener { e ->
+                Log.e("ActiveRequestRestore", "Failed to check active delivery: ${e.message}")
+                onComplete()
+            }
     }
 
     private fun handleLogout() {
@@ -131,7 +170,7 @@ class NavigationBar : AppCompatActivity() {
         }
     }
 
-    private fun resetToDashboard() {
+    fun resetToDashboard() {
         supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
         val dashboardFragment: Fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
             HaulerDashboardFragment()
@@ -146,7 +185,7 @@ class NavigationBar : AppCompatActivity() {
         val fragmentTag = fragment.javaClass.simpleName
         transaction.replace(R.id.navHost, fragment, fragmentTag)
         transaction.addToBackStack(null)
-        transaction.commit()
+        transaction.commitAllowingStateLoss()
     }
 
     fun navigateToProfile() {
@@ -187,7 +226,17 @@ class NavigationBar : AppCompatActivity() {
                     }
 
                     Log.d("FirestoreDebug", "Fetched userType: $userType")
-                    onFinished()
+
+                    if (userType == "Farmer") {
+                        // ONLY Farmers wait for restoreActiveRequestId ✅
+                        restoreActiveRequestId {
+                            onFinished()
+                        }
+                    } else {
+                        // Haulers / Admins: IMMEDIATELY run onFinished() ✅
+                        activeRequestId = null
+                        onFinished()
+                    }
                 }
             }
             .addOnFailureListener { e ->

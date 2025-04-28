@@ -76,8 +76,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="From:"
-                        android:textStyle="bold"
+                        android:text="@string/from"
+                        android:fontFamily="@font/dm_sans_bold"
                         android:textSize="16sp"
                         android:textColor="@color/white" />
 
@@ -85,24 +85,26 @@
                         android:id="@+id/from_address"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pickup Address"
+                        android:text="@string/pickup_address"
                         android:textSize="14sp"
+                        android:fontFamily="@font/dm_sans"
                         android:paddingBottom="8dp"
                         android:textColor="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="To:"
-                        android:textStyle="bold"
+                        android:text="@string/to"
                         android:textSize="16sp"
+                        android:fontFamily="@font/dm_sans_bold"
                         android:textColor="@color/white" />
 
                     <TextView
                         android:id="@+id/to_address"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Destination Address"
+                        android:text="@string/destination_address"
+                        android:fontFamily="@font/dm_sans"
                         android:textSize="14sp"
                         android:paddingBottom="8dp"
                         android:textColor="@color/white" />
@@ -110,50 +112,64 @@
             </androidx.cardview.widget.CardView>
 
             <!-- Distance and Time Info -->
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/kmAndHours"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:layout_marginHorizontal="70dp">
+                android:orientation="horizontal"
+                android:gravity="center">
 
-                <ImageView
-                    android:id="@+id/kilometerImage"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/km_icon"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="8dp"/>
-
-                <TextView
-                    android:id="@+id/totalKilometer"
-                    android:layout_width="wrap_content"
+                <!-- Kilometer Section -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="0 km"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-                    android:layout_below="@id/kilometerImage"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginTop="4dp" />
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/durationImage"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/duration_icon"
-                    android:layout_alignParentEnd="true" />
+                    <ImageView
+                        android:id="@+id/kilometerImage"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/km_icon" />
 
-                <TextView
-                    android:id="@+id/durationTime"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/totalKilometer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/_0_km"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/dm_sans"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <!-- Duration Section -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="0 min"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-                    android:layout_below="@id/durationImage"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginTop="4dp" />
-            </RelativeLayout>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/durationImage"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/duration_icon" />
+
+                    <TextView
+                        android:id="@+id/durationTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/_0_min"
+                        android:fontFamily="@font/dm_sans"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
 
             <!-- Delivery Status Section -->
             <RelativeLayout
@@ -166,42 +182,27 @@
                     android:id="@+id/statusTxtview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Status:"
+                    android:text="@string/status"
+                    android:fontFamily="@font/dm_sans_bold"
                     android:textSize="16sp"
                     android:textColor="@color/white"
                     android:layout_marginTop="5dp" />
 
                 <TextView
                     android:id="@+id/status"
-                    android:layout_width="100dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Checking..."
+                    android:text="@string/checking"
                     android:textStyle="bold"
                     android:textSize="16sp"
-                    android:textColor="@color/dark_green"
+                    android:textColor="@color/white"
                     android:fontFamily="@font/dm_sans"
                     android:layout_toEndOf="@id/statusTxtview"
                     android:layout_marginStart="8dp"
-                    android:background="@color/cream"
+                    android:background="@color/red"
                     android:padding="5dp"
                     android:textAlignment="center"/>
             </RelativeLayout>
-
-            <!-- Rate Button (optional action) -->
-            <Button
-                android:id="@+id/btnRateDelivery"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginHorizontal="40dp"
-                android:text="Rate Delivery"
-                android:textColor="@color/white"
-                android:background="@drawable/rounded_button"
-                android:fontFamily="@font/poppins"
-                android:textSize="16sp"
-                android:padding="12dp" />
-
         </LinearLayout>
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

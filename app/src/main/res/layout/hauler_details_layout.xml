@@ -1,65 +1,83 @@
-<!-- driver_details_layout.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center">
 
-    <!-- Driver Image on Left -->
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profileImage"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:src="@drawable/profile_circle"/>
+        android:src="@drawable/profile_circle"
+        android:layout_marginEnd="5dp"/>
 
-    <!-- Driver Details Table on Right -->
     <GridLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:columnCount="2"
         android:rowCount="4"
-        android:padding="8dp">
+        android:padding="5dp">
 
-        <TextView
-            android:text="@string/driver_id_textView"
-            android:textSize="14sp"
-            android:textStyle="bold"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_columnSpan="2">
 
-        <TextView
-            android:id="@+id/driverID"
-            android:text="@string/driver_id"
-            android:textSize="14sp"
-            android:layout_marginStart="5dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hauler_id"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/dm_sans_bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/haulerId"
+                android:text="@string/driver_id"
+                android:textSize="12sp"
+                android:layout_marginStart="5dp"
+                android:fontFamily="@font/dm_sans" />
+        </LinearLayout>
 
         <TextView
             android:text="@string/name_textView"
             android:textSize="14sp"
-            android:textStyle="bold"/>
-        <TextView
-            android:id="@+id/driverName"
-            android:text="@string/driver_name"
-            android:textSize="14sp"
-            android:layout_marginStart="5dp"/>
+            android:textStyle="bold"
+            android:fontFamily="@font/dm_sans_bold"/>
 
         <TextView
-            android:text="@string/vehicle_type_textview"
+            android:id="@+id/haulerName"
+            android:text="@string/driver_name"
             android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:layout_marginStart="5dp"
+            android:fontFamily="@font/dm_sans"/>
+
+        <TextView
+            android:text="@string/vehicle"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/dm_sans_bold"/>
         <TextView
             android:id="@+id/vehicleType"
             android:text="@string/vehicle_type1"
             android:textSize="14sp"
-            android:layout_marginStart="5dp" />
+            android:layout_marginStart="5dp"
+            android:fontFamily="@font/dm_sans"/>
 
         <TextView
             android:text="@string/plate_no_textview"
             android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:fontFamily="@font/dm_sans_bold"/>
 
         <TextView
             android:id="@+id/plateNumber"
             android:text="@string/plate_num"
             android:textSize="14sp"
-            android:layout_marginStart="5dp"/>
+            android:layout_marginStart="5dp"
+            android:fontFamily="@font/dm_sans"/>
     </GridLayout>
 </LinearLayout>

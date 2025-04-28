@@ -79,7 +79,6 @@ class AddDeliveryActivity : AppCompatActivity() {
 
         purposeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
 
-
         findViewById<Button>(R.id.proceedButton).setOnClickListener {
             val selectedPurpose = purposeSpinner.selectedItem.toString().lowercase()
             val inputtedProduct = productTypeEditText.getText().toString().trim()

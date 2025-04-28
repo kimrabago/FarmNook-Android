@@ -16,7 +16,7 @@ import com.google.firebase.firestore.Query
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.Message
 import com.ucb.capstone.farmnook.ui.adapter.MessageAdapter
-import com.ucb.capstone.farmnook.ui.farmer.add_delivery.SendPushNotification
+import com.ucb.capstone.farmnook.utils.SendPushNotification
 
 class MessageActivity : AppCompatActivity() {
 

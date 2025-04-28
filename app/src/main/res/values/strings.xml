@@ -77,7 +77,7 @@
     <string name="old_password">Old Password</string>
     <string name="change_password">Change Password</string>
     <string name="subscription">Subscription</string>
-    <string name="status">Unboosted</string>
+    <string name="status">Status:</string>
     <string name="one_time_subscription">One-Time \nSubscription</string>
     <string name="delete_account">Delete Account</string>
     <string name="deleting_account">Deleting Account</string>
@@ -117,7 +117,7 @@
     <string name="capacity">20,000 kg</string>
     <string name="set_schedule">Set Schedule</string>
     <string name="hire_now">Hire Now</string>
-    <string name="delivery_confirmed">Your delivery request is confirmed! \n The delivery will begin once the hauler departs.</string>
+    <string name="delivery_confirmed">Your request is confirmed! \n Delivery starts when the hauler departs.</string>
     <string name="wait_for_confirmation">Please wait for confirmation...</string>
     <string name="hauler_on_route_to_the_farmer_location">Hauler is on route to your location.</string>
     <string name="driver_id_textView">Driver ID:</string>
@@ -221,6 +221,14 @@
     <string name="business_location">Business Location</string>
     <string name="label">Label:</string>
     <string name="value">Value</string>
+    <string name="no_active_delivery">No Active Delivery</string>
+    <string name="hauler_id">ID:</string>
+    <string name="vehicle">Vehicle:</string>
+    <string name="checking">Checking...</string>
+    <string name="_0_min">0 min</string>
+    <string name="_0_km">0 km</string>
+    <string name="destination_address">Destination Address</string>
+    <string name="pickup_address">Pickup Address</string>
 
     <string-array name="filter_options">
         <item>Location</item>

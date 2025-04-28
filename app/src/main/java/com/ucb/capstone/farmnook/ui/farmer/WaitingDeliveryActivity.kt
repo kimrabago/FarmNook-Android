@@ -9,7 +9,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.utils.loadMapInWebView
-
+//WANAY GAMIT
 class WaitingDeliveryActivity : AppCompatActivity() {
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
@@ -26,8 +26,6 @@ class WaitingDeliveryActivity : AppCompatActivity() {
             isHideable = false
             state = BottomSheetBehavior.STATE_EXPANDED
         }
-
-
 
         loadingLayout = findViewById(R.id.loadingLayout)
         confirmationLayout = findViewById(R.id.confirmationLayout)
