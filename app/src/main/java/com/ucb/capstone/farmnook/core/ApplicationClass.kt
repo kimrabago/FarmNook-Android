@@ -99,18 +99,8 @@ class ApplicationClass : Application(), LifecycleObserver {
                                 )
 
                                 userRef.update(updateMap)
-                                    .addOnSuccessListener {
-                                        Log.d("Firestore", "✅ Updated playerId: $playerId")
-                                    }
-                                    .addOnFailureListener { e ->
-                                        Log.e("Firestore", "❌ Failed to update playerId", e)
-                                    }
-                            } else {
-                                Log.w("OneSignal", "⚠️ playerId is null or not ready yet.")
                             }
                         }
-                } else {
-                    Log.d("Auth", "🔒 No authenticated user.")
                 }
             }
         }

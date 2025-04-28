@@ -174,10 +174,20 @@ class FarmerDashboardFragment : Fragment() {
             webView.evaluateJavascript(js, null)
         }
     }
+    private fun checkActiveRequestStatus() {
+        val activity = activity as? NavigationBar
+        val activeRequestId = activity?.let { it.activeRequestId }
+
+        if (!activeRequestId.isNullOrEmpty()) {
+            addDeliveryBtn.visibility = View.GONE  // ✅ Hide the add button if request is active
+        } else {
+            addDeliveryBtn.visibility = View.VISIBLE  // ✅ Show the add button if no active request
+        }
+    }
 
     override fun onResume() {
         super.onResume()
-
+        checkActiveRequestStatus()
         // Always try to re-send last location when user returns
         lastLocation?.let {
             sendLocationToWebView(it.latitude, it.longitude)

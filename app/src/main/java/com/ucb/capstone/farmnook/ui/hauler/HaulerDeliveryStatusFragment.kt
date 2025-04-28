@@ -41,7 +41,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.hauler_delivery_status_fragment, container, false)
+        return inflater.inflate(R.layout.fragment_hauler_delivery_status, container, false)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -62,32 +62,10 @@ class HaulerDeliveryStatusFragment : Fragment() {
         // Initialize bottom sheet behavior
         val bottomSheet = view.findViewById<View>(R.id.bottomSheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet).apply {
-            state = BottomSheetBehavior.STATE_COLLAPSED
-            isDraggable = true
-            peekHeight = 200
-            isFitToContents = false
-            halfExpandedRatio = 0.5f
-            expandedOffset = 100
+            peekHeight = 100
+            isHideable = false
+            state = BottomSheetBehavior.STATE_EXPANDED
 
-            addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    when (newState) {
-                        BottomSheetBehavior.STATE_EXPANDED -> {
-                            // Fully expanded
-                        }
-                        BottomSheetBehavior.STATE_COLLAPSED -> {
-                            // Collapsed to peek height
-                        }
-                        BottomSheetBehavior.STATE_HALF_EXPANDED -> {
-                            // Half expanded
-                        }
-                    }
-                }
-
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    // Handle slide events if needed
-                }
-            })
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
