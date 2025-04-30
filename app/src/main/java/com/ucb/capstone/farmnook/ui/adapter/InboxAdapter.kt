@@ -19,12 +19,12 @@ import java.util.Locale
 
 class InboxAdapter(
     private val chatList: List<ChatItem>,
-    // This lambda is triggered when a chat item is clicked
+
     private val onItemClick: (ChatItem) -> Unit
 ) : RecyclerView.Adapter<InboxAdapter.InboxViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InboxViewHolder {
-        // Inflate your custom XML (the card-based layout)
+
         val view = LayoutInflater.from(parent.context).inflate(R.layout.message_item, parent, false)
         return InboxViewHolder(view)
     }
@@ -33,7 +33,7 @@ class InboxAdapter(
         val chatItem = chatList[position]
         holder.bind(chatItem)
 
-        // Handle clicks
+
         holder.itemView.setOnClickListener {
             onItemClick(chatItem)
         }
@@ -43,20 +43,20 @@ class InboxAdapter(
 
     inner class InboxViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        // Match these with the IDs in your XML layout
+
         private val personImageView: ShapeableImageView = itemView.findViewById(R.id.personImageView)
         private val senderNameTextView: TextView = itemView.findViewById(R.id.senderNameTextView)
         private val messageContentTextView: TextView = itemView.findViewById(R.id.messageContentTextView)
         private val messageTimestampTextView: TextView = itemView.findViewById(R.id.messageTimestampTextView)
 
         fun bind(chatItem: ChatItem) {
-            // Display the user's name
+
             senderNameTextView.text = chatItem.userName
 
-            // Display the last message
+
             messageContentTextView.text = chatItem.lastMessage
 
-            // Format and display the timestamp, if present
+
             if (chatItem.timestamp > 0) {
                 messageTimestampTextView.text = formatTimestamp(chatItem.timestamp)
             } else {
@@ -71,8 +71,17 @@ class InboxAdapter(
         }
 
         private fun formatTimestamp(timestamp: Long): String {
-            val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
-            return sdf.format(Date(timestamp))
-        }
+            val currentTime = System.currentTimeMillis()
+            val diffInMillis = currentTime - timestamp
+
+
+            if (diffInMillis > 24 * 60 * 60 * 1000) {
+                val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                return sdf.format(Date(timestamp))
+            } else {
+                val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                return sdf.format(Date(timestamp))
+            }
     }
+}
 }

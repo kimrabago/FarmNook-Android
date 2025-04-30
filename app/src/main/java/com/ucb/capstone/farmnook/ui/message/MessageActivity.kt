@@ -109,10 +109,26 @@ class MessageActivity : AppCompatActivity() {
     }
 
     private fun formatTimestamp(timestamp: Long): String {
-        val sdf = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
-        val date = java.util.Date(timestamp)
-        return sdf.format(date)
+        val now = System.currentTimeMillis()
+        val diffInMillis = now - timestamp
+        val twoDaysInMillis = 2 * 24 * 60 * 60 * 1000L // 2 days in milliseconds
+
+        return if (diffInMillis > twoDaysInMillis) {
+            // Format as "Month Day, Year at hh:mm a"
+            val sdfDate = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
+            val sdfTime = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
+            val date = java.util.Date(timestamp)
+            val formattedDate = sdfDate.format(date)
+            val formattedTime = sdfTime.format(date)
+            "$formattedDate at $formattedTime"
+        } else {
+            // Format as "hh:mm a"
+            val sdf = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
+            val date = java.util.Date(timestamp)
+            sdf.format(date)
+        }
     }
+
 
 
     private fun fetchSenderNameAndSendMessage() {
