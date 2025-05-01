@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/cream"
     tools:context=".ui.farmer.add_delivery.AddDeliveryActivity">
 
     <LinearLayout
@@ -25,7 +26,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/half_border"
             android:paddingHorizontal="20dp">
 
             <TextView
@@ -82,22 +82,23 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
-                    <ScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="42dp">
 
-                        <TextView
-                            android:id="@+id/from_location"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:fontFamily="@font/dm_sans"
-                            android:text="@string/from_location"
-                            android:textColor="@color/dark_green"
-                            android:textSize="13sp"
-                            android:clickable="true"
-                            android:focusable="true"/>
-                    </ScrollView>
+                    <TextView
+                        android:id="@+id/from_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="5dp"
+                        android:fontFamily="@font/dm_sans"
+                        android:text="@string/from_location"
+                        android:textColor="@color/dark_green"
+                        android:textSize="13sp"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:scrollHorizontally="true"
+                        android:inputType="none"
+                        android:gravity="start|center_vertical" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -145,22 +146,20 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
-                    <ScrollView
+                    <TextView
+                        android:id="@+id/to_location"
                         android:layout_width="match_parent"
-                        android:layout_height="42dp">
-
-                        <TextView
-                            android:id="@+id/to_location"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:fontFamily="@font/dm_sans"
-                            android:text="@string/please_enter"
-                            android:textColor="@color/dark_green"
-                            android:textSize="14sp"
-                            android:clickable="true"
-                            android:focusable="true"/>
-                    </ScrollView>
+                        android:layout_height="42dp"
+                        android:layout_marginStart="5dp"
+                        android:fontFamily="@font/dm_sans"
+                        android:text="@string/please_enter"
+                        android:textColor="@color/dark_green"
+                        android:textSize="14sp"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:scrollHorizontally="true"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -330,36 +329,12 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/initEstimatedCostTxtView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/weight_box"
-                android:layout_marginTop="5dp"
-                android:fontFamily="@font/poppins_bold"
-                android:text="@string/initial_estimated_cost"
-                android:textColor="@color/dark_green"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/initEstimatedCost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/weight_box"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="5dp"
-                android:layout_toEndOf="@+id/initEstimatedCostTxtView"
-                android:fontFamily="@font/poppins_bold"
-                android:text="@string/p_600"
-                android:textColor="@color/red"
-                android:textSize="20sp" />
-
             <Button
                 android:id="@+id/proceedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/initEstimatedCost"
-                android:layout_marginTop="15dp"
+                android:layout_below="@id/weight_box"
+                android:layout_marginTop="35dp"
                 android:background="@drawable/green_rounded_button"
                 android:fontFamily="@font/dm_sans_bold"
                 android:text="@string/proceed"

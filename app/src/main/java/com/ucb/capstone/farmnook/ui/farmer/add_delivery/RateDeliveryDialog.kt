@@ -26,7 +26,7 @@
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
         ): View? {
-            return inflater.inflate(R.layout.rating_dialog, container, false)
+            return inflater.inflate(R.layout.dialog_rating, container, false)
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

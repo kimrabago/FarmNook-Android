@@ -42,7 +42,8 @@
                 android:layout_gravity="center"
                 android:src="@drawable/profile_circle"
                 android:contentDescription="@string/profile_icon"
-                android:layout_alignParentEnd="true"/>
+                android:layout_alignParentEnd="true"
+                android:layout_centerInParent="true"/>
         </RelativeLayout>
 
         <WebView

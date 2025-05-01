@@ -54,7 +54,7 @@ class HaulerAdapter(
         val profileImage: CircleImageView = itemView.findViewById(R.id.profileImage)
         val businessName: TextView = itemView.findViewById(R.id.business_name)
         val vehicle: TextView = itemView.findViewById(R.id.vehicle)
-        val vehicleWeight: TextView = itemView.findViewById(R.id.vehicle_weight)
+        val vehicleWeight: TextView = itemView.findViewById(R.id.costEstimation)
         val statusButton: Button = itemView.findViewById(R.id.available_button)
     }
 
@@ -66,7 +66,7 @@ class HaulerAdapter(
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         // Set the custom layout for this dialog
-        dialog.setContentView(R.layout.hauler_dialog)
+        dialog.setContentView(R.layout.dialog_hauler)
 
         // Make the dialog background transparent so your rounded corners show properly
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)

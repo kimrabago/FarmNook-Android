@@ -15,32 +15,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:columnCount="2"
-        android:rowCount="4"
+        android:rowCount="3"
         android:padding="5dp">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_columnSpan="2">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/hauler_id"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/dm_sans_bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/haulerId"
-                android:text="@string/driver_id"
-                android:textSize="12sp"
-                android:layout_marginStart="5dp"
-                android:fontFamily="@font/dm_sans" />
-        </LinearLayout>
 
         <TextView
             android:text="@string/name_textView"

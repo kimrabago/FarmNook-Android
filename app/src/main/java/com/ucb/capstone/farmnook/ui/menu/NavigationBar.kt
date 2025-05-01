@@ -3,6 +3,8 @@ package com.ucb.capstone.farmnook.ui.menu
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.TextView
@@ -29,6 +31,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class NavigationBar : AppCompatActivity() {
+
+    private var currentFragmentTag: String? = null
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var database: FirebaseFirestore
@@ -83,7 +87,7 @@ class NavigationBar : AppCompatActivity() {
                         arguments = Bundle().apply { putString("requestId", activeRequestId) }
                     }
                 }
-                replaceFragment(fragment)
+                replaceFragment(fragment, "Delivery")
                 bottomNavigationView.selectedItemId = R.id.delivery
             } else {
                 resetToDashboard()
@@ -93,30 +97,57 @@ class NavigationBar : AppCompatActivity() {
 
     private fun setupBottomNavigation() {
         bottomNavigationView.setOnItemSelectedListener { menu ->
+            val selectedTag = when (menu.itemId) {
+                R.id.home -> "Dashboard"
+                R.id.history -> "History"
+                R.id.delivery -> "Delivery"
+                R.id.message -> "Inbox"
+                else -> null
+            }
+
+            if (selectedTag == currentFragmentTag) return@setOnItemSelectedListener false
+
             when (menu.itemId) {
                 R.id.home -> resetToDashboard()
-                R.id.history -> replaceFragment(DeliveryHistoryFragment())
+                R.id.history -> replaceFragment(DeliveryHistoryFragment(), "History")
                 R.id.delivery -> {
-                    val fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
-                        val deliveryIdFromIntent = intent.getStringExtra("deliveryId")
-                        HaulerDeliveryStatusFragment().apply {
-                            arguments = Bundle().apply {
-                                putString("deliveryId", deliveryIdFromIntent)
-                            }
-                        }
-                    } else {
-                        FarmerDeliveryStatusFragment().apply {
-                            arguments = Bundle().apply {
-                                putString("requestId", activeRequestId)
-                            }
-                        }
+                    val bundle = Bundle().apply {
+                        val key = if (userType == "Hauler" || userType == "Hauler Business Admin") "deliveryId" else "requestId"
+                        val value = if (key == "deliveryId") intent.getStringExtra("deliveryId") else activeRequestId
+                        putString(key, value)
                     }
-                    replaceFragment(fragment)
+                    val fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
+                        HaulerDeliveryStatusFragment().apply { arguments = bundle }
+                    } else {
+                        FarmerDeliveryStatusFragment().apply { arguments = bundle }
+                    }
+                    replaceFragment(fragment, "Delivery")
                 }
-                R.id.message -> replaceFragment(InboxFragment())
-                else -> return@setOnItemSelectedListener false
+                R.id.message -> replaceFragment(InboxFragment(), "Inbox")
             }
             true
+        }
+    }
+
+    private fun replaceFragment(fragment: Fragment, tag: String) {
+        currentFragmentTag = tag
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.navHost, fragment, tag)
+            .addToBackStack(null)
+            .commitAllowingStateLoss()
+    }
+
+    fun resetToDashboard() {
+        if (supportFragmentManager.isStateSaved) {
+            Handler(Looper.getMainLooper()).post { resetToDashboard() }
+        } else {
+            supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            val dashboardFragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
+                HaulerDashboardFragment()
+            } else {
+                FarmerDashboardFragment()
+            }
+            replaceFragment(dashboardFragment, "Dashboard")
         }
     }
 
@@ -168,24 +199,6 @@ class NavigationBar : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
-    }
-
-    fun resetToDashboard() {
-        supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        val dashboardFragment: Fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
-            HaulerDashboardFragment()
-        } else {
-            FarmerDashboardFragment()
-        }
-        replaceFragment(dashboardFragment)
-    }
-
-    private fun replaceFragment(fragment: Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
-        val fragmentTag = fragment.javaClass.simpleName
-        transaction.replace(R.id.navHost, fragment, fragmentTag)
-        transaction.addToBackStack(null)
-        transaction.commitAllowingStateLoss()
     }
 
     fun navigateToProfile() {

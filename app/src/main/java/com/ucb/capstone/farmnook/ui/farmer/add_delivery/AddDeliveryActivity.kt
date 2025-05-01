@@ -64,6 +64,9 @@ class AddDeliveryActivity : AppCompatActivity() {
         productTypeEditText = findViewById(R.id.productTypeEditText)
         weightEditText = findViewById(R.id.weightEditText)
 
+        fromLocation.isSelected = true
+        toLocation.isSelected = true
+
         pickUpLocButton.setOnClickListener {
             val intent = Intent(this, LocationPickerActivity::class.java)
             startActivityForResult(intent, PICKUP_LOCATION_REQUEST)

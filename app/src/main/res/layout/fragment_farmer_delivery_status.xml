@@ -11,29 +11,41 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/delStatusTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delivery_status"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/dark_green"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"/>
+
+        <WebView
+            android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_below="@id/delStatusTitle"
+            android:layout_marginTop="8dp"/>
 
-            <TextView
-                android:id="@+id/delStatusTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/delivery_status"
-                android:fontFamily="@font/poppins_bold"
-                android:textColor="@color/dark_green"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="10dp"/>
-
-            <!-- Map View -->
-            <WebView
-                android:id="@+id/mapView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/deliveryDetailsBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/truck"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:padding="8dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="13dp"
+            android:layout_marginTop="60dp"
+            android:layout_alignParentTop="true"
+            android:drawableTint="@color/dark_green"
+            android:contentDescription="@string/add_delivery"/>
     </RelativeLayout>
 
     <!-- Bottom Sheet Layout -->
@@ -52,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="13dp"
-            android:visibility="visible"
+            android:visibility="gone"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 

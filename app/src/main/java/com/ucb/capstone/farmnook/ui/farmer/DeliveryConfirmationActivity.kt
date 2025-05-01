@@ -17,6 +17,7 @@ import java.util.Locale
 class DeliveryConfirmationActivity : AppCompatActivity() {
 
     private lateinit var haulerNameTextView: TextView
+    private lateinit var businessNameTextView: TextView
     private lateinit var plateNumberTextView: TextView
     private lateinit var locationTextView: TextView
     private lateinit var vehicleTypeTextView: TextView
@@ -32,6 +33,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
 
         // Bind views
         haulerNameTextView = findViewById(R.id.haulerName)
+        businessNameTextView = findViewById(R.id.businessName)
         plateNumberTextView = findViewById(R.id.plateNumber)
         locationTextView = findViewById(R.id.location)
         vehicleTypeTextView = findViewById(R.id.vehicleType)
@@ -143,6 +145,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
                     return@addSnapshotListener
                 }
 
+
                 val firstName = userDoc.getString("firstName") ?: ""
                 val lastName = userDoc.getString("lastName") ?: ""
                 val fullName = "${firstName.replaceFirstChar { it.uppercase() }} ${lastName.replaceFirstChar { it.uppercase() }}"
@@ -154,11 +157,13 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
 
                 // Set businessId conditionally
                 businessId = userDoc.getString("businessId")
-
                 // Fallback if this is the Business Admin herself
                 if (businessId == null && userType == "Hauler Business Admin") {
                     businessId = userId
                 }
+
+                val businessName = userDoc.getString("businessName") ?: ""
+                businessNameTextView.text = businessName
 
                 Log.d("DeliveryConfirmation", "Resolved businessId: $businessId")
             }

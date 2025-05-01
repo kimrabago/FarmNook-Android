@@ -51,9 +51,19 @@
         android:layout_gravity="center"
         android:text="@string/user_name"
         android:textSize="18sp"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_bold"
         android:textColor="@color/dark_green"
-        android:paddingTop="8dp"
+        android:paddingTop="8dp"/>
+
+    <TextView
+        android:id="@+id/businessName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/user_name"
+        android:textSize="12sp"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/dark_green"
         android:layout_marginBottom="10dp"/>
 
     <!-- Details Section -->
@@ -74,10 +84,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/plate_number_textview"
-                android:textStyle="bold"
                 android:textSize="14sp"
                 android:textColor="@android:color/black"
-                android:gravity="start"/>
+                android:fontFamily="@font/dm_sans_bold"/>
 
             <TextView
                 android:id="@+id/plateNumber"
@@ -86,6 +95,7 @@
                 android:layout_weight="1"
                 android:text="@string/plate_number"
                 android:textSize="14sp"
+                android:fontFamily="@font/dm_sans"
                 android:textColor="@color/dark_green" />
         </LinearLayout>
 
@@ -102,8 +112,8 @@
                 android:paddingTop="8dp"
                 android:text="@string/location_textview"
                 android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:fontFamily="@font/dm_sans_bold"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/location"
@@ -114,7 +124,9 @@
                 android:maxLines="3"
                 android:ellipsize="end"
                 android:textColor="@color/dark_green"
+                android:fontFamily="@font/dm_sans"
                 android:textSize="14sp"
+
                 android:paddingTop="8dp"/>
         </LinearLayout>
         <!-- Vehicle Information -->
@@ -127,9 +139,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/vehicle_textview"
-                android:textStyle="bold"
                 android:textSize="14sp"
                 android:paddingTop="8dp"
+                android:fontFamily="@font/dm_sans_bold"
                 android:textColor="@android:color/black"/>
 
             <RelativeLayout
@@ -144,6 +156,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/vehicle_type1"
                     android:textSize="14sp"
+                    android:fontFamily="@font/dm_sans"
                     android:textColor="@color/dark_green"/>
 
                 <TextView
@@ -153,6 +166,7 @@
                     android:text="@string/model"
                     android:textSize="14sp"
                     android:textColor="@color/dark_green"
+                    android:fontFamily="@font/dm_sans"
                     android:layout_below="@id/vehicleType"/>
 
             </RelativeLayout>
@@ -167,9 +181,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/product"
-                android:textStyle="bold"
                 android:textSize="14sp"
                 android:paddingTop="8dp"
+                android:fontFamily="@font/dm_sans_bold"
                 android:textColor="@android:color/black"/>
 
             <RelativeLayout
@@ -184,6 +198,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/livestock_pig"
                     android:textSize="14sp"
+                    android:fontFamily="@font/dm_sans"
                     android:textColor="@color/dark_green"/>
 
                 <TextView
@@ -193,6 +208,7 @@
                     android:text="@string/_20_000kg"
                     android:textSize="14sp"
                     android:textColor="@color/dark_green"
+                    android:fontFamily="@font/dm_sans"
                     android:layout_below="@id/productType"/>
             </RelativeLayout>
         </LinearLayout>
@@ -209,5 +225,6 @@
         android:padding="8dp"
         android:layout_marginTop="20dp"
         android:textSize="14sp"
+        android:fontFamily="@font/poppins_bold"
         android:layout_gravity="center"/>
 </LinearLayout>

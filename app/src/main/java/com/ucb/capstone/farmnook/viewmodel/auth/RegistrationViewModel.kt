@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.viewmodel
+package com.ucb.capstone.farmnook.viewmodel.auth
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -8,7 +8,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.data.model.User
-import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

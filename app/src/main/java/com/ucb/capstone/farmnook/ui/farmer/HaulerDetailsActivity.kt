@@ -10,7 +10,7 @@ import com.ucb.capstone.farmnook.R
 class HaulerDetailsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.hauler_dialog)
+        setContentView(R.layout.dialog_hauler)
 
         // Get data from intent
         val name = intent.getStringExtra("name")

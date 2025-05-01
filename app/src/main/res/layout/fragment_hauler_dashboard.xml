@@ -37,14 +37,14 @@
                 android:layout_toEndOf="@id/menu_burger"
                 tools:ignore="RelativeOverlap" />
 
-            <ImageView
-                android:id="@+id/profile_icon"
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImage"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:src="@drawable/profile_circle"
                 android:contentDescription="@string/profile_icon"
                 android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"/>
+                android:layout_centerVertical="true"
+                android:src="@drawable/profile_circle" />
         </RelativeLayout>
 
         <RelativeLayout
