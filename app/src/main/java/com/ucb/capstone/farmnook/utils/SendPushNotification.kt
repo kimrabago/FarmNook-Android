@@ -71,6 +71,7 @@ object SendPushNotification {
         }
 
         Volley.newRequestQueue(context).add(request)
+        Log.d("PushDebug", "Sending to $playerIds for msg: $message")
     }
 
     fun sendMessageNotification(context: Context, receiverId: String, senderName: String, message: String) {
@@ -108,6 +109,7 @@ object SendPushNotification {
                     }
 
                     Volley.newRequestQueue(context).add(request)
+                    Log.d("PushDebug", "Sending to $playerIds for msg: $message")
                 } else {
                     Log.w("Push", "🚫 No player ID found for user: $receiverId")
                 }

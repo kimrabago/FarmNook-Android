@@ -5,29 +5,18 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Source
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.ucb.capstone.farmnook.R
+import kotlinx.coroutines.launch
 
 class EditProfileActivity : AppCompatActivity() {
 
-    private lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var database: FirebaseFirestore
-    private lateinit var storageReference: StorageReference
+    private val viewModel: EditProfileViewModel by viewModels()
 
     private lateinit var profileImage: ImageView
     private lateinit var firstNameEditText: EditText
@@ -37,56 +26,107 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var businessNameEditText: EditText
     private lateinit var saveButton: Button
 
-    private var projectImageUri: Uri? = null
+    private var imageUri: Uri? = null
     private var selectedFileName: String? = null
+
+    companion object {
+        const val IMAGE_PICK_REQUEST = 1001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-        firebaseAuth = FirebaseAuth.getInstance()
-        database = FirebaseFirestore.getInstance()
-        storageReference = FirebaseStorage.getInstance().reference
-
+        profileImage = findViewById(R.id.profileImage)
         firstNameEditText = findViewById(R.id.first_name)
         lastNameEditText = findViewById(R.id.last_name)
         emailEditText = findViewById(R.id.email)
         phoneNumEditText = findViewById(R.id.phone_num)
         businessNameEditText = findViewById(R.id.business_name)
         saveButton = findViewById(R.id.save_profile_btn)
-        profileImage = findViewById(R.id.profileImage)
 
-        val backButton = findViewById<ImageButton>(R.id.btn_back)
-        backButton.setOnClickListener {
-            finish()
-        }
+        val locationEditText = findViewById<EditText>(R.id.location)
+        val locationLabel = findViewById<TextView>(R.id.locationLabel)
 
+        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
         profileImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(intent, IMAGE_PICK_REQUEST)
         }
 
-        fetchUserData()
+        viewModel.fetchUserData()
+
+        viewModel.userProfile.observe(this) { profile ->
+            firstNameEditText.setText(profile.user.firstName)
+            lastNameEditText.setText(profile.user.lastName)
+            emailEditText.setText(profile.user.email)
+            phoneNumEditText.setText(profile.user.phoneNum)
+
+            val userType = profile.user.userType
+            if (userType == "Hauler Business Admin") {
+                businessNameEditText.visibility = View.VISIBLE
+                businessNameEditText.setText(profile.businessName)
+                businessNameEditText.isEnabled = true
+            } else if (userType == "Hauler") {
+                businessNameEditText.visibility = View.VISIBLE
+                businessNameEditText.setText(profile.businessName)
+                businessNameEditText.isEnabled = false
+            } else {
+                businessNameEditText.visibility = View.GONE
+            }
+
+            Glide.with(this)
+                .load(profile.profileImageUrl)
+                .placeholder(R.drawable.profile_circle)
+                .error(R.drawable.profile_circle)
+                .into(profileImage)
+        }
+
+        viewModel.profileImageUri.observe(this) { url ->
+            Glide.with(this).load(url).into(profileImage)
+        }
+
+        viewModel.showLocation.observe(this) { isVisible ->
+            locationEditText.visibility = if (isVisible) View.VISIBLE else View.GONE
+            locationLabel.visibility = if (isVisible) View.VISIBLE else View.GONE
+        }
+
+        viewModel.updateSuccess.observe(this) { success ->
+            if (success) {
+                Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK)
+                finish()
+            } else {
+                Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         saveButton.setOnClickListener {
-            saveProfileChanges()
+            val firstName = firstNameEditText.text.toString()
+            val lastName = lastNameEditText.text.toString()
+            val email = emailEditText.text.toString()
+            val phone = phoneNumEditText.text.toString()
+            val businessName = businessNameEditText.text.toString()
+            val showBusiness = businessNameEditText.visibility == View.VISIBLE
+
+            viewModel.saveProfileData(firstName, lastName, email, phone, businessName, showBusiness)
+
+            imageUri?.let { uri ->
+                val fileName = selectedFileName ?: "profile.jpg"
+                viewModel.uploadProfileImage(uri, fileName)
+            }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_REQUEST) {
-            data?.data?.let { uri ->
-                projectImageUri = uri
-                profileImage.setImageURI(uri)
-
-                // Get filename from URI
-                val fileName = getFileName(uri)
-                selectedFileName = fileName  // Display the image in the ImageView
-            }
+            imageUri = data?.data
+            profileImage.setImageURI(imageUri)
+            selectedFileName = getFileName(imageUri!!)
         }
     }
-    // Function to get filename from URI
+
     private fun getFileName(uri: Uri): String {
         var result: String? = null
         if (uri.scheme == "content") {
@@ -96,136 +136,6 @@ class EditProfileActivity : AppCompatActivity() {
                 }
             }
         }
-        if (result == null) {
-            result = uri.lastPathSegment
-        }
-        return result ?: "default_filename.jpg"
-    }
-
-    companion object {
-        const val IMAGE_PICK_REQUEST = 1001
-    }
-
-    private fun fetchUserData() {
-        val userId = firebaseAuth.currentUser?.uid
-        if (userId != null) {
-            database.collection("users").document(userId).get(Source.CACHE)
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        firstNameEditText.setText(document.getString("firstName") ?: "User")
-                        lastNameEditText.setText(document.getString("lastName") ?: "")
-                        emailEditText.setText(document.getString("email") ?: "")
-                        phoneNumEditText.setText(document.getString("phoneNum") ?: "")
-
-                        val userType = document.getString("userType") ?: ""
-                        Log.d("EditProfileActivity", "User Type: $userType")
-                        val businessName = document.getString("businessName") ?: ""
-                        val businessID = document.getString("businessId")
-                        businessNameEditText.visibility = View.GONE
-
-
-                        if (userType == "Hauler Business Admin") {
-                            // Make businessNameEditText editable for Hauler Business Admin
-                            businessNameEditText.visibility = View.VISIBLE
-                            businessNameEditText.setText(businessName, TextView.BufferType.EDITABLE)
-                            businessNameEditText.isEnabled = true // Enable editing
-
-                        } else if (userType == "Hauler") {
-                            // Make businessName a TextView for Hauler users (not editable)
-                            businessNameEditText.visibility = View.VISIBLE
-                            businessNameEditText.setText(businessName, TextView.BufferType.NORMAL)
-                            businessNameEditText.isEnabled = false // Disable editing
-                        } else {
-                            // Hide businessName for other user types (optional, based on your design)
-                            businessNameEditText.visibility = View.GONE
-                        }
-
-                        if (userType == "Hauler" && !businessID.isNullOrEmpty()) {
-                            database.collection("users").document(businessID).get(Source.CACHE)
-                                .addOnSuccessListener { adminDoc ->
-                                    if (adminDoc.exists()) {
-                                        val businessName = adminDoc.getString("businessName") ?: "N/A"
-                                        runOnUiThread {
-                                            businessNameEditText.setText(businessName, TextView.BufferType.EDITABLE)
-                                            businessNameEditText.visibility = View.VISIBLE
-                                        }
-                                    }
-                                }
-                                .addOnFailureListener { exception ->
-                                    exception.printStackTrace()
-                                }
-                        } else if (userType != "Hauler Business Admin") {
-                            businessNameEditText.visibility = View.GONE
-                        }
-
-                        // **Fetch profile image URL**
-                        val profileImageUrl = document.getString("profileImageUrl")
-
-                        if (!profileImageUrl.isNullOrEmpty()) {
-                            // **Load image using Glide**
-                            Glide.with(this)
-                                .load(profileImageUrl)
-                                .override(100, 100)
-                                .placeholder(R.drawable.profile_circle) // Placeholder while loading
-                                .error(R.drawable.profile_circle) // Error image if failed
-                                .into(profileImage)
-                        } else {
-                            // Set default profile image if no image is found
-                            profileImage.setImageResource(R.drawable.profile_circle)
-                        }
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    exception.printStackTrace()
-                    Toast.makeText(this, "Failed to load profile data", Toast.LENGTH_SHORT).show()
-                }
-        }
-    }
-
-    private fun saveProfileChanges() {
-        val userId = firebaseAuth.currentUser?.uid
-        if (userId != null) {
-            val userDocRef = database.collection("users").document(userId)
-
-            if (projectImageUri != null) {
-                val fileName = selectedFileName ?: "$userId.jpg"
-                val imageRef = storageReference.child("profileImages/$userId/$fileName")
-
-                imageRef.putFile(projectImageUri!!)
-                    .addOnSuccessListener {
-                        imageRef.downloadUrl.addOnSuccessListener { uri ->
-                            userDocRef.update("profileImageUrl", uri.toString())
-                                .addOnSuccessListener {
-                                    Toast.makeText(this, "Profile image updated!", Toast.LENGTH_SHORT).show()
-                                    // Notify ProfileActivity to reload the profile
-                                    setResult(RESULT_OK)
-                                    finish()
-                                }
-                                .addOnFailureListener { exception ->
-                                    exception.printStackTrace()
-                                    Toast.makeText(this, "Failed to update image URL", Toast.LENGTH_SHORT).show()
-                                }
-                        }
-                    }
-                    .addOnFailureListener { exception ->
-                        exception.printStackTrace()
-                        Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
-                    }
-            }
-
-            userDocRef.update(
-                "firstName", firstNameEditText.text.toString(),
-                "lastName", lastNameEditText.text.toString(),
-                "email", emailEditText.text.toString(),
-                "phoneNum", phoneNumEditText.text.toString(),
-                "businessName", if (businessNameEditText.visibility == View.VISIBLE) businessNameEditText.text.toString() else ""
-            ).addOnSuccessListener {
-                Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
-                finish()
-            }.addOnFailureListener { exception ->
-                exception.printStackTrace()
-                Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show()
-            }
-        }
+        return result ?: uri.lastPathSegment ?: "default.jpg"
     }
 }

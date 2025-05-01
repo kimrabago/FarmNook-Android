@@ -78,7 +78,8 @@
             android:hint="@string/you_can_also_give_feedback_to_let_us_know"
             android:inputType="textMultiLine|textCapSentences"
             android:maxLength="100"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:textSize="15sp"/>
 
         <Button
             android:id="@+id/rate_button"

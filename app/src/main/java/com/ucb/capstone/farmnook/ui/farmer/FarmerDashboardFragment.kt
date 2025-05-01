@@ -23,9 +23,18 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import android.content.Context
 import android.location.LocationManager
+import android.os.Handler
+import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.ui.farmer.add_delivery.AddDeliveryActivity
 
 class FarmerDashboardFragment : Fragment() {
+
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     private lateinit var menuBurger: ImageView
     private lateinit var profileIcon: ImageView
@@ -37,6 +46,7 @@ class FarmerDashboardFragment : Fragment() {
     private lateinit var locationCallback: LocationCallback
     private var lastLocation: Location? = null
     private var webViewLoaded = false
+    private var profileListenerRegistration: ListenerRegistration? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,10 +62,34 @@ class FarmerDashboardFragment : Fragment() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
+        profileImageFetch()
         setupWebView()
         setupClickListeners()
 
         return rootView
+    }
+
+    private fun profileImageFetch() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            firestore.collection("users").document(userId)
+                .get(Source.CACHE)
+                .addOnSuccessListener { document ->
+                    val imageUrl = document.getString("profileImageUrl")
+                    if (!imageUrl.isNullOrEmpty()) {
+                        Glide.with(this@FarmerDashboardFragment)
+                            .load(imageUrl)
+                            .placeholder(R.drawable.profile_circle)
+                            .error(R.drawable.profile_circle)
+                            .into(profileIcon)
+                    } else {
+                        profileIcon.setImageResource(R.drawable.profile_circle)
+                    }
+                }
+                .addOnFailureListener {
+                    profileIcon.setImageResource(R.drawable.profile_circle)
+                }
+        }
     }
 
     private fun setupClickListeners() {
@@ -66,9 +100,10 @@ class FarmerDashboardFragment : Fragment() {
         }
 
         profileIcon.setOnClickListener {
-            (activity as? NavigationBar)?.navigateToProfile()
+            Handler(Looper.getMainLooper()).post {
+                (activity as? NavigationBar)?.navigateToProfile()
+            }
         }
-
         addDeliveryBtn.setOnClickListener {
             val intent = Intent(requireContext(), AddDeliveryActivity::class.java)
             startActivity(intent)
@@ -196,6 +231,7 @@ class FarmerDashboardFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        profileListenerRegistration?.remove()
         if (::locationCallback.isInitialized) {
             fusedLocationClient.removeLocationUpdates(locationCallback)
         }

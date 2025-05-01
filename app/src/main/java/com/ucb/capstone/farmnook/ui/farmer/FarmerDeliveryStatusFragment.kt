@@ -14,8 +14,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.*
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
+import de.hdodenhof.circleimageview.CircleImageView
 
-class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_delivery_status) {
+class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_status) {
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var loadingLayout: View
@@ -28,6 +29,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_delivery_status)
     private lateinit var deliveryRequestRef: DocumentReference
     private var deliveryId: String? = null
     private var listenerRegistration: ListenerRegistration? = null
+
+    private lateinit var haulerProfileImage: CircleImageView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -44,6 +47,7 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_delivery_status)
         webView.setBackgroundColor(Color.TRANSPARENT)
         webView.webViewClient = WebViewClient()
 
+        haulerProfileImage = view.findViewById(R.id.profileImage)
         loadingLayout = view.findViewById(R.id.loadingLayout)
         confirmationLayout = view.findViewById(R.id.confirmationLayout)
         haulerToPickupLayout = view.findViewById(R.id.haulerToPickupLayout)
@@ -53,8 +57,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_delivery_status)
         val cancelButton = view.findViewById<Button>(R.id.cancelButton)
         cancelButton.setOnClickListener { cancelDeliveryRequest() }
 
-        val requestId = arguments?.getString("requestId") ?: ""
-        if (requestId.isEmpty()) {
+        val requestId = requireArguments().getString("requestId")
+        if (requestId.isNullOrEmpty()) {
             showNoActiveDelivery()
             return
         }
@@ -77,6 +81,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_delivery_status)
                 showNoActiveDelivery()
             }
         }
+
+        listenForDeliveryConfirmation()
     }
 
     private fun fetchDeliveryIdAndLoadStatus(requestId: String, pickup: String, destination: String) {
@@ -125,6 +131,139 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_delivery_status)
                 else -> showConfirmationLayout()
             }
         }
+    }
+
+
+    private fun listenForDeliveryConfirmation() {
+        deliveryRequestRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                Toast.makeText(requireContext(), "Failed to listen for updates.", Toast.LENGTH_SHORT).show()
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val isAccepted = snapshot.getBoolean("isAccepted") ?: false
+                if (isAccepted) {
+                    fetchDeliveryDetails(snapshot.id)
+                } else {
+                    showLoadingLayout()
+                }
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun fetchDeliveryDetails(requestId: String) {
+        val deliveriesRef = FirebaseFirestore.getInstance()
+            .collection("deliveries")
+            .whereEqualTo("requestId", requestId)
+
+        deliveriesRef.get().addOnSuccessListener { querySnapshot ->
+            if (!querySnapshot.isEmpty) {
+                val deliveryDoc = querySnapshot.documents[0]
+                val haulerId = deliveryDoc.getString("haulerAssignedId") ?: return@addOnSuccessListener
+                val deliveryId = deliveryDoc.getString("deliveryId") ?: return@addOnSuccessListener
+
+                val deliveryIdTextView = view?.findViewById<TextView>(R.id.deliveryId)
+                deliveryIdTextView?.text = "Delivery ID: $deliveryId"
+
+                // 🟢 Fetch the vehicleId from the deliveryRequest document first:
+                deliveryRequestRef.get().addOnSuccessListener { requestDoc ->
+                    val vehicleId = requestDoc.getString("vehicleId") ?: return@addOnSuccessListener
+
+                    fetchVehicleDetails(vehicleId)  // ✅ Fetch vehicle info here!
+                    fetchHaulerDetails(haulerId)    // ✅ Already existing hauler fetching logic
+                }
+            } else {
+                Log.w("DeliveryStatusFragment", "No delivery found for requestId: $requestId")
+            }
+        }.addOnFailureListener { e ->
+            Log.e("DeliveryStatusFragment", "Error fetching delivery details: ${e.message}")
+        }
+    }
+
+    private fun fetchHaulerDetails(haulerId: String) {
+        val userRef = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(haulerId)
+
+        userRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val haulerID = document.getString("userId")
+                val haulerName = document.getString("firstName") + " " + document.getString("lastName")
+                val haulerProfileImg = document.getString("profileImageUrl")
+
+                val haulerNameTextView = view?.findViewById<TextView>(R.id.haulerName)
+
+                haulerNameTextView?.text = haulerName
+
+                if (!haulerProfileImg.isNullOrEmpty() && haulerProfileImage != null) {
+                    Glide.with(requireContext())
+                        .load(haulerProfileImg)
+                        .placeholder(R.drawable.profile_circle)
+                        .error(R.drawable.profile_circle)
+                        .into(haulerProfileImage)
+                } else {
+                    haulerProfileImage?.setImageResource(R.drawable.profile_circle)
+                }
+
+                showConfirmationLayout()
+            } else {
+                Log.w("DeliveryStatusFragment", "Hauler not found with ID: $haulerId")
+            }
+        }.addOnFailureListener { e ->
+            Log.e("DeliveryStatusFragment", "Error fetching hauler details: ${e.message}")
+        }
+    }
+
+    // added
+    @SuppressLint("SetTextI18n")
+    private fun fetchVehicleDetails(vehicleId: String) {
+        val vehicleRef = FirebaseFirestore.getInstance()
+            .collection("vehicles")
+            .document(vehicleId)
+
+        vehicleRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val vehicleType = document.getString("vehicleType") ?: "Unknown Type"
+                val model = document.getString("model") ?: "Unknown Model"
+                val plateNumber = document.getString("plateNumber") ?: "Unknown Plate"
+
+                val vehicleTypeTextView = view?.findViewById<TextView>(R.id.vehicleType)
+                val plateNumberTextView = view?.findViewById<TextView>(R.id.plateNumber)
+
+                vehicleTypeTextView?.text =  "$vehicleType - $model"
+                plateNumberTextView?.text =  plateNumber
+            } else {
+                Log.w("DeliveryStatusFragment", "Vehicle not found with ID: $vehicleId")
+            }
+        }.addOnFailureListener { e ->
+            Log.e("DeliveryStatusFragment", "Error fetching vehicle details: ${e.message}")
+        }
+    }
+
+    private fun cancelDeliveryRequest() {
+        deliveryRequestRef.update("status", "Cancelled")
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Delivery request cancelled successfully.", Toast.LENGTH_SHORT).show()
+
+                val navBar = activity as? NavigationBar
+                navBar?.let { nav ->
+                    nav.restoreActiveRequestId {
+                        requireActivity().runOnUiThread {
+                            nav.resetToDashboard()
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to cancel delivery request: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        listenerRegistration?.remove()
     }
 
     private fun showLoadingLayout() {
@@ -183,38 +322,4 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_delivery_status)
         )
     }
 
-    private fun fetchHaulerDetails(haulerId: String) {
-        val userRef = FirebaseFirestore.getInstance().collection("users").document(haulerId)
-        userRef.get().addOnSuccessListener { doc ->
-            if (!doc.exists()) return@addOnSuccessListener
-
-            val haulerName = "${doc.getString("firstName") ?: ""} ${doc.getString("lastName") ?: ""}"
-            val profileUrl = doc.getString("profileImageUrl")
-
-            view?.findViewById<TextView>(R.id.haulerName)?.text = haulerName
-            val profileImg = view?.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
-
-            if (!profileUrl.isNullOrEmpty()) {
-                Glide.with(requireContext())
-                    .load(profileUrl)
-                    .placeholder(R.drawable.profile_circle)
-                    .error(R.drawable.profile_circle)
-                    .into(profileImg!!)
-            } else {
-                profileImg?.setImageResource(R.drawable.profile_circle)
-            }
-        }
-    }
-
-    private fun cancelDeliveryRequest() {
-        deliveryRequestRef.update("status", "Cancelled").addOnSuccessListener {
-            Toast.makeText(requireContext(), "Cancelled successfully", Toast.LENGTH_SHORT).show()
-            (activity as? NavigationBar)?.resetToDashboard()
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        listenerRegistration?.remove()
-    }
 }

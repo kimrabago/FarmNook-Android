@@ -37,7 +37,7 @@ class DeleteAccountActivity : AppCompatActivity() {
     }
 
     private fun showPasswordDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.password_dialog, null)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_password, null)
         val passwordInput = dialogView.findViewById<EditText>(R.id.edit_password)
 
         AlertDialog.Builder(this)

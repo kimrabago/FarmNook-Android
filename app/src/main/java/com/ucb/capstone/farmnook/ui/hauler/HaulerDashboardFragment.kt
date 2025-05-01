@@ -1,5 +1,6 @@
 package com.ucb.capstone.farmnook.ui.hauler
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.*
 import android.view.*
@@ -9,12 +10,15 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryDisplayItem
 import com.ucb.capstone.farmnook.ui.adapter.AssignedDeliveryAdapter
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
+import com.ucb.capstone.farmnook.utils.EstimateTravelTimeUtil
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -39,7 +43,7 @@ class HaulerDashboardFragment : Fragment() {
         val rootView = inflater.inflate(R.layout.fragment_hauler_dashboard, container, false)
 
         menuBurger = rootView.findViewById(R.id.menu_burger)
-        profileIcon = rootView.findViewById(R.id.profile_icon)
+        profileIcon = rootView.findViewById(R.id.profileImage)
         drawerLayout = requireActivity().findViewById(R.id.drawer_layout)
 
         menuBurger.setOnClickListener {
@@ -51,6 +55,8 @@ class HaulerDashboardFragment : Fragment() {
         profileIcon.setOnClickListener {
             (activity as? NavigationBar)?.navigateToProfile()
         }
+
+        val tempList = mutableListOf<DeliveryDisplayItem>()
 
         val recyclerView: RecyclerView = rootView.findViewById(R.id.deliveries_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -67,13 +73,39 @@ class HaulerDashboardFragment : Fragment() {
         }
         recyclerView.adapter = assignedDeliveryAdapter
 
+        profileImageFetch()
         loadDeliveries()
 
         return rootView
     }
 
+    private fun profileImageFetch() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            firestore.collection("users").document(userId)
+                .get(Source.CACHE)
+                .addOnSuccessListener { document ->
+                    val imageUrl = document.getString("profileImageUrl")
+                    if (!imageUrl.isNullOrEmpty()) {
+                        Glide.with(this@HaulerDashboardFragment)
+                            .load(imageUrl)
+                            .placeholder(R.drawable.profile_circle)
+                            .error(R.drawable.profile_circle)
+                            .into(profileIcon)
+                    } else {
+                        profileIcon.setImageResource(R.drawable.profile_circle)
+                    }
+                }
+                .addOnFailureListener {
+                    profileIcon.setImageResource(R.drawable.profile_circle)
+                }
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     private fun loadDeliveries() {
         val userId = auth.currentUser?.uid ?: return
+
         firestore.collection("deliveries")
             .whereEqualTo("haulerAssignedId", userId)
             .get()
@@ -92,7 +124,7 @@ class HaulerDashboardFragment : Fragment() {
                             val pickup = req.getString("pickupLocation") ?: return@addOnSuccessListener
                             val drop = req.getString("destinationLocation") ?: return@addOnSuccessListener
 
-                            getEstimatedTravelTime(pickup, drop) { estimatedTime ->
+                            EstimateTravelTimeUtil.getEstimatedTravelTime(pickup, drop) { estimatedTime ->
                                 reverseGeocode(pickup) { pickupAddress ->
                                     reverseGeocode(drop) { dropAddress ->
                                         val item = DeliveryDisplayItem(
@@ -132,40 +164,5 @@ class HaulerDashboardFragment : Fragment() {
                     Handler(Looper.getMainLooper()).post { callback(address) }
                 }
             })
-    }
-
-    private fun getEstimatedTravelTime(pickup: String, drop: String, callback: (String) -> Unit) {
-        val (startLat, startLng) = pickup.split(",").map { it.trim() }
-        val (endLat, endLng) = drop.split(",").map { it.trim() }
-
-        val url = "https://api.mapbox.com/directions/v5/mapbox/driving/$startLng,$startLat;$endLng,$endLat?access_token=$mapboxToken&overview=false"
-
-        val client = OkHttpClient()
-        val request = Request.Builder().url(url).build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                callback("Unknown")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                try {
-                    val json = JSONObject(body ?: "")
-                    val routes = json.getJSONArray("routes")
-                    if (routes.length() > 0) {
-                        val durationSec = routes.getJSONObject(0).getDouble("duration")
-                        val minutes = (durationSec / 60).toInt()
-                        val estimated = if (minutes < 60) "$minutes min"
-                        else "${minutes / 60} hr ${minutes % 60} min"
-                        Handler(Looper.getMainLooper()).post { callback(estimated) }
-                    } else {
-                        callback("Unknown")
-                    }
-                } catch (e: Exception) {
-                    callback("Unknown")
-                }
-            }
-        })
     }
 }

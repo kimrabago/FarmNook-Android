@@ -129,21 +129,6 @@
                     android:textColor="@color/white"
                     android:textSize="17sp" />
 
-                <Button
-                    android:id="@+id/btn_google_sign_in"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/rounded_button"
-                    android:drawableStart="@drawable/google_icon"
-                    android:drawablePadding="3dp"
-                    android:fontFamily="@font/poppins"
-                    android:padding="10dp"
-                    android:paddingStart="50dp"
-                    android:paddingEnd="45dp"
-                    android:text="@string/sign_in_with_google"
-                    android:textColor="@color/white"
-                    android:textSize="17sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

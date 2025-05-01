@@ -72,7 +72,7 @@
             android:gravity="center">
 
             <TextView
-                android:id="@+id/vehicle_weight"
+                android:id="@+id/costEstimation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/price"

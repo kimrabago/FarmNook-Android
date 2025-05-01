@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.viewmodel
+package com.ucb.capstone.farmnook.viewmodel.auth
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

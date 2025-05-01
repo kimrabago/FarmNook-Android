@@ -1,24 +1,70 @@
 {
   "project_info": {
     "project_number": "517240344964",
+    "firebase_url": "https://farmnook-database-4e0e8-default-rtdb.firebaseio.com",
     "project_id": "farmnook-database-4e0e8",
     "storage_bucket": "farmnook-database-4e0e8.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:517240344964:android:c167d0d58f00fdf4c80dd1",
+        "mobilesdk_app_id": "1:517240344964:android:d8bf0a287f08445cc80dd1",
         "android_client_info": {
           "package_name": "com.ucb.capstone.farmnook"
         }
       },
       "oauth_client": [
         {
+          "client_id": "517240344964-v6i37c6bur0gaitdr0igiv363e0k4ppr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGDtCUXfGdGGojEOVnueO_OBn0a858sQg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "517240344964-v6i37c6bur0gaitdr0igiv363e0k4ppr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:517240344964:android:c167d0d58f00fdf4c80dd1",
+        "android_client_info": {
+          "package_name": "com.ucb.eldroid.farmnook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "517240344964-pjigpsao41173tft247cvoe0lnogr0ah.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ucb.eldroid.farmnook",
+            "certificate_hash": "afb3ff21c1e87b22f1672b2cea180e59a0d5879c"
+          }
+        },
+        {
           "client_id": "517240344964-sqiqb4rplc9vm239kq3eed2iug8m9dcf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.ucb.capstone.farmnook",
+            "package_name": "com.ucb.eldroid.farmnook",
             "certificate_hash": "6fdbad8d9553317290df0e08d7a72efccc0320fa"
+          }
+        },
+        {
+          "client_id": "517240344964-tmumtelvd6aciav1ccq85scuq144bp96.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ucb.eldroid.farmnook",
+            "certificate_hash": "ca9c4f8d24159257c15f7a3a8a2e23b9c57da2f1"
           }
         },
         {

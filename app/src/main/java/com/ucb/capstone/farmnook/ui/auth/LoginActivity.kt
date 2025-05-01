@@ -17,7 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.databinding.ActivityLoginBinding
-import com.ucb.capstone.farmnook.viewmodel.LoginViewModel
+import com.ucb.capstone.farmnook.viewmodel.auth.LoginViewModel
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 
 class LoginActivity : AppCompatActivity() {
@@ -30,7 +30,6 @@ class LoginActivity : AppCompatActivity() {
 
     private var isPasswordVisible = false
 
-    // SharedPreferences for Remember Me
     private lateinit var sharedPreferences: SharedPreferences
     private val PREF_NAME = "LoginPrefs"
     private val KEY_REMEMBER = "remember"
@@ -41,11 +40,10 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Check if the user is already authenticated before inflating the UI
         val currentUser = firebaseAuth.currentUser
         if (currentUser != null) {
             navigateToDashboard(currentUser)
-            return // Prevent setting up UI if already logged in
+            return
         }
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -62,10 +60,6 @@ class LoginActivity : AppCompatActivity() {
 
         binding.tvSignUp.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
-        }
-
-        binding.btnGoogleSignIn.setOnClickListener {
-            signInWithGoogle()
         }
 
         binding.btnLogin.setOnClickListener {
@@ -147,11 +141,6 @@ class LoginActivity : AppCompatActivity() {
         )
     }
 
-    private fun signInWithGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -189,7 +178,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Save email & password when user logs in
     private fun saveLoginState() {
         val email = binding.email.text.toString().trim()
         val password = binding.password.text.toString().trim()
