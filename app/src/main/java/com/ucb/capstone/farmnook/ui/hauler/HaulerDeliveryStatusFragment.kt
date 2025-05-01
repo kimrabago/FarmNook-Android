@@ -18,11 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
+import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 
@@ -32,15 +28,19 @@ class HaulerDeliveryStatusFragment : Fragment() {
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
-    private var lastLocation: Location? = null
-    private var webViewLoaded = false
-    private var mapUrl: String? = null
-    private var mapboxToken = "pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg"
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    private var webViewLoaded = false
+    private var lastLocation: Location? = null
+    private var deliveryId: String? = null
+    private var pickupCoords: String? = null
+    private var dropCoords: String? = null
+    private var currentStatus = "Going to Pickup"
+    private var haulerId: String = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+    private val firestore = FirebaseFirestore.getInstance()
+    private val mapboxToken = "pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg"
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_hauler_delivery_status, container, false)
     }
 
@@ -48,36 +48,27 @@ class HaulerDeliveryStatusFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize WebView first
         webView = view.findViewById(R.id.mapView)
         setupWebView()
 
-        // Initialize other UI components
         val fromAddress = view.findViewById<TextView>(R.id.from_address)
         val toAddress = view.findViewById<TextView>(R.id.to_address)
         val totalKilometer = view.findViewById<TextView>(R.id.totalKilometer)
         val durationTime = view.findViewById<TextView>(R.id.durationTime)
         val status = view.findViewById<TextView>(R.id.status)
 
-        // Initialize bottom sheet behavior
-        val bottomSheet = view.findViewById<View>(R.id.bottomSheet)
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet).apply {
+        bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.bottomSheet)).apply {
             peekHeight = 100
             isHideable = false
             state = BottomSheetBehavior.STATE_EXPANDED
-
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        // Get deliveryId from arguments or fetch active delivery
-        val deliveryId = arguments?.getString("deliveryId")
+        // Get deliveryId
+        deliveryId = arguments?.getString("deliveryId")
         if (deliveryId != null) {
-            // Case 1: Coming from start button with deliveryId
-            fetchDeliveryData(deliveryId, fromAddress, toAddress, totalKilometer, durationTime, status)
-        } else {
-            // Case 2: Direct navigation, fetch active delivery
-            fetchActiveDelivery(fromAddress, toAddress, totalKilometer, durationTime, status)
+            fetchDeliveryData(deliveryId!!, fromAddress, toAddress, totalKilometer, durationTime, status)
         }
     }
 
@@ -89,7 +80,6 @@ class HaulerDeliveryStatusFragment : Fragment() {
             setSupportZoom(true)
             builtInZoomControls = true
             displayZoomControls = false
-            databaseEnabled = true
             allowFileAccess = true
             allowContentAccess = true
             allowFileAccessFromFileURLs = true
@@ -106,51 +96,10 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                Log.d("WebViewStatus", "✅ WebView finished loading: $url")
                 webViewLoaded = true
                 checkPermissionsAndStartLocation()
             }
-
-            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                Log.e("WebViewError", "❌ WebView error: ${error?.description}")
-            }
-
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                return false
-            }
         }
-    }
-
-    private fun fetchActiveDelivery(
-        fromAddress: TextView,
-        toAddress: TextView,
-        totalKilometer: TextView,
-        durationTime: TextView,
-        status: TextView
-    ) {
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val firestore = FirebaseFirestore.getInstance()
-
-        firestore.collection("deliveries")
-            .whereEqualTo("haulerAssignedId", currentUserId)
-            .whereEqualTo("isStarted", true)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (querySnapshot.isEmpty) {
-                    Toast.makeText(requireContext(), "No active delivery found.", Toast.LENGTH_SHORT).show()
-                    return@addOnSuccessListener
-                }
-
-                val deliveryDoc = querySnapshot.documents.first()
-                val deliveryId = deliveryDoc.id
-                fetchDeliveryData(deliveryId, fromAddress, toAddress, totalKilometer, durationTime, status)
-            }
-            .addOnFailureListener { e ->
-                Log.e("DeliveryStatus", "❌ Failed to fetch active delivery", e)
-                Toast.makeText(requireContext(), "Failed to load active delivery", Toast.LENGTH_SHORT).show()
-            }
     }
 
     private fun fetchDeliveryData(
@@ -161,85 +110,63 @@ class HaulerDeliveryStatusFragment : Fragment() {
         durationTime: TextView,
         status: TextView
     ) {
-        val firestore = FirebaseFirestore.getInstance()
-
         firestore.collection("deliveries").document(deliveryId)
             .get()
             .addOnSuccessListener { deliveryDoc ->
-                if (!deliveryDoc.exists()) {
-                    Toast.makeText(requireContext(), "Delivery not found.", Toast.LENGTH_SHORT).show()
-                    return@addOnSuccessListener
-                }
-
                 val requestId = deliveryDoc.getString("requestId") ?: return@addOnSuccessListener
-                val haulerId = deliveryDoc.getString("haulerAssignedId") ?: "anonymous"
+                haulerId = deliveryDoc.getString("haulerAssignedId") ?: haulerId
                 val isArrivedAtPickup = deliveryDoc.getBoolean("arrivedAtPickup") ?: false
                 val isArrivedAtDestination = deliveryDoc.getBoolean("arrivedAtDestination") ?: false
                 val isDone = deliveryDoc.getBoolean("isDone") ?: false
 
-                val statusText = when {
+                currentStatus = when {
                     isDone -> "Completed"
                     isArrivedAtDestination -> "Arrived at Destination"
                     isArrivedAtPickup -> "On the Way"
                     else -> "Going to Pickup"
                 }
-                status.text = statusText
+                status.text = currentStatus
 
                 firestore.collection("deliveryRequests").document(requestId)
                     .get()
-                    .addOnSuccessListener { requestDoc ->
-                        val pickup = requestDoc.getString("pickupLocation") ?: return@addOnSuccessListener
-                        val drop = requestDoc.getString("destinationLocation") ?: return@addOnSuccessListener
-                        
-                        // Get the addresses using reverse geocoding
-                        reverseGeocode(pickup) { pickupAddress ->
-                            reverseGeocode(drop) { dropAddress ->
-                                // Calculate distance and time
-                                getEstimatedTravelTime(pickup, drop) { estimatedTime, distance ->
-                                    // Update UI with the delivery data
-                                    fromAddress.text = pickupAddress
-                                    toAddress.text = dropAddress
-                                    totalKilometer.text = "${String.format("%.1f", distance)} km"
-                                    durationTime.text = estimatedTime
+                    .addOnSuccessListener { req ->
+                        pickupCoords = req.getString("pickupLocation") ?: return@addOnSuccessListener
+                        dropCoords = req.getString("destinationLocation") ?: return@addOnSuccessListener
 
-                                    // Load the map with the correct locations
-                                    mapUrl = "https://farmnook-web.vercel.app/live-tracking?pickup=${pickup.replace(" ", "")}&drop=${drop.replace(" ", "")}&haulerId=$haulerId"
-                                    Log.d("WebViewStatus", "🌐 Map URL: $mapUrl")
-                                    webView.loadUrl(mapUrl!!)
+                        reverseGeocode(pickupCoords!!) { pickupAddr ->
+                            reverseGeocode(dropCoords!!) { dropAddr ->
+                                getEstimatedTravelTime(pickupCoords!!, dropCoords!!) { eta, km ->
+                                    fromAddress.text = pickupAddr
+                                    toAddress.text = dropAddr
+                                    durationTime.text = eta
+                                    totalKilometer.text = "${String.format("%.1f", km)} km"
+
+                                    val mapUrl = "https://farmnook-web.vercel.app/live-tracking?pickup=${pickupCoords!!.replace(" ", "")}&drop=${dropCoords!!.replace(" ", "")}&haulerId=$haulerId"
+                                    webView.loadUrl(mapUrl)
                                 }
                             }
                         }
                     }
-                    .addOnFailureListener { e ->
-                        Log.e("DeliveryStatus", "❌ Failed to get delivery request document", e)
-                        Toast.makeText(requireContext(), "Failed to load delivery details", Toast.LENGTH_SHORT).show()
-                    }
-            }
-            .addOnFailureListener { e ->
-                Log.e("DeliveryStatus", "❌ Failed to fetch delivery data from Firestore", e)
-                Toast.makeText(requireContext(), "Failed to load delivery", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun reverseGeocode(latLng: String, callback: (String) -> Unit) {
-        val (lat, lng) = latLng.split(",").map { it.trim().toDouble() }
+        val (lat, lng) = latLng.split(",").map { it.trim() }
         val url = "https://api.mapbox.com/geocoding/v5/mapbox.places/$lng,$lat.json?access_token=$mapboxToken"
 
         OkHttpClient().newCall(Request.Builder().url(url).build())
             .enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    callback("Unknown location")
+                    callback("Unknown")
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    val body = response.body?.string()
+                    val result = response.body?.string()
                     val address = try {
-                        val json = JSONObject(body ?: "")
-                        json.getJSONArray("features")
-                            .optJSONObject(0)
-                            ?.getString("place_name") ?: "Unknown location"
+                        val json = JSONObject(result ?: "")
+                        json.getJSONArray("features").optJSONObject(0)?.getString("place_name") ?: "Unknown"
                     } catch (e: Exception) {
-                        "Unknown location"
+                        "Unknown"
                     }
                     Handler(Looper.getMainLooper()).post { callback(address) }
                 }
@@ -247,42 +174,28 @@ class HaulerDeliveryStatusFragment : Fragment() {
     }
 
     private fun getEstimatedTravelTime(pickup: String, drop: String, callback: (String, Double) -> Unit) {
-        val (startLat, startLng) = pickup.split(",").map { it.trim() }
-        val (endLat, endLng) = drop.split(",").map { it.trim() }
+        val (startLat, startLng) = pickup.split(",")
+        val (endLat, endLng) = drop.split(",")
 
         val url = "https://api.mapbox.com/directions/v5/mapbox/driving/$startLng,$startLat;$endLng,$endLat?access_token=$mapboxToken&overview=false"
 
-        val client = OkHttpClient()
-        val request = Request.Builder().url(url).build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                callback("Unknown", 0.0)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                try {
-                    val json = JSONObject(body ?: "")
-                    val routes = json.getJSONArray("routes")
-                    if (routes.length() > 0) {
-                        val route = routes.getJSONObject(0)
-                        val durationSec = route.getDouble("duration")
-                        val distanceKm = route.getDouble("distance") / 1000.0
-                        
-                        val minutes = (durationSec / 60).toInt()
-                        val estimated = if (minutes < 60) "$minutes min"
-                        else "${minutes / 60} hr ${minutes % 60} min"
-                        
-                        Handler(Looper.getMainLooper()).post { callback(estimated, distanceKm) }
-                    } else {
-                        callback("Unknown", 0.0)
-                    }
-                } catch (e: Exception) {
+        OkHttpClient().newCall(Request.Builder().url(url).build())
+            .enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
                     callback("Unknown", 0.0)
                 }
-            }
-        })
+
+                override fun onResponse(call: Call, response: Response) {
+                    val json = JSONObject(response.body?.string() ?: "")
+                    val route = json.getJSONArray("routes").optJSONObject(0)
+                    val duration = route?.getDouble("duration") ?: 0.0
+                    val distance = route?.getDouble("distance") ?: 0.0
+
+                    val mins = (duration / 60).toInt()
+                    val eta = if (mins < 60) "$mins min" else "${mins / 60} hr ${mins % 60} min"
+                    Handler(Looper.getMainLooper()).post { callback(eta, distance / 1000) }
+                }
+            })
     }
 
     private fun checkPermissionsAndStartLocation() {
@@ -295,69 +208,63 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun setupLocationUpdates() {
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            location?.let {
-                lastLocation = it
-                injectLocationToWebView(it.latitude, it.longitude)
-            }
-        }
-
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
-            .setMinUpdateDistanceMeters(1f)
-            .setMinUpdateIntervalMillis(10000)
-            .build()
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build()
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
-                result.lastLocation?.let {
-                    lastLocation = it
-                    injectLocationToWebView(it.latitude, it.longitude)
-                }
+                val location = result.lastLocation ?: return
+                lastLocation = location
+                injectLocationToWebView(location.latitude, location.longitude)
+                deliveryId?.let { checkProximityAndUpdate(it, location) }
             }
         }
 
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
-    private fun injectLocationToWebView(lat: Double, lng: Double) {
-        if (!webViewLoaded) {
-            Log.w("SEND_LOCATION", "⚠️ WebView not ready — cannot inject location yet.")
-            return
-        }
-        
-        // Update Firebase Realtime Database
-        val firebase = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        currentUser?.uid?.let { userId ->
-            firebase.collection("haulerLocations").document(userId)
-                .set(mapOf(
-                    "latitude" to lat,
-                    "longitude" to lng,
-                    "timestamp" to System.currentTimeMillis()
-                ))
-                .addOnSuccessListener {
-                    Log.d("SEND_LOCATION", "✅ Location updated in Firebase")
-                }
-                .addOnFailureListener { e ->
-                    Log.e("SEND_LOCATION", "❌ Failed to update location in Firebase", e)
-                }
-        }
+    private fun checkProximityAndUpdate(deliveryId: String, location: Location) {
+        val deliveryRef = firestore.collection("deliveries").document(deliveryId)
 
-        // Inject location to WebView
-        val js = """
-            if (window.updateUserLocation) {
-                window.updateUserLocation($lat, $lng);
-            } else {
-                console.error('updateUserLocation function not found');
+        if (pickupCoords == null || dropCoords == null) return
+
+        val (pickupLat, pickupLng) = pickupCoords!!.split(",").map { it.toDouble() }
+        val (dropLat, dropLng) = dropCoords!!.split(",").map { it.toDouble() }
+
+        val pickupLoc = Location("").apply { latitude = pickupLat; longitude = pickupLng }
+        val dropLoc = Location("").apply { latitude = dropLat; longitude = dropLng }
+
+        deliveryRef.get().addOnSuccessListener { doc ->
+            val atPickup = doc.getBoolean("arrivedAtPickup") ?: false
+            val atDestination = doc.getBoolean("arrivedAtDestination") ?: false
+
+            when {
+                !atPickup && location.distanceTo(pickupLoc) <= 20 -> {
+                    deliveryRef.update("arrivedAtPickup", true)
+                    currentStatus = "On the Way"
+                }
+                atPickup && !atDestination && location.distanceTo(dropLoc) <= 20 -> {
+                    deliveryRef.update("arrivedAtDestination", true)
+                    currentStatus = "Arrived at Destination"
+                }
             }
-        """.trimIndent()
-        
-        Log.d("SEND_LOCATION", "📡 Injecting JS: $js")
-        webView.post {
-            webView.evaluateJavascript(js) { result ->
-                Log.d("SEND_LOCATION", "JS Evaluation Result: $result")
-            }
+
+            // Push status to WebView
+            injectStatusToWebView()
         }
+    }
+
+    private fun injectLocationToWebView(lat: Double, lng: Double) {
+        if (!webViewLoaded) return
+
+        firestore.collection("haulerLocations").document(haulerId)
+            .set(mapOf("latitude" to lat, "longitude" to lng, "timestamp" to System.currentTimeMillis()))
+
+        webView.evaluateJavascript("window.updateUserLocation($lat, $lng);", null)
+    }
+
+    private fun injectStatusToWebView() {
+        val js = "window.updateRouteStatus('$currentStatus');"
+        webView.evaluateJavascript(js) { Log.d("STATUS_INJECT", it ?: "null") }
     }
 
     override fun onDestroyView() {
@@ -367,4 +274,3 @@ class HaulerDeliveryStatusFragment : Fragment() {
         }
     }
 }
-
