@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
     private var retrofit: Retrofit? = null
-    private const val BASE_URL = "http://192.168.224.180:5000/"
+    private const val BASE_URL = "https://farmnook-algo.onrender.com/"
 
     @JvmStatic
     val instance: Retrofit?
