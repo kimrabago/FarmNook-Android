@@ -110,7 +110,9 @@ class HaulerDeliveryStatusFragment : Fragment() {
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 webViewLoaded = true
-                checkPermissionsAndStartLocation()
+                if (isAdded && context != null) {
+                    checkPermissionsAndStartLocation()
+                }
             }
         }
     }

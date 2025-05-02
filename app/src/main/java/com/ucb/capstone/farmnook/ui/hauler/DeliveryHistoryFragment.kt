@@ -34,6 +34,7 @@ class DeliveryHistoryFragment : Fragment() {
 
         val transactionList = mutableListOf<DeliveryHistory>()
         val farmerNameMap = mutableMapOf<String, String>() // deliveryId to farmerName
+        val farmerImageMap = mutableMapOf<String, String?>()
 
         val now = Calendar.getInstance()
 
@@ -56,18 +57,27 @@ class DeliveryHistoryFragment : Fragment() {
                                         val name = "${farmerDoc.getString("firstName") ?: ""} ${farmerDoc.getString("lastName") ?: ""}"
                                         farmerNameMap[deliveryId] = name
 
+                                        val imageUrl = farmerDoc.getString("profileImageUrl")
+                                        farmerImageMap[deliveryId] = imageUrl
+
                                         val pickupAddress = reqDoc.getString("pickupLocation") ?: "Unknown"
                                         val destinationAddress = reqDoc.getString("destinationLocation") ?: "Unknown"
+                                        val estimatedTime = reqDoc.getString("estimatedTime") ?: "Unknown"
+
                                         if (cal.get(Calendar.WEEK_OF_YEAR) == now.get(Calendar.WEEK_OF_YEAR)) {
                                             transactionList.add(history)
                                             transRecycler.adapter = DeliveryHistoryAdapter(
                                                 transactionList,
-                                                farmerNameMap
+                                                farmerNameMap,
+                                                farmerImageMap
                                             ) { selectedDeliveryId ->
                                                 val intent = Intent(requireContext(), HistoryDetailsActivity::class.java)
                                                 intent.putExtra("deliveryId", selectedDeliveryId)
                                                 intent.putExtra("pickupAddress", pickupAddress)
                                                 intent.putExtra("destinationAddress", destinationAddress)
+                                                intent.putExtra("farmerName", name)
+                                                intent.putExtra("profileImg", imageUrl)
+                                                intent.putExtra("estimatedTime", estimatedTime)
                                                 startActivity(intent)
                                             }
                                         }

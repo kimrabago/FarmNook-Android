@@ -7,6 +7,7 @@ data class DeliveryDisplayItem(
     val rawPickup: String,                // coordinates
     val rawDrop: String,                  // coordinates
     val estimatedTime: String,
+    val totalCost: String,
     val requestId: String
 )
 

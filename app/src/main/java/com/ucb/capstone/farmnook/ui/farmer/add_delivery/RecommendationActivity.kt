@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Timestamp
@@ -22,8 +23,10 @@ import com.ucb.capstone.farmnook.data.model.algo.CostEstimationResponse
 import com.ucb.capstone.farmnook.data.service.ApiService
 import com.ucb.capstone.farmnook.ui.adapter.RecommendationAdapter
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
+import com.ucb.capstone.farmnook.utils.EstimateTravelTimeUtil
 import com.ucb.capstone.farmnook.utils.RetrofitClient
 import com.ucb.capstone.farmnook.utils.SendPushNotification
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -219,31 +222,40 @@ class RecommendationActivity : AppCompatActivity() {
 
     private fun onAvailableClicked(vehicle: VehicleWithBusiness) {
         val farmerId = intent.getStringExtra("farmerId") ?: ""
-        val delivery = DeliveryRequest(
-            pickupLocation = pickupLocation,
-            destinationLocation = destinationLocation,
-            purpose = purpose,
-            productType = productType,
-            weight = weight,
-            farmerId = farmerId,
-            timestamp = Timestamp.now(),
-            vehicleID = vehicle.vehicleId,
-            businessId = vehicle.businessId,
-            isAccepted = false,
-            estimatedCost = vehicle.estimatedCost
-        )
 
-        val dialog = DeliverySummaryDialogFragment.newInstance(vehicle, delivery) {
-            saveToDeliveryRequests(it.first, it.second) { generatedRequestId ->
-                val intent = Intent(this, NavigationBar::class.java).apply {
-                    putExtra("navigateTo", "DeliveryStatus")
-                    putExtra("requestId", generatedRequestId)
+        lifecycleScope.launch {
+            val estimatedTime =
+                EstimateTravelTimeUtil.getEstimatedTravelTime(pickupLocation, destinationLocation)
+
+            val delivery = DeliveryRequest(
+                pickupLocation = pickupLocation,
+                destinationLocation = destinationLocation,
+                purpose = purpose,
+                productType = productType,
+                weight = weight,
+                farmerId = farmerId,
+                timestamp = Timestamp.now(),
+                vehicleID = vehicle.vehicleId,
+                businessId = vehicle.businessId,
+                isAccepted = false,
+                estimatedCost = vehicle.estimatedCost,
+                estimatedTime = estimatedTime
+            )
+
+            val dialog = DeliverySummaryDialogFragment.newInstance(vehicle, delivery) {
+                saveToDeliveryRequests(it.first, it.second) { generatedRequestId ->
+                    val intent =
+                        Intent(this@RecommendationActivity, NavigationBar::class.java).apply {
+                            putExtra("navigateTo", "DeliveryStatus")
+                            putExtra("requestId", generatedRequestId)
+                        }
+                    startActivity(intent)
+                    finish()
                 }
-                startActivity(intent)
-                finish()
             }
+
+            dialog.show(supportFragmentManager, "DeliverySummary")
         }
-        dialog.show(supportFragmentManager, "DeliverySummary")
     }
 
     private fun saveToDeliveryRequests(vehicle: VehicleWithBusiness, delivery: DeliveryRequest, onSuccess: (String) -> Unit) {
@@ -263,7 +275,8 @@ class RecommendationActivity : AppCompatActivity() {
             "farmerId" to delivery.farmerId,
             "timestamp" to delivery.timestamp,
             "isAccepted" to delivery.isAccepted,
-            "estimatedCost" to delivery.estimatedCost
+            "estimatedCost" to delivery.estimatedCost,
+            "estimatedTime" to delivery.estimatedTime
         )
 
         newRequestRef.set(requestData).addOnSuccessListener {
