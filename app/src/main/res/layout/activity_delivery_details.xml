@@ -97,11 +97,12 @@
                         android:textColor="@color/dark_green"/>
 
                     <TextView
-                        android:id="@+id/deliveryPrice"
+                        android:id="@+id/totalCost"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/php"
                         android:textSize="18sp"
+                        android:layout_marginEnd="10dp"
                         android:fontFamily="@font/dm_sans_bold"
                         android:textColor="@color/dark_green"/>
                 </LinearLayout>

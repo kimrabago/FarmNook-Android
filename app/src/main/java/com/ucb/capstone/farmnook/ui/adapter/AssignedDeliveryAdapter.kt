@@ -1,5 +1,6 @@
 package com.ucb.capstone.farmnook.ui.adapter
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -20,9 +21,11 @@ class AssignedDeliveryAdapter(
         val destination: TextView = view.findViewById(R.id.destination)
         val provinceDestination: TextView = view.findViewById(R.id.provinceDestination)
         val estimatedTime: TextView = view.findViewById(R.id.estimatedTime)
+        val totalCost: TextView = view.findViewById(R.id.totalCost)
         val viewBtn: View = view.findViewById(R.id.viewDeliverBtn)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val delivery = deliveries[position]
         holder.pickupLocation.text = "Pickup Location"
@@ -30,6 +33,8 @@ class AssignedDeliveryAdapter(
         holder.destination.text = "Destination Location"
         holder.provinceDestination.text = delivery.destinationLocation
         holder.estimatedTime.text = delivery.estimatedTime
+        holder.totalCost.text = "₱${delivery.totalCost}"
+
 
         holder.viewBtn.setOnClickListener {
             Log.d("DeliveryAdapter", "View button clicked for ${delivery.deliveryId}")

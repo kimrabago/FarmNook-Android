@@ -8,6 +8,7 @@ import android.widget.ImageView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -19,11 +20,13 @@ import com.ucb.capstone.farmnook.data.model.DeliveryDisplayItem
 import com.ucb.capstone.farmnook.ui.adapter.AssignedDeliveryAdapter
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import com.ucb.capstone.farmnook.utils.EstimateTravelTimeUtil
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.tasks.await
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 class HaulerDashboardFragment : Fragment() {
 
@@ -68,6 +71,8 @@ class HaulerDashboardFragment : Fragment() {
                 putExtra("pickup", delivery.rawPickup)
                 putExtra("destination", delivery.rawDrop)
                 putExtra("estimatedTime", delivery.estimatedTime)
+                putExtra("totalCost", delivery.totalCost)
+                putExtra("requestId", delivery.requestId)
             }
             startActivity(intent)
         }
@@ -108,61 +113,68 @@ class HaulerDashboardFragment : Fragment() {
 
         firestore.collection("deliveries")
             .whereEqualTo("haulerAssignedId", userId)
-            .get()
-            .addOnSuccessListener { docs ->
-                for (doc in docs) {
-                    val deliveryId = doc.id
-                    val requestId = doc.getString("requestId") ?: continue
-                    val dateJoined = doc.getTimestamp("dateJoined")?.toDate()
-                    val formattedTime = dateJoined?.let {
-                        SimpleDateFormat("MMM dd, yyyy - hh:mm a", Locale.getDefault()).format(it)
-                    } ?: "Unknown"
+            .addSnapshotListener { docs, error ->
+                if (error != null || docs == null) return@addSnapshotListener
 
-                    firestore.collection("deliveryRequests").document(requestId)
-                        .get()
-                        .addOnSuccessListener { req ->
-                            val pickup = req.getString("pickupLocation") ?: return@addOnSuccessListener
-                            val drop = req.getString("destinationLocation") ?: return@addOnSuccessListener
+                lifecycleScope.launch {
+                    deliveryList.clear()
 
-                            EstimateTravelTimeUtil.getEstimatedTravelTime(pickup, drop) { estimatedTime ->
-                                reverseGeocode(pickup) { pickupAddress ->
-                                    reverseGeocode(drop) { dropAddress ->
-                                        val item = DeliveryDisplayItem(
-                                            deliveryId, pickupAddress, dropAddress,
-                                            pickup, drop, estimatedTime, requestId
-                                        )
-                                        deliveryList.add(item)
-                                        assignedDeliveryAdapter.notifyDataSetChanged()
-                                    }
-                                }
-                            }
+                    val jobs = docs.map { doc ->
+                        async {
+                            val deliveryId = doc.id
+                            val requestId = doc.getString("requestId") ?: return@async null
+
+                            val requestDoc = firestore.collection("deliveryRequests").document(requestId).get().await()
+                            val totalCost = requestDoc.getLong("estimatedCost")?.toInt()?.toString() ?: return@async null
+                            val estimatedTime = requestDoc.getString("estimatedTime") ?: return@async null
+                            val pickup = requestDoc.getString("pickupLocation") ?: return@async null
+                            val drop = requestDoc.getString("destinationLocation") ?: return@async null
+
+                            val pickupAddressDeferred = async { reverseGeocode(pickup) }
+                            val dropAddressDeferred = async { reverseGeocode(drop) }
+
+                            val pickupAddress = pickupAddressDeferred.await()
+                            val dropAddress = dropAddressDeferred.await()
+
+                            DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId)
                         }
+                    }
+
+                    deliveryList.addAll(jobs.mapNotNull { it.await() })
+                    assignedDeliveryAdapter.notifyDataSetChanged()
                 }
             }
     }
 
-    private fun reverseGeocode(latLng: String, callback: (String) -> Unit) {
+    suspend fun reverseGeocode(latLng: String): String = suspendCancellableCoroutine { cont ->
         val (lat, lng) = latLng.split(",").map { it.trim().toDouble() }
         val url = "https://api.mapbox.com/geocoding/v5/mapbox.places/$lng,$lat.json?access_token=$mapboxToken"
 
-        OkHttpClient().newCall(Request.Builder().url(url).build())
-            .enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    callback("Unknown location")
+        val request = Request.Builder().url(url).build()
+        val call = OkHttpClient().newCall(request)
+
+        cont.invokeOnCancellation {
+            call.cancel()
+        }
+
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                if (cont.isActive) cont.resume("Unknown", null)
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body?.string()
+                val address = try {
+                    val json = JSONObject(body ?: "")
+                    json.getJSONArray("features")
+                        .optJSONObject(0)
+                        ?.getString("place_name") ?: "Unknown location"
+                } catch (e: Exception) {
+                    "Unknown location"
                 }
 
-                override fun onResponse(call: Call, response: Response) {
-                    val body = response.body?.string()
-                    val address = try {
-                        val json = JSONObject(body ?: "")
-                        json.getJSONArray("features")
-                            .optJSONObject(0)
-                            ?.getString("place_name") ?: "Unknown location"
-                    } catch (e: Exception) {
-                        "Unknown location"
-                    }
-                    Handler(Looper.getMainLooper()).post { callback(address) }
-                }
-            })
+                if (cont.isActive) cont.resume(address, null)
+            }
+        })
     }
 }

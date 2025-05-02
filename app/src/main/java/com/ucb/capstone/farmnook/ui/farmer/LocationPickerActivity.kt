@@ -50,22 +50,20 @@ class LocationPickerActivity : AppCompatActivity() {
             placesClient.fetchPlace(request).addOnSuccessListener { response ->
                 val place = response.place
                 val addressComponents = place.addressComponents
-                val addressParts = mutableListOf<String>()
+                val addressParts = LinkedHashSet<String>()
 
                 addressComponents?.asList()?.forEach { component ->
                     val types = component.types
-                    if (types.contains("premise") || types.contains("route") || types.contains("street_address")) {
-                        addressParts.add(component.name)
+                    val name = component.name
+
+                    // Skip country and province-level to avoid "Philippines" or "Cebu" duplication
+                    if (types.contains("country") || types.contains("administrative_area_level_2")) return@forEach
+
+                    // Add unique, relevant components only
+                    if (types.any { it in listOf("subpremise", "premise", "route", "street_address", "sublocality", "sublocality_level_1", "locality") }) {
+                        addressParts.add(name)
                     }
-                    if (types.contains("sublocality") || types.contains("sublocality_level_1")) {
-                        addressParts.add(component.name)
-                    }
-                    if (types.contains("locality")) {
-                        addressParts.add(component.name)
-                    }
-                    if (types.contains("administrative_area_level_1")) {
-                        addressParts.add(component.name)
-                    }
+
                 }
 
                 fullAddress = buildString {
