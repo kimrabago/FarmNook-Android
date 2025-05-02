@@ -2,6 +2,7 @@ package com.ucb.capstone.farmnook.ui.hauler
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -9,6 +10,7 @@ import android.os.*
 import android.util.Log
 import android.view.*
 import android.webkit.*
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -18,6 +20,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
+import com.ucb.capstone.farmnook.ui.message.InboxFragment
+import com.ucb.capstone.farmnook.ui.message.MessageActivity
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -47,6 +51,15 @@ class HaulerDeliveryStatusFragment : Fragment() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        // Inside onViewCreated or onCreate method
+        val messageIcon = view.findViewById<ImageButton>(R.id.messageIcon)
+        messageIcon.setOnClickListener {
+            // Start the Message Activity when the button is clicked
+            val intent =    Intent(requireContext(), MessageActivity::class.java)
+            startActivity(intent)
+        }
 
         webView = view.findViewById(R.id.mapView)
         setupWebView()
