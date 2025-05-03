@@ -35,6 +35,7 @@
             android:textStyle="bold"
             android:layout_centerInParent="true"/>
     </RelativeLayout>
+
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profileImage"
         android:layout_width="80dp"
@@ -43,7 +44,6 @@
         android:layout_marginTop="20dp"
         android:src="@drawable/profile_circle"/>
 
-    <!-- Hauler Name -->
     <TextView
         android:id="@+id/haulerName"
         android:layout_width="wrap_content"

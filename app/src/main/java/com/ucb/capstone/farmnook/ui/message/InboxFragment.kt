@@ -91,10 +91,12 @@ class InboxFragment : Fragment() {
                 val firstName = userDoc.getString("firstName") ?: ""
                 val lastName = userDoc.getString("lastName") ?: ""
                 val fullName = "$firstName $lastName".trim()
+                val profileImage = userDoc.getString("profileImageUrl") ?: ""
 
                 val chatItem = ChatItem(
                     chatId = chatId,
                     otherUserId = otherUserId,
+                    profileImageUrl = profileImage,
                     userName = fullName,
                     lastMessage = lastMessage,
                     timestamp = timestamp

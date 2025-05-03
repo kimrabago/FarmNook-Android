@@ -11,11 +11,10 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.auth.ChangePasswordActivity
 import com.ucb.capstone.farmnook.ui.auth.DeleteAccountActivity
+import com.ucb.capstone.farmnook.utils.loadImage
 import com.ucb.capstone.farmnook.viewmodel.settings.ProfileViewModel
 
 class ProfileActivity : AppCompatActivity() {
@@ -51,17 +50,7 @@ class ProfileActivity : AppCompatActivity() {
                 businessNameTextView.visibility = View.GONE
             }
 
-            if (!profile.profileImageUrl.isNullOrEmpty()) {
-                Glide.with(this)
-                    .load(profile.profileImageUrl)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .override(100, 100)
-                    .placeholder(R.drawable.profile_circle)
-                    .error(R.drawable.profile_circle)
-                    .into(profileImage)
-            } else {
-                profileImage.setImageResource(R.drawable.profile_circle)
-            }
+            profileImage.loadImage(profile.profileImageUrl)
         }
 
         setupButtons()

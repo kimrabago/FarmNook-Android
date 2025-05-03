@@ -12,9 +12,9 @@ import com.bumptech.glide.Glide
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
-import com.ucb.capstone.farmnook.ui.farmer.WaitingDeliveryActivity
 import java.util.Locale
 import com.ucb.capstone.farmnook.util.getAddressFromLatLng
+import com.ucb.capstone.farmnook.utils.loadImage
 
 class DeliverySummaryDialogFragment : DialogFragment() {
 
@@ -48,16 +48,7 @@ class DeliverySummaryDialogFragment : DialogFragment() {
         view.findViewById<TextView>(R.id.businessName).text = vehicleWtBusiness.businessName
         val profileImageUrl = vehicleWtBusiness.profileImage
         val profileImage = view.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
-
-        if (!profileImageUrl.isNullOrEmpty()) {
-            Glide.with(requireContext())
-                .load(profileImageUrl)
-                .placeholder(R.drawable.profile_circle)
-                .error(R.drawable.profile_circle)
-                .into(profileImage)
-        } else {
-            profileImage.setImageResource(R.drawable.profile_circle)  // ✅ Use fallback if null
-        }
+        profileImage.loadImage(profileImageUrl)
 
         view.findViewById<TextView>(R.id.businessName).text = vehicleWtBusiness.businessName
         view.findViewById<TextView>(R.id.businessLocation).text = businessLoc

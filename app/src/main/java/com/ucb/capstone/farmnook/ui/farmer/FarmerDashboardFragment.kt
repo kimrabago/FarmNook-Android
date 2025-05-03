@@ -24,12 +24,12 @@ import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import android.content.Context
 import android.location.LocationManager
 import android.os.Handler
-import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.ui.farmer.add_delivery.AddDeliveryActivity
+import com.ucb.capstone.farmnook.utils.loadImage
 
 class FarmerDashboardFragment : Fragment() {
 
@@ -76,18 +76,7 @@ class FarmerDashboardFragment : Fragment() {
                 .get(Source.CACHE)
                 .addOnSuccessListener { document ->
                     val imageUrl = document.getString("profileImageUrl")
-                    if (!imageUrl.isNullOrEmpty()) {
-                        Glide.with(this@FarmerDashboardFragment)
-                            .load(imageUrl)
-                            .placeholder(R.drawable.profile_circle)
-                            .error(R.drawable.profile_circle)
-                            .into(profileIcon)
-                    } else {
-                        profileIcon.setImageResource(R.drawable.profile_circle)
-                    }
-                }
-                .addOnFailureListener {
-                    profileIcon.setImageResource(R.drawable.profile_circle)
+                    profileIcon.loadImage(imageUrl)
                 }
         }
     }

@@ -7,9 +7,9 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
+import com.ucb.capstone.farmnook.utils.loadImage
 import kotlin.math.round
 
 class RecommendationAdapter(
@@ -39,15 +39,7 @@ class RecommendationAdapter(
         holder.businessName.text = item.businessName
         holder.vehicle.text = item.vehicleType
 
-        if (!item.profileImage.isNullOrEmpty()) {
-            Glide.with(holder.itemView.context)
-                .load(item.profileImage)
-                .placeholder(R.drawable.profile_circle)
-                .error(R.drawable.profile_circle)
-                .into(holder.profileImage)
-        } else {
-            holder.profileImage.setImageResource(R.drawable.profile_circle)
-        }
+        holder.profileImage.loadImage(item.profileImage)
 
         holder.ratings.text = "${String.format("%.1f", item.averageRating ?: 0.0)}"
 
