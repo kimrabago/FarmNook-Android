@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -27,6 +26,7 @@ import com.ucb.capstone.farmnook.ui.hauler.HaulerDashboardFragment
 import com.ucb.capstone.farmnook.ui.hauler.HaulerDeliveryStatusFragment
 import com.ucb.capstone.farmnook.ui.message.InboxFragment
 import com.ucb.capstone.farmnook.ui.settings.*
+import com.ucb.capstone.farmnook.utils.loadImage
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -226,19 +226,7 @@ class NavigationBar : AppCompatActivity() {
                     headerView.findViewById<TextView>(R.id.member_since).text = "Member Since: $formattedDate"
 
                     val profileImage = headerView.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
-
-                    if (!profileImageUrl.isNullOrEmpty()) {
-                        Glide.with(this)
-                            .load(profileImageUrl)
-                            .override(100, 100)
-                            .placeholder(R.drawable.profile_circle)
-                            .error(R.drawable.profile_circle)
-                            .into(profileImage)
-                    } else {
-                        profileImage.setImageResource(R.drawable.profile_circle)
-                    }
-
-                    Log.d("FirestoreDebug", "Fetched userType: $userType")
+                    profileImage.loadImage(profileImageUrl)
 
                     if (userType == "Farmer") {
                         // ONLY Farmers wait for restoreActiveRequestId ✅

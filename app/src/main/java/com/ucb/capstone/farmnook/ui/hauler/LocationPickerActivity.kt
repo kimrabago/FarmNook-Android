@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.farmer
+package com.ucb.capstone.farmnook.ui.hauler
 
 import android.app.Activity
 import android.content.Intent
@@ -63,7 +63,6 @@ class LocationPickerActivity : AppCompatActivity() {
                     if (types.any { it in listOf("subpremise", "premise", "route", "street_address", "sublocality", "sublocality_level_1", "locality") }) {
                         addressParts.add(name)
                     }
-
                 }
 
                 fullAddress = buildString {

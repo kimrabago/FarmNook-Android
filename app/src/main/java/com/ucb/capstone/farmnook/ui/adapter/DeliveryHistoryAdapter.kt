@@ -6,10 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.android.material.imageview.ShapeableImageView
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryHistory
+import com.ucb.capstone.farmnook.utils.loadImage
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -49,14 +49,8 @@ class DeliveryHistoryAdapter(
         }
 
         val imageUrl = farmerImages[item.deliveryId]
-        if (!imageUrl.isNullOrEmpty()) {
-            Glide.with(holder.profileImg.context)
-                .load(imageUrl)
-                .placeholder(R.drawable.profile_circle)
-                .into(holder.profileImg)
-        } else {
-            holder.profileImg.setImageResource(R.drawable.profile_circle)
-        }
+        holder.profileImg.loadImage(imageUrl)
+
     }
 
     override fun getItemCount(): Int = items.size

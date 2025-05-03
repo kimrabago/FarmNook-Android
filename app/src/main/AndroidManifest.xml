@@ -31,7 +31,7 @@
             android:name=".ui.hauler.DeliveryDoneActivity"
             android:exported="true"></activity>
         <activity
-            android:name=".ui.farmer.LocationPickerActivity"
+            android:name=".ui.hauler.LocationPickerActivity"
             android:exported="true" />
         <activity
             android:name=".ui.message.MessageActivity"

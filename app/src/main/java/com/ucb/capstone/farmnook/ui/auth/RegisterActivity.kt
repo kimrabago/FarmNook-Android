@@ -17,7 +17,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.databinding.ActivityRegisterBinding
-import com.ucb.capstone.farmnook.ui.farmer.LocationPickerActivity
+import com.ucb.capstone.farmnook.ui.hauler.LocationPickerActivity
 import com.ucb.capstone.farmnook.viewmodel.auth.RegistrationViewModel
 
 class RegisterActivity : AppCompatActivity() {

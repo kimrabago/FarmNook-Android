@@ -9,10 +9,8 @@ import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
 import com.ucb.capstone.farmnook.R
-import kotlinx.coroutines.launch
+import com.ucb.capstone.farmnook.utils.loadImage
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -75,15 +73,11 @@ class EditProfileActivity : AppCompatActivity() {
                 businessNameEditText.visibility = View.GONE
             }
 
-            Glide.with(this)
-                .load(profile.profileImageUrl)
-                .placeholder(R.drawable.profile_circle)
-                .error(R.drawable.profile_circle)
-                .into(profileImage)
+            profileImage.loadImage(profile.profileImageUrl)
         }
 
         viewModel.profileImageUri.observe(this) { url ->
-            Glide.with(this).load(url).into(profileImage)
+            profileImage.loadImage(url)
         }
 
         viewModel.showLocation.observe(this) { isVisible ->

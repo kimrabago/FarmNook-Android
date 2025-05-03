@@ -15,7 +15,7 @@ import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import java.text.SimpleDateFormat
 import java.util.Locale
 import android.location.Geocoder
-import com.bumptech.glide.Glide
+import com.ucb.capstone.farmnook.utils.loadImage
 
 class HistoryDetailsActivity : AppCompatActivity() {
 
@@ -39,15 +39,11 @@ class HistoryDetailsActivity : AppCompatActivity() {
         val farmerName = intent.getStringExtra("farmerName") ?: "Unknown"
         val farmerProfileImg = intent.getStringExtra("profileImg")
         val profileImageView = findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
-        Glide.with(this)
-            .load(farmerProfileImg)
-            .placeholder(R.drawable.profile_circle)
-            .into(profileImageView)
+        profileImageView.loadImage(farmerProfileImg)
 
         // Set readable addresses (from Intent)
         findViewById<TextView>(R.id.provincePickup).text = pickupAddress
-        findViewById<TextView>(R.id.provinceDestination).text =
-            dropAddress
+        findViewById<TextView>(R.id.provinceDestination).text = dropAddress
         findViewById<TextView>(R.id.farmerName).text = farmerName
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
@@ -55,7 +51,6 @@ class HistoryDetailsActivity : AppCompatActivity() {
         val deliveryId = intent.getStringExtra("deliveryId") ?: return
         val estimatedTime = intent.getStringExtra("estimatedTime") ?: ""
         fetchDeliveryDetails(deliveryId, pickup, drop, estimatedTime, farmerName)
-
 
     }
     private fun fetchDeliveryDetails(

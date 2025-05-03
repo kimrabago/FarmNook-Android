@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.ChatItem
 import com.ucb.capstone.farmnook.ui.message.MessageActivity
+import com.ucb.capstone.farmnook.utils.loadImage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -51,9 +52,8 @@ class InboxAdapter(
 
         fun bind(chatItem: ChatItem) {
 
+            personImageView.loadImage(chatItem.profileImageUrl)
             senderNameTextView.text = chatItem.userName
-
-
             messageContentTextView.text = chatItem.lastMessage
 
 
@@ -62,18 +62,11 @@ class InboxAdapter(
             } else {
                 messageTimestampTextView.text = ""
             }
-
-            // If you want to load an image from a URL or Firebase Storage:
-            // Glide.with(personImageView)
-            //     .load(chatItem.profileImageUrl)
-            //     .placeholder(R.drawable.profile_circle)
-            //     .into(personImageView)
         }
 
         private fun formatTimestamp(timestamp: Long): String {
             val currentTime = System.currentTimeMillis()
             val diffInMillis = currentTime - timestamp
-
 
             if (diffInMillis > 24 * 60 * 60 * 1000) {
                 val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())

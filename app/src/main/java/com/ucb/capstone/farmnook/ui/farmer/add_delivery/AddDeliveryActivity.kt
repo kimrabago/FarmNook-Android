@@ -18,7 +18,7 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.algo.RecommendationRequest
 import com.ucb.capstone.farmnook.data.model.algo.RecommendationResponse
 import com.ucb.capstone.farmnook.data.service.ApiService
-import com.ucb.capstone.farmnook.ui.farmer.LocationPickerActivity
+import com.ucb.capstone.farmnook.ui.hauler.LocationPickerActivity
 import com.ucb.capstone.farmnook.utils.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback

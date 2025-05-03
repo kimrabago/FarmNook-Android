@@ -11,12 +11,15 @@ import com.ucb.capstone.farmnook.util.getAddressFromLatLng
 import android.location.Geocoder
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import com.ucb.capstone.farmnook.ui.farmer.add_delivery.RateDeliveryDialog
+import com.ucb.capstone.farmnook.utils.loadImage
 import java.util.Locale
 
 class DeliveryConfirmationActivity : AppCompatActivity() {
 
     private lateinit var haulerNameTextView: TextView
+    private lateinit var profileImage: ImageView
     private lateinit var businessNameTextView: TextView
     private lateinit var plateNumberTextView: TextView
     private lateinit var locationTextView: TextView
@@ -32,6 +35,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
 
 
         // Bind views
+        profileImage = findViewById(R.id.profileImage)
         haulerNameTextView = findViewById(R.id.haulerName)
         businessNameTextView = findViewById(R.id.businessName)
         plateNumberTextView = findViewById(R.id.plateNumber)
@@ -40,6 +44,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         modelTextView = findViewById(R.id.model)
         productTypeTextView = findViewById(R.id.productType)
         capacityTextView = findViewById(R.id.capacity)
+
         val backButton = findViewById<ImageButton>(R.id.btn_back)
 
         backButton.setOnClickListener { finish() }
@@ -139,30 +144,31 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         val db = FirebaseFirestore.getInstance()
 
         db.collection("users").document(haulerId)
-            .addSnapshotListener { userDoc, error ->
-                if (error != null || userDoc == null || !userDoc.exists()) {
+            .addSnapshotListener { haulerDoc, error ->
+                if (error != null || haulerDoc == null || !haulerDoc.exists()) {
                     Log.e("DeliveryConfirmation", "Failed to listen to hauler: ${error?.message}")
                     return@addSnapshotListener
                 }
 
-
-                val firstName = userDoc.getString("firstName") ?: ""
-                val lastName = userDoc.getString("lastName") ?: ""
+                val firstName = haulerDoc.getString("firstName") ?: ""
+                val lastName = haulerDoc.getString("lastName") ?: ""
                 val fullName = "${firstName.replaceFirstChar { it.uppercase() }} ${lastName.replaceFirstChar { it.uppercase() }}"
                 haulerNameTextView.text = fullName
 
-                // Determine businessId from user
-                val userType = userDoc.getString("userType") ?: ""
-                val userId = userDoc.getString("userId") ?: ""
+                val profileImageUrl = haulerDoc.getString("profileImageUrl") ?: ""
+                profileImage.loadImage(profileImageUrl)
+
+                val userType = haulerDoc.getString("userType") ?: ""
+                val userId = haulerDoc.getString("userId") ?: ""
 
                 // Set businessId conditionally
-                businessId = userDoc.getString("businessId")
+                businessId = haulerDoc.getString("businessId")
                 // Fallback if this is the Business Admin herself
                 if (businessId == null && userType == "Hauler Business Admin") {
                     businessId = userId
                 }
 
-                val businessName = userDoc.getString("businessName") ?: ""
+                val businessName = haulerDoc.getString("businessName") ?: ""
                 businessNameTextView.text = businessName
 
                 Log.d("DeliveryConfirmation", "Resolved businessId: $businessId")

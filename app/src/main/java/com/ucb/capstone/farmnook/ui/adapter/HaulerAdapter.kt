@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.Hauler
 import de.hdodenhof.circleimageview.CircleImageView
-
+//WANAY GAMIT
 class HaulerAdapter(
     private val context: Context,
     private val haulerList: List<Hauler>
@@ -66,7 +66,6 @@ class HaulerAdapter(
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         // Set the custom layout for this dialog
-        dialog.setContentView(R.layout.dialog_hauler)
 
         // Make the dialog background transparent so your rounded corners show properly
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -93,7 +92,6 @@ class HaulerAdapter(
         val model = dialog.findViewById<TextView>(R.id.model)
         val capacity = dialog.findViewById<TextView>(R.id.capacity)
         val closeDialog = dialog.findViewById<ImageView>(R.id.closeDialog)
-        val hireNowButton = dialog.findViewById<Button>(R.id.hireNowButton)
 
         // Populate the dialog with driver details from the hauler object
         haulerName.text = hauler.name
@@ -104,9 +102,6 @@ class HaulerAdapter(
         capacity.text = hauler.capacity
 
 
-        hireNowButton.setOnClickListener {
-            // TODO: Implement hiring functionality
-        }
 
         // Dismiss the dialog when the close button is clicked
         closeDialog.setOnClickListener {
