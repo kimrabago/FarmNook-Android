@@ -126,21 +126,28 @@ class HaulerDeliveryStatusFragment : Fragment() {
         status: TextView
     ) {
         firestore.collection("deliveries").document(deliveryId)
-            .get()
-            .addOnSuccessListener { deliveryDoc ->
-                val requestId = deliveryDoc.getString("requestId") ?: return@addOnSuccessListener
+            .addSnapshotListener { deliveryDoc, _ ->
+                if (deliveryDoc == null || !deliveryDoc.exists()) return@addSnapshotListener
+
+                val requestId = deliveryDoc.getString("requestId") ?: return@addSnapshotListener
                 haulerId = deliveryDoc.getString("haulerAssignedId") ?: haulerId
+
+                val isStarted = deliveryDoc.getBoolean("isStarted") ?: false
                 val isArrivedAtPickup = deliveryDoc.getBoolean("arrivedAtPickup") ?: false
                 val isArrivedAtDestination = deliveryDoc.getBoolean("arrivedAtDestination") ?: false
                 val isDone = deliveryDoc.getBoolean("isDone") ?: false
 
                 currentStatus = when {
-                    isDone -> "Completed"
-                    isArrivedAtDestination -> "Arrived at Destination"
-                    isArrivedAtPickup -> "On the Way"
-                    else -> "Going to Pickup"
+                    !isStarted && !isArrivedAtPickup && !isArrivedAtDestination && !isDone -> "Pending"
+                    isStarted && !isArrivedAtPickup && !isArrivedAtDestination && !isDone -> "Going to Pickup"
+                    isStarted && isArrivedAtPickup && !isArrivedAtDestination && !isDone -> "On the Way"
+                    isStarted && isArrivedAtPickup && isArrivedAtDestination && !isDone -> "Arrived at Destination"
+                    isStarted && isArrivedAtPickup && isArrivedAtDestination && isDone -> "Completed"
+                    else -> "Pending"
                 }
+
                 status.text = currentStatus
+                injectStatusToWebView()
 
                 firestore.collection("deliveryRequests").document(requestId)
                     .get()
@@ -156,7 +163,8 @@ class HaulerDeliveryStatusFragment : Fragment() {
                                     durationTime.text = eta
                                     totalKilometer.text = "${String.format("%.1f", km)} km"
 
-                                    val mapUrl = "https://farmnook-web.vercel.app/live-tracking?pickup=${pickupCoords!!.replace(" ", "")}&drop=${dropCoords!!.replace(" ", "")}&haulerId=$haulerId"
+                                    val mapUrl =
+                                        "https://farmnook-web.vercel.app/live-tracking?pickup=${pickupCoords!!.replace(" ", "")}&drop=${dropCoords!!.replace(" ", "")}&haulerId=$haulerId"
                                     webView.loadUrl(mapUrl)
                                 }
                             }

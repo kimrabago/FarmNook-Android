@@ -22,6 +22,7 @@ import com.ucb.capstone.farmnook.utils.SendPushNotification
 import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import de.hdodenhof.circleimageview.CircleImageView
 
+@Suppress("LABEL_NAME_CLASH")
 class DeliveryDetailsActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
@@ -80,26 +81,33 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         val haulerId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val firestore = FirebaseFirestore.getInstance()
 
+        // ✅ 1. Initialize all flags to proper starting state
+        firestore.collection("deliveries").document(deliveryId)
+            .update(
+                mapOf(
+                    "isStarted" to true,
+                    "arrivedAtPickup" to false,
+                    "arrivedAtDestination" to false,
+                    "isDone" to false
+                )
+            )
+
+        // ✅ 2. Notify & setup chat (same logic as before)
         firestore.collection("deliveries").document(deliveryId).get()
             .addOnSuccessListener { deliveryDoc ->
                 val requestId = deliveryDoc.getString("requestId") ?: return@addOnSuccessListener
                 firestore.collection("deliveryRequests").document(requestId).get()
                     .addOnSuccessListener { reqDoc ->
                         val farmerId = reqDoc.getString("farmerId") ?: return@addOnSuccessListener
-
-                        val chatId =
-                            if (haulerId < farmerId) "$haulerId-$farmerId" else "$farmerId-$haulerId"
+                        val chatId = if (haulerId < farmerId) "$haulerId-$farmerId" else "$farmerId-$haulerId"
 
                         firestore.collection("users").document(haulerId).get()
                             .addOnSuccessListener { haulerDoc ->
-                                val fullName = "${haulerDoc.getString("firstName") ?: ""} " +
-                                        "${haulerDoc.getString("lastName") ?: ""}".trim()
+                                val fullName = "${haulerDoc.getString("firstName") ?: ""} ${haulerDoc.getString("lastName") ?: ""}".trim()
                                 val title = "Delivery Started"
-                                val message =
-                                    "📦 Delivery by $fullName is now **in transit**! Track the delivery in the app."
+                                val message = "📦 Delivery by $fullName is now **in transit**! Track the delivery in the app."
                                 val nowMillis = System.currentTimeMillis()
 
-                                // 1) Push notification
                                 SendPushNotification.sendCompletedDeliveryNotification(
                                     "recipientId", farmerId,
                                     deliveryId, title, message,
@@ -121,9 +129,9 @@ class DeliveryDetailsActivity : AppCompatActivity() {
                                         "userIds" to listOf(haulerId, farmerId),
                                         "lastMessage" to message,
                                         "timestamp" to nowMillis
-                                    ), com.google.firebase.firestore.SetOptions.merge()
+                                    ),
+                                    com.google.firebase.firestore.SetOptions.merge()
                                 )
-
 
                                 val autoMsg = Message(
                                     senderId = haulerId,
@@ -137,6 +145,7 @@ class DeliveryDetailsActivity : AppCompatActivity() {
                     }
             }
 
+        // ✅ 3. Start tracking & open DeliveryStatus
         startService(Intent(this, DeliveryLocationService::class.java))
         Intent(this, NavigationBar::class.java).apply {
             putExtra("navigateTo", "DeliveryStatus")
@@ -149,6 +158,7 @@ class DeliveryDetailsActivity : AppCompatActivity() {
 
         finish()
     }
+
 
     private fun confirmDeliveryCompletion(
         deliveryId: String,
@@ -204,7 +214,7 @@ class DeliveryDetailsActivity : AppCompatActivity() {
                                                     .addOnSuccessListener { haulerDoc ->
                                                         val fullName =
                                                             "${haulerDoc.getString("firstName") ?: ""} " +
-                                                                    "${haulerDoc.getString("lastName") ?: ""}".trim()
+                                                                    (haulerDoc.getString("lastName") ?: "").trim()
                                                         val title = "Delivery Completed"
                                                         val message =
                                                             "$fullName has completed the delivery."
