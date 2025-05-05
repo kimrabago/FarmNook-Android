@@ -22,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.message.InboxFragment
 import com.ucb.capstone.farmnook.ui.message.MessageActivity
+import com.ucb.capstone.farmnook.ui.message.NewMessageActivity
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -56,8 +57,8 @@ class HaulerDeliveryStatusFragment : Fragment() {
         // Inside onViewCreated or onCreate method
         val messageIcon = view.findViewById<ImageButton>(R.id.messageIcon)
         messageIcon.setOnClickListener {
-            // Start the Message Activity when the button is clicked
-            val intent =    Intent(requireContext(), MessageActivity::class.java)
+
+            val intent =    Intent(requireContext(), NewMessageActivity::class.java)
             startActivity(intent)
         }
 
