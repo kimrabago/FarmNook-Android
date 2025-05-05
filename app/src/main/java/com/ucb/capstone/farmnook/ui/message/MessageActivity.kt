@@ -2,12 +2,14 @@ package com.ucb.capstone.farmnook.ui.message
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -75,21 +77,32 @@ class MessageActivity : AppCompatActivity() {
         messagesRecyclerView.layoutManager = LinearLayoutManager(this)
         messagesRecyclerView.adapter = messageAdapter
 
-        // Load messages
+        // Load messages with pagination
         loadMessages()
 
         // Send message
         sendButton.setOnClickListener {
-            fetchSenderNameAndSendMessage()
+            if (replyEditText.text.isNotBlank()) {
+                fetchSenderNameAndSendMessage()
+            } else {
+                Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Disable send button if input is empty
+        replyEditText.addTextChangedListener {
+            sendButton.isEnabled = it.toString().isNotEmpty()
         }
     }
 
     private fun loadMessages() {
         firestore.collection("chats").document(chatId).collection("messages")
             .orderBy("timestamp", Query.Direction.ASCENDING)
+            .limit(20) // Load only 20 messages at first
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     Log.e("MessageActivity", "Error loading messages", error)
+                    Toast.makeText(this, "Error loading messages", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
@@ -97,7 +110,6 @@ class MessageActivity : AppCompatActivity() {
                 snapshots?.documents?.forEach { doc ->
                     val message = doc.toObject(Message::class.java)
                     if (message != null) {
-                        // Format timestamp before adding to the list
                         val formattedTimestamp = formatTimestamp(message.timestamp)
                         messageList.add(message.copy(formattedTimestamp = formattedTimestamp))
                     }
@@ -114,7 +126,6 @@ class MessageActivity : AppCompatActivity() {
         val twoDaysInMillis = 2 * 24 * 60 * 60 * 1000L // 2 days in milliseconds
 
         return if (diffInMillis > twoDaysInMillis) {
-            // Format as "Month Day, Year at hh:mm a"
             val sdfDate = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
             val sdfTime = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
             val date = java.util.Date(timestamp)
@@ -122,14 +133,11 @@ class MessageActivity : AppCompatActivity() {
             val formattedTime = sdfTime.format(date)
             "$formattedDate at $formattedTime"
         } else {
-            // Format as "hh:mm a"
             val sdf = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
             val date = java.util.Date(timestamp)
             sdf.format(date)
         }
     }
-
-
 
     private fun fetchSenderNameAndSendMessage() {
         val text = replyEditText.text.toString().trim()
@@ -195,5 +203,4 @@ class MessageActivity : AppCompatActivity() {
                 Toast.makeText(this, "Failed to update chat", Toast.LENGTH_SHORT).show()
             }
     }
-
 }
