@@ -14,16 +14,21 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
-import com.ucb.capstone.farmnook.ui.message.InboxFragment
-import com.ucb.capstone.farmnook.ui.message.MessageActivity
+import com.ucb.capstone.farmnook.data.model.DeliveryHistory
+import com.ucb.capstone.farmnook.data.model.Message
+import com.ucb.capstone.farmnook.ui.hauler.services.DeliveryLocationService
+import com.ucb.capstone.farmnook.ui.hauler.HistoryDetailsActivity
 import com.ucb.capstone.farmnook.ui.message.NewMessageActivity
+import com.ucb.capstone.farmnook.utils.SendPushNotification
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -54,12 +59,9 @@ class HaulerDeliveryStatusFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        // Inside onViewCreated or onCreate method
         val messageIcon = view.findViewById<ImageButton>(R.id.messageIcon)
         messageIcon.setOnClickListener {
-
-            val intent =    Intent(requireContext(), NewMessageActivity::class.java)
+            val intent = Intent(requireContext(), NewMessageActivity::class.java)
             startActivity(intent)
         }
 
@@ -71,6 +73,15 @@ class HaulerDeliveryStatusFragment : Fragment() {
         val totalKilometer = view.findViewById<TextView>(R.id.totalKilometer)
         val durationTime = view.findViewById<TextView>(R.id.durationTime)
         val status = view.findViewById<TextView>(R.id.status)
+        val doneDeliveryBtn = view.findViewById<Button>(R.id.doneDeliveryBtn)
+
+        Log.d("DeliveryStatus", "onViewCreated - Initial button visibility: ${doneDeliveryBtn.visibility}")
+
+        doneDeliveryBtn.setOnClickListener {
+            deliveryId?.let { id ->
+                showCompletionConfirmation(id)
+            }
+        }
 
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.bottomSheet)).apply {
             peekHeight = 100
@@ -80,10 +91,25 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        // Get deliveryId
         deliveryId = arguments?.getString("deliveryId")
         if (deliveryId != null) {
             fetchDeliveryData(deliveryId!!, fromAddress, toAddress, totalKilometer, durationTime, status)
+        }
+
+        // Check initial delivery status
+        deliveryId?.let { id ->
+            Log.d("DeliveryStatus", "Checking initial delivery status for ID: $id")
+            firestore.collection("deliveries").document(id)
+                .get()
+                .addOnSuccessListener { doc ->
+                    val atDestination = doc.getBoolean("arrivedAtDestination") ?: false
+                    Log.d("DeliveryStatus", "Initial state - arrivedAtDestination: $atDestination")
+                    if (atDestination) {
+                        Log.d("DeliveryStatus", "Setting initial button visibility to VISIBLE")
+                        doneDeliveryBtn.visibility = View.VISIBLE
+                        Log.d("DeliveryStatus", "Button visibility after initial update: ${doneDeliveryBtn.visibility}")
+                    }
+                }
         }
     }
 
@@ -127,9 +153,13 @@ class HaulerDeliveryStatusFragment : Fragment() {
         durationTime: TextView,
         status: TextView
     ) {
+        Log.d("DeliveryStatus", "Fetching delivery data for ID: $deliveryId")
         firestore.collection("deliveries").document(deliveryId)
             .addSnapshotListener { deliveryDoc, _ ->
-                if (deliveryDoc == null || !deliveryDoc.exists()) return@addSnapshotListener
+                if (deliveryDoc == null || !deliveryDoc.exists()) {
+                    Log.d("DeliveryStatus", "Delivery document doesn't exist")
+                    return@addSnapshotListener
+                }
 
                 val requestId = deliveryDoc.getString("requestId") ?: return@addSnapshotListener
                 haulerId = deliveryDoc.getString("haulerAssignedId") ?: haulerId
@@ -138,6 +168,8 @@ class HaulerDeliveryStatusFragment : Fragment() {
                 val isArrivedAtPickup = deliveryDoc.getBoolean("arrivedAtPickup") ?: false
                 val isArrivedAtDestination = deliveryDoc.getBoolean("arrivedAtDestination") ?: false
                 val isDone = deliveryDoc.getBoolean("isDone") ?: false
+
+                Log.d("DeliveryStatus", "Delivery state - isStarted: $isStarted, isArrivedAtPickup: $isArrivedAtPickup, isArrivedAtDestination: $isArrivedAtDestination, isDone: $isDone")
 
                 currentStatus = when {
                     !isStarted && !isArrivedAtPickup && !isArrivedAtDestination && !isDone -> "Pending"
@@ -150,6 +182,17 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
                 status.text = currentStatus
                 injectStatusToWebView()
+
+                // Update button visibility based on delivery status
+                view?.findViewById<Button>(R.id.doneDeliveryBtn)?.let { button ->
+                    if (isArrivedAtDestination && !isDone) {
+                        Log.d("DeliveryStatus", "Setting button visibility to VISIBLE in fetchDeliveryData")
+                        button.visibility = View.VISIBLE
+                    } else {
+                        Log.d("DeliveryStatus", "Setting button visibility to GONE in fetchDeliveryData")
+                        button.visibility = View.GONE
+                    }
+                }
 
                 firestore.collection("deliveryRequests").document(requestId)
                     .get()
@@ -247,10 +290,115 @@ class HaulerDeliveryStatusFragment : Fragment() {
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
+    private fun showCompletionConfirmation(deliveryId: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Confirm Delivery Completion")
+            .setMessage("Are you sure you've completed delivering the products?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                dialog.dismiss()
+                completeDelivery(deliveryId)
+            }
+            .setNegativeButton("No") { dlg, _ -> dlg.dismiss() }
+            .create()
+            .show()
+    }
+
+    private fun completeDelivery(deliveryId: String) {
+        val firestore = FirebaseFirestore.getInstance()
+        val deliveryRef = firestore.collection("deliveries").document(deliveryId)
+
+        deliveryRef.update("isDone", true)
+            .addOnSuccessListener {
+                val historyRef = firestore.collection("deliveryHistory").document()
+                val completedAt = Timestamp.now()
+                val history = DeliveryHistory(historyRef.id, deliveryId, completedAt, "N/A")
+
+                historyRef.set(history).addOnSuccessListener {
+                    deliveryRef.get().addOnSuccessListener { deliveryDoc ->
+                        val requestId = deliveryDoc.getString("requestId") ?: return@addOnSuccessListener
+                        val haulerId = deliveryDoc.getString("haulerAssignedId") ?: return@addOnSuccessListener
+
+                        firestore.collection("deliveryRequests").document(requestId).get()
+                            .addOnSuccessListener { reqDoc ->
+                                val farmerId = reqDoc.getString("farmerId") ?: return@addOnSuccessListener
+                                val businessId = reqDoc.getString("businessId") ?: return@addOnSuccessListener
+                                val estimatedTime = reqDoc.getString("estimatedTime") ?: "N/A"
+                                val pickupAddress = reqDoc.getString("pickupName") ?: "Unknown"
+                                val destinationAddress = reqDoc.getString("destinationName") ?: "Unknown"
+
+                                val chatId = if (haulerId < farmerId) "$haulerId-$farmerId" else "$farmerId-$haulerId"
+
+                                firestore.collection("users").document(haulerId).get()
+                                    .addOnSuccessListener { haulerDoc ->
+                                        val fullName = "${haulerDoc.getString("firstName") ?: ""} ${haulerDoc.getString("lastName") ?: ""}".trim()
+                                        val title = "Delivery Completed"
+                                        val message = "$fullName has completed the delivery."
+                                        val nowMillis = completedAt.toDate().time
+
+                                        SendPushNotification.sendCompletedDeliveryNotification(
+                                            "recipientId", farmerId,
+                                            deliveryId, title, message,
+                                            completedAt, requireContext()
+                                        )
+                                        SendPushNotification.sendCompletedDeliveryNotification(
+                                            "businessId", businessId,
+                                            deliveryId, title, message,
+                                            completedAt, requireContext()
+                                        )
+
+                                        val chatRef = firestore.collection("chats").document(chatId)
+                                        chatRef.set(
+                                            mapOf(
+                                                "userIds" to listOf(haulerId, farmerId),
+                                                "lastMessage" to message,
+                                                "timestamp" to nowMillis
+                                            ),
+                                            com.google.firebase.firestore.SetOptions.merge()
+                                        )
+
+                                        val autoMsg = Message(
+                                            senderId = haulerId,
+                                            receiverId = farmerId,
+                                            content = message,
+                                            timestamp = nowMillis,
+                                            senderName = fullName
+                                        )
+                                        chatRef.collection("messages").add(autoMsg)
+
+                                        // Stop the location service
+                                        requireActivity().stopService(Intent(requireContext(), DeliveryLocationService::class.java))
+
+                                        // Navigate to history details
+                                        Intent(requireContext(), HistoryDetailsActivity::class.java).apply {
+                                            putExtra("deliveryId", deliveryId)
+                                            putExtra("pickup", pickupCoords)
+                                            putExtra("destination", dropCoords)
+                                            putExtra("pickupAddress", pickupAddress)
+                                            putExtra("destinationAddress", destinationAddress)
+                                            putExtra("estimatedTime", estimatedTime)
+                                        }.also { startActivity(it) }
+                                        requireActivity().finish()
+                                    }
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to complete delivery: ${it.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
     private fun checkProximityAndUpdate(deliveryId: String, location: Location) {
         val deliveryRef = firestore.collection("deliveries").document(deliveryId)
 
-        if (pickupCoords == null || dropCoords == null) return
+        if (pickupCoords == null || dropCoords == null) {
+            Log.d("DeliveryStatus", "pickupCoords or dropCoords is null")
+            return
+        }
 
         val (pickupLat, pickupLng) = pickupCoords!!.split(",").map { it.toDouble() }
         val (dropLat, dropLng) = dropCoords!!.split(",").map { it.toDouble() }
@@ -259,25 +407,34 @@ class HaulerDeliveryStatusFragment : Fragment() {
         val dropLoc = Location("").apply { latitude = dropLat; longitude = dropLng }
         val doneDeliveryBtn = view?.findViewById<Button>(R.id.doneDeliveryBtn)
 
+        Log.d("DeliveryStatus", "Distance to drop: ${location.distanceTo(dropLoc)} meters")
+
         deliveryRef.get().addOnSuccessListener { doc ->
             val atPickup = doc.getBoolean("arrivedAtPickup") ?: false
             val atDestination = doc.getBoolean("arrivedAtDestination") ?: false
+            val isDone = doc.getBoolean("isDone") ?: false
+
+            Log.d("DeliveryStatus", "Current state - atPickup: $atPickup, atDestination: $atDestination, isDone: $isDone")
+            Log.d("DeliveryStatus", "Button visibility before update: ${doneDeliveryBtn?.visibility}")
 
             when {
                 !atPickup && location.distanceTo(pickupLoc) <= 20 -> {
+                    Log.d("DeliveryStatus", "Arrived at pickup point")
                     deliveryRef.update("arrivedAtPickup", true)
                     currentStatus = "On the Way"
                 }
                 atPickup && !atDestination && location.distanceTo(dropLoc) <= 20 -> {
+                    Log.d("DeliveryStatus", "Arrived at destination point")
                     deliveryRef.update("arrivedAtDestination", true)
                     currentStatus = "Arrived at Destination"
-
-                    // ✅ Show the completed button
-                    doneDeliveryBtn?.visibility = View.VISIBLE
+                    doneDeliveryBtn?.let { button ->
+                        Log.d("DeliveryStatus", "Setting button visibility to VISIBLE")
+                        button.visibility = View.VISIBLE
+                        Log.d("DeliveryStatus", "Button visibility after update: ${button.visibility}")
+                    }
                 }
             }
 
-            // Push status to WebView
             injectStatusToWebView()
         }
     }
