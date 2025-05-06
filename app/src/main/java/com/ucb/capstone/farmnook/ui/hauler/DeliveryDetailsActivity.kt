@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import android.widget.*
@@ -42,6 +43,7 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         val farmerNameTextView = findViewById<TextView>(R.id.farmerName)
         val profileImageView = findViewById<CircleImageView>(R.id.profileImage)
 
+        //Removed the geocode
         val pickupAddress = intent.getStringExtra("pickupAddress")
         val destinationAddress = intent.getStringExtra("destinationAddress")
         val pickup = intent.getStringExtra("pickup") ?: ""
@@ -63,8 +65,9 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.startDeliveryBtn).setOnClickListener {
             startDelivery(deliveryId, pickup, destination, pickupAddress, destinationAddress)
         }
+        //Changes
         findViewById<Button>(R.id.doneDeliveryBtn).setOnClickListener {
-            confirmDeliveryCompletion(deliveryId, pickupAddress, destinationAddress)
+            confirmDeliveryCompletion(deliveryId, pickup, destination, pickupAddress, destinationAddress)
         }
 
         webView = findViewById(R.id.mapView)
@@ -159,9 +162,10 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         finish()
     }
 
-
     private fun confirmDeliveryCompletion(
         deliveryId: String,
+        pickup: String,
+        destination: String,
         pickupAddress: String?,
         destinationAddress: String?
     ) {
@@ -267,11 +271,11 @@ class DeliveryDetailsActivity : AppCompatActivity() {
                                                             HistoryDetailsActivity::class.java
                                                         ).apply {
                                                             putExtra("deliveryId", deliveryId)
+                                                            //Changes
+                                                            putExtra("pickup", pickup)
+                                                            putExtra("destination", destination)
                                                             putExtra("pickupAddress", pickupAddress)
-                                                            putExtra(
-                                                                "destinationAddress",
-                                                                destinationAddress
-                                                            )
+                                                            putExtra("destinationAddress", destinationAddress)
                                                             putExtra("estimatedTime", estimatedTime)
                                                             putExtra("farmerName", farmerName)
                                                             putExtra("profileImg", profileImage)

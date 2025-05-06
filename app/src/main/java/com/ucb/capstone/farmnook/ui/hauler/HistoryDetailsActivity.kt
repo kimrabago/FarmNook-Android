@@ -15,6 +15,7 @@ import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import java.text.SimpleDateFormat
 import java.util.Locale
 import android.location.Geocoder
+import android.util.Log
 import com.ucb.capstone.farmnook.utils.loadImage
 
 class HistoryDetailsActivity : AppCompatActivity() {
@@ -31,15 +32,23 @@ class HistoryDetailsActivity : AppCompatActivity() {
             isHideable = false
             state = BottomSheetBehavior.STATE_EXPANDED
         }
-        val pickup = intent.getStringExtra("pickupAddress") ?: "Unknown"
-        val drop = intent.getStringExtra("destinationAddress") ?: "Unknown"
-        val geocoder = Geocoder(this, Locale.getDefault())
-        val pickupAddress = getAddressFromLatLng(pickup, geocoder)
-        val dropAddress = getAddressFromLatLng(drop, geocoder)
+        val pickupAddress = intent.getStringExtra("pickupAddress") ?: "Unknown"
+        val dropAddress = intent.getStringExtra("destinationAddress") ?: "Unknown"
+        val pickup = intent.getStringExtra("pickup") ?: "Unknown"
+        val drop = intent.getStringExtra("destination") ?: "Unknown"
         val farmerName = intent.getStringExtra("farmerName") ?: "Unknown"
         val farmerProfileImg = intent.getStringExtra("profileImg")
+        val deliveryId = intent.getStringExtra("deliveryId") ?: return
+        val estimatedTime = intent.getStringExtra("estimatedTime") ?: ""
+
         val profileImageView = findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
         profileImageView.loadImage(farmerProfileImg)
+
+        Log.d("HistoryDetails", "Received Intent Data:")
+        Log.d("HistoryDetails", "pickup=$pickup")
+        Log.d("HistoryDetails", "drop=$drop")
+        Log.d("HistoryDetails", "pickupAddress=$pickupAddress")
+        Log.d("HistoryDetails", "dropAddress=$dropAddress")
 
         // Set readable addresses (from Intent)
         findViewById<TextView>(R.id.provincePickup).text = pickupAddress
@@ -48,11 +57,10 @@ class HistoryDetailsActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 
-        val deliveryId = intent.getStringExtra("deliveryId") ?: return
-        val estimatedTime = intent.getStringExtra("estimatedTime") ?: ""
         fetchDeliveryDetails(deliveryId, pickup, drop, estimatedTime, farmerName)
-
     }
+
+    @SuppressLint("SetTextI18n")
     private fun fetchDeliveryDetails(
         deliveryId: String,
         pickup: String,
@@ -76,10 +84,10 @@ class HistoryDetailsActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.dateTime).text = formattedTime
 
             val deliveryRef = FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId)
-            deliveryRef.get().addOnSuccessListener { doc ->
-                if (!doc.exists()) return@addOnSuccessListener
+            deliveryRef.addSnapshotListener { doc, error ->
+                if (error != null || doc == null || !doc.exists()) return@addSnapshotListener
 
-                val requestId = doc.getString("requestId") ?: return@addOnSuccessListener
+                val requestId = doc.getString("requestId") ?: return@addSnapshotListener
 
                 val requestRef = FirebaseFirestore.getInstance().collection("deliveryRequests").document(requestId)
                 requestRef.addSnapshotListener { req, reqError ->
@@ -101,9 +109,8 @@ class HistoryDetailsActivity : AppCompatActivity() {
                     if (vehicleId.isNotEmpty()) {
                         FirebaseFirestore.getInstance().collection("vehicles")
                             .document(vehicleId)
-                            .get()
-                            .addOnSuccessListener { vehicleDoc ->
-                                if (vehicleDoc.exists()) {
+                            .addSnapshotListener { vehicleDoc, _ ->
+                                if (vehicleDoc != null && vehicleDoc.exists()) {
                                     val model = vehicleDoc.getString("model") ?: "Unknown"
                                     val vehicleType = vehicleDoc.getString("vehicleType") ?: "Unknown"
                                     findViewById<TextView>(R.id.vehicle).text = "$model\n$vehicleType"

@@ -6,7 +6,7 @@
 
     <!--PLACES API-->
     <string name="google_maps_key">AIzaSyBgn5YSLD0N6p62OrEHqjVqVsfijHdupY8</string>
-
+    <string name="google_maps_convert_key">AIzaSyCFB6WYBf1ZFxayQuB-WuzdwVAkXQrTJvk</string>
     <string name="app_name">FarmNook</string>
     <string name="email">Email</string>
     <string name="email_address">Email Address</string>
@@ -106,7 +106,7 @@
     <string name="plate_number">KGY7439</string>
     <string name="location">Tabunok Street, Mandaue City, Cebu</string>
     <string name="vehicle_textview">Vehicle</string>
-    <string name="location_textview">Location</string>
+    <string name="location_textview">Drop Location</string>
     <string name="vehicle_type1">Dump Truck</string>
     <string name="model">DT-5000</string>
     <string name="rate">Rate</string>

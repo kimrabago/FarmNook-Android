@@ -63,7 +63,7 @@
             android:id="@+id/cardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="13dp"
             app:cardCornerRadius="16dp">
 
             <LinearLayout
@@ -86,15 +86,32 @@
                         android:src="@drawable/profile_circle"
                         android:layout_marginEnd="8dp"/>
 
-                    <TextView
-                        android:id="@+id/farmerName"
+                    <!-- Name and Time Column -->
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/baliwag_santomaru"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_weight="1"
-                        android:textColor="@color/dark_green"/>
+                        android:orientation="vertical"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/farmerName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:text="@string/baliwag_santomaru"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/dark_green"/>
+
+                        <TextView
+                            android:id="@+id/estimatedTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/usa_ka_oras"
+                            android:textSize="11sp"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/dark_green"
+                            android:fontFamily="@font/poppins_semibold"/>
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/totalCost"
@@ -107,16 +124,6 @@
                         android:textColor="@color/dark_green"/>
                 </LinearLayout>
 
-                <!-- Schedule -->
-                <TextView
-                    android:id="@+id/estimatedTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/usa_ka_oras"
-                    android:textSize="16sp"
-                    android:layout_marginTop="5dp"
-                    android:textColor="@color/dark_green"
-                    android:fontFamily="@font/poppins_semibold"/>
 
                 <!-- Locations -->
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -206,6 +213,166 @@
                         app:layout_constraintEnd_toEndOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <RelativeLayout
+                    android:id="@+id/deliveryDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:padding="5dp"
+                    android:background="@color/dark_cream">
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/productTypeCView"
+                        android:layout_width="150dp"
+                        android:layout_height="30dp"
+                        app:cardCornerRadius="25dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/productTypeTxtView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:background="@drawable/rounded_button"
+                                android:gravity="center"
+                                android:textColor="@android:color/white"
+                                android:textStyle="bold"
+                                app:drawableStartCompat="@drawable/product" />
+
+                            <TextView
+                                android:id="@+id/productType"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:text="@string/pigs"
+                                android:paddingHorizontal="10dp"
+                                android:textColor="@color/dark_green"
+                                android:textSize="12sp"
+                                android:background="@color/white"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/weightCardView"
+                        android:layout_width="150dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="10dp"
+                        app:cardCornerRadius="25dp"
+                        android:layout_below="@id/productTypeCView">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/weightLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:background="@drawable/rounded_button"
+                                android:gravity="center"
+                                android:drawableTint="@color/white"
+                                android:textColor="@android:color/white"
+                                android:textStyle="bold"
+                                app:drawableStartCompat="@drawable/weight" />
+
+                            <TextView
+                                android:id="@+id/weightAmount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:text="@string/weight_amount"
+                                android:paddingHorizontal="10dp"
+                                android:textColor="@color/dark_green"
+                                android:textSize="12sp"
+                                android:background="@color/white"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/dateTimeCView"
+                        android:layout_width="210dp"
+                        android:layout_height="30dp"
+                        android:layout_marginStart="10dp"
+                        app:cardCornerRadius="25dp"
+                        android:layout_toRightOf="@id/productTypeCView">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/dateTimeTxtView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:background="@drawable/rounded_button"
+                                android:drawableTint="@color/white"
+                                android:paddingHorizontal="12dp"
+                                android:textColor="@android:color/white"
+                                android:textStyle="bold"
+                                app:drawableStartCompat="@drawable/calendar"
+                                tools:ignore="UseCompatTextViewDrawableXml" />
+
+                            <TextView
+                                android:id="@+id/dateTime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:text="@string/_04_03_25_10_45_am"
+                                android:paddingHorizontal="10dp"
+                                android:textColor="@color/dark_green"
+                                android:textStyle="normal"
+                                android:textSize="11sp"
+                                android:background="@color/white"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/vehicleCardView"
+                        android:layout_width="210dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="10dp"
+                        app:cardCornerRadius="30dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@id/weightCardView"
+                        android:layout_below="@id/dateTimeCView">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/vehicleLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:background="@drawable/rounded_button"
+                                android:gravity="center"
+                                android:drawableStart="@drawable/truck"
+                                android:drawableTint="@color/white"
+                                android:textColor="@android:color/white"
+                                android:textStyle="bold"
+                                tools:ignore="UseCompatTextViewDrawableXml" />
+
+                            <TextView
+                                android:id="@+id/vehicle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:text="@string/vehicle_type"
+                                android:textColor="@color/dark_green"
+                                android:textSize="11sp"
+                                android:layout_marginStart="5dp"
+                                android:background="@color/white"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                </RelativeLayout>
 
                 <Button
                     android:id="@+id/startDeliveryBtn"

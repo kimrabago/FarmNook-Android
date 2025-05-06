@@ -41,6 +41,8 @@ class RecommendationActivity : AppCompatActivity() {
 
     private lateinit var pickupLocation: String
     private lateinit var destinationLocation: String
+    private lateinit var pickupName: String
+    private lateinit var destinationName: String
     private lateinit var purpose: String
     private lateinit var productType: String
     private lateinit var weight: String
@@ -62,6 +64,8 @@ class RecommendationActivity : AppCompatActivity() {
         purpose = intent.getStringExtra("purpose") ?: ""
         productType = intent.getStringExtra("productType") ?: ""
         weight = intent.getStringExtra("weight") ?: ""
+        pickupName = intent.getStringExtra("pickupName") ?: ""
+        destinationName = intent.getStringExtra("destinationName") ?: ""
 
         val filterSpinner: Spinner = findViewById(R.id.filter_spinner)
         filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -114,17 +118,21 @@ class RecommendationActivity : AppCompatActivity() {
                             Triple(
                                 it.getString("businessName") ?: "Unknown Business",
                                 it.getString("location") ?: "",
-                                it.getString("profileImageUrl")
+                                Pair(
+                                    it.getString("profileImageUrl"),
+                                    it.getString("locationName") ?: "Unknown Location"
+                                )
                             ) to avgRating
                         }
                     )
 
                     val apiService = RetrofitClient.instance?.create(ApiService::class.java)
 
-                    vehicles.forEach { doc ->
-                        val busId = doc.getString("businessId") ?: return@forEach
+                    vehicles.forEach { vehicleDoc ->
+                        val busId = vehicleDoc.getString("businessId") ?: return@forEach
                         val (businessInfo, avgRating) = businessMap[busId] ?: return@forEach
-                        val (businessName, locationStr, profileImage) = businessInfo
+                        val (businessName, locationStr, profileImagePair) = businessInfo
+                        val (profileImage, locationName) = profileImagePair
 
                         val locationCoords = locationStr.split(",")
                         if (locationCoords.size != 2) return@forEach
@@ -140,13 +148,14 @@ class RecommendationActivity : AppCompatActivity() {
                         Log.d("DISTANCE_DEBUG", "Delivery Distance: ${deliveryDistance / 1000.0} km")
 
                         val vehicleObj = VehicleWithBusiness(
-                            vehicleId = doc.id,
-                            vehicleType = doc.getString("vehicleType") ?: "Unknown",
-                            model = doc.getString("model") ?: "Unknown Model",
-                            plateNumber = doc.getString("plateNumber") ?: "Unknown Plate",
+                            vehicleId = vehicleDoc.id,
+                            vehicleType = vehicleDoc.getString("vehicleType") ?: "Unknown",
+                            model = vehicleDoc.getString("model") ?: "Unknown Model",
+                            plateNumber = vehicleDoc.getString("plateNumber") ?: "Unknown Plate",
                             businessName = businessName,
                             businessId = busId,
                             businessLocation = locationStr,
+                            locationName = locationName,
                             profileImage = profileImage,
                             averageRating = avgRating,
                             estimatedCost = null
@@ -224,12 +233,18 @@ class RecommendationActivity : AppCompatActivity() {
         val farmerId = intent.getStringExtra("farmerId") ?: ""
 
         lifecycleScope.launch {
+
+            Log.d("ESTIMATE_INPUT", "PickupLocation: $pickupLocation")
+            Log.d("ESTIMATE_INPUT", "DestinationLocation: $destinationLocation")
+
             val estimatedTime =
                 EstimateTravelTimeUtil.getEstimatedTravelTime(pickupLocation, destinationLocation)
 
             val delivery = DeliveryRequest(
                 pickupLocation = pickupLocation,
+                pickupName = pickupName,
                 destinationLocation = destinationLocation,
+                destinationName = destinationName,
                 purpose = purpose,
                 productType = productType,
                 weight = weight,
@@ -248,6 +263,21 @@ class RecommendationActivity : AppCompatActivity() {
                         Intent(this@RecommendationActivity, NavigationBar::class.java).apply {
                             putExtra("navigateTo", "DeliveryStatus")
                             putExtra("requestId", generatedRequestId)
+                            putExtra("pickupName", pickupName)
+                            putExtra("destinationName", destinationName)
+                            putExtra("purpose", purpose)
+                            putExtra("productType", productType)
+                            putExtra("weight", weight)
+                            putExtra("estimatedCost", delivery.estimatedCost)
+                            putExtra("estimatedTime", estimatedTime)
+                            putExtra("businessId", vehicle.businessId)
+                            putExtra("vehicleId", vehicle.vehicleId)
+                            putExtra("businessName", vehicle.businessName)
+                            putExtra("locationName", vehicle.locationName)
+                            putExtra("profileImageUrl", vehicle.profileImage)
+                            putExtra("vehicleType", vehicle.vehicleType)
+                            putExtra("vehicleModel", vehicle.model)
+                            putExtra("plateNumber", vehicle.plateNumber)
                         }
                     startActivity(intent)
                     finish()
@@ -268,7 +298,9 @@ class RecommendationActivity : AppCompatActivity() {
             "vehicleId" to vehicle.vehicleId,
             "businessId" to vehicle.businessId,
             "pickupLocation" to delivery.pickupLocation,
+            "pickupName" to pickupName,
             "destinationLocation" to delivery.destinationLocation,
+            "destinationName" to destinationName,
             "purpose" to delivery.purpose,
             "productType" to delivery.productType,
             "weight" to delivery.weight,

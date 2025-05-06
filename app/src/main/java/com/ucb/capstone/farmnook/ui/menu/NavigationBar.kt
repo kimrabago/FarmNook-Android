@@ -17,6 +17,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.auth.LoginActivity
 import com.ucb.capstone.farmnook.ui.farmer.FarmerDeliveryStatusFragment
@@ -42,6 +43,26 @@ class NavigationBar : AppCompatActivity() {
     var activeRequestId: String? = null
 
     private var userType: String = "farmer"
+
+    private var pickupName: String? = null
+    private var destinationName: String? = null
+    private var productType: String? = null
+    private var purpose: String? = null
+    private var weight: String? = null
+    private var totalCost: Double = -1.0
+    private var estimatedTime: String? = null
+    private var businessId: String? = null
+    private var vehicleId: String? = null
+    private var businessName: String? = null
+    private var locationName: String? = null
+    private var profileImage: String? = null
+    private var vehicleType: String? = null
+    private var vehicleModel: String? = null
+    private var plateNumber: String? = null
+
+    private var deliveryListener: ListenerRegistration? = null
+    private var businessListener: ListenerRegistration? = null
+    private var vehicleListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,8 +104,54 @@ class NavigationBar : AppCompatActivity() {
                     }
                 } else {
                     activeRequestId = intent.getStringExtra("requestId")
+                    pickupName = intent.getStringExtra("pickupName") ?: pickupName
+                    destinationName = intent.getStringExtra("destinationName") ?: destinationName
+                    productType = intent.getStringExtra("productType") ?: productType
+                    purpose = intent.getStringExtra("purpose") ?: purpose
+                    weight = intent.getStringExtra("weight") ?: weight
+                    totalCost = intent.getDoubleExtra("estimatedCost", totalCost)
+                    estimatedTime = intent.getStringExtra("estimatedTime") ?: estimatedTime
+                    businessId = intent.getStringExtra("businessId") ?: businessId
+                    vehicleId = intent.getStringExtra("vehicleId") ?: vehicleId
+                    businessName = intent.getStringExtra("businessName") ?: businessName
+                    locationName = intent.getStringExtra("locationName") ?: locationName
+                    profileImage = intent.getStringExtra("profileImageUrl") ?: profileImage
+                    vehicleType = intent.getStringExtra("vehicleType") ?: vehicleType
+                    vehicleModel = intent.getStringExtra("vehicleModel") ?: vehicleModel
+                    plateNumber = intent.getStringExtra("plateNumber") ?: plateNumber
+
+
+                    Log.d("INTENT_DEBUG", "requestId: $activeRequestId")
+                    Log.d("INTENT_DEBUG", "pickupName: $pickupName")
+                    Log.d("INTENT_DEBUG", "destinationName: $destinationName")
+                    Log.d("INTENT_DEBUG", "productType: $productType")
+                    Log.d("INTENT_DEBUG", "weight: $weight")
+                    Log.d("INTENT_DEBUG", "businessId: $businessId")
+                    Log.d("INTENT_DEBUG", "totalCost: $totalCost")
+                    Log.d("INTENT_DEBUG", "estimatedTime: $estimatedTime")
+                    Log.d("INTENT_DEBUG", "businessName: $businessName")
+                    Log.d("INTENT_DEBUG", "locationName: $locationName")
+                    Log.d("INTENT_DEBUG", "profileImage: $profileImage")
+                    Log.d("INTENT_DEBUG", "vehicleType: $vehicleType")
+                    Log.d("INTENT_DEBUG", "vehicleModel: $vehicleModel")
+                    Log.d("INTENT_DEBUG", "plateNumber: $plateNumber")
+
                     FarmerDeliveryStatusFragment().apply {
-                        arguments = Bundle().apply { putString("requestId", activeRequestId) }
+                        arguments = Bundle().apply { putString("requestId", activeRequestId)
+                            putString("pickupName", pickupName)
+                            putString("destinationName", destinationName)
+                            putString("purpose", purpose)
+                            putString("productType", productType)
+                            putString("weight", weight)
+                            putDouble("estimatedCost", totalCost)
+                            putString("estimatedTime", estimatedTime)
+                            putString("businessName", businessName)
+                            putString("locationName", locationName)
+                            putString("profileImageUrl", profileImage)
+                            putString("vehicleType", vehicleType)
+                            putString("vehicleModel", vehicleModel)
+                            putString("plateNumber", plateNumber)
+                        }
                     }
                 }
                 replaceFragment(fragment, "Delivery")
@@ -119,7 +186,24 @@ class NavigationBar : AppCompatActivity() {
                     val fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
                         HaulerDeliveryStatusFragment().apply { arguments = bundle }
                     } else {
-                        FarmerDeliveryStatusFragment().apply { arguments = bundle }
+                        FarmerDeliveryStatusFragment().apply {
+                            arguments = Bundle().apply {
+                                putString("requestId", activeRequestId)
+                                putString("pickupName", pickupName)
+                                putString("destinationName", destinationName)
+                                putString("purpose", purpose)
+                                putString("productType", productType)
+                                putString("weight", weight)
+                                putDouble("estimatedCost", totalCost)
+                                putString("estimatedTime", estimatedTime)
+                                putString("businessName", businessName)
+                                putString("locationName", locationName)
+                                putString("profileImageUrl", profileImage)
+                                putString("vehicleType", vehicleType)
+                                putString("vehicleModel", vehicleModel)
+                                putString("plateNumber", plateNumber)
+                            }
+                        }
                     }
                     replaceFragment(fragment, "Delivery")
                 }
@@ -166,15 +250,53 @@ class NavigationBar : AppCompatActivity() {
             .addOnSuccessListener { querySnapshot ->
                 val activeDoc = querySnapshot.documents.firstOrNull { doc ->
                     val status = doc.getString("status") ?: ""
-                    status != "Cancelled" // ✅ Manually check status here!
+                    status != "Cancelled"
                 }
 
-                activeRequestId = activeDoc?.getString("requestId")
-                Log.d("ActiveRequestRestore", "Restored activeRequestId: $activeRequestId")
-                onComplete()
+                if (activeDoc != null) {
+                    activeRequestId = activeDoc.getString("requestId")
+                    pickupName = activeDoc.getString("pickupName")
+                    destinationName = activeDoc.getString("destinationName")
+                    purpose = activeDoc.getString("purpose")
+                    productType = activeDoc.getString("productType")
+                    weight = activeDoc.getString("weight")
+                    totalCost = activeDoc.getDouble("estimatedCost") ?: -1.0
+                    estimatedTime = activeDoc.getString("estimatedTime")
+                    businessId = activeDoc.getString("businessId")
+                    vehicleId = activeDoc.getString("vehicleId")
+
+                    if (!businessId.isNullOrEmpty()) {
+                        database.collection("users").document(businessId!!)
+                            .get()
+                            .addOnSuccessListener { businessDoc ->
+                                businessName = businessDoc.getString("businessName")
+                                locationName = businessDoc.getString("locationName")
+                                profileImage = businessDoc.getString("profileImageUrl")
+
+                                if (!vehicleId.isNullOrEmpty()) {
+                                    database.collection("vehicles").document(vehicleId!!)
+                                        .get()
+                                        .addOnSuccessListener { vehicleDoc ->
+                                            vehicleType = vehicleDoc.getString("vehicleType")
+                                            vehicleModel = vehicleDoc.getString("model")
+                                            plateNumber = vehicleDoc.getString("plateNumber")
+                                            onComplete()
+                                        }
+                                        .addOnFailureListener { onComplete() }
+                                } else {
+                                    onComplete()
+                                }
+                            }
+                            .addOnFailureListener { onComplete() }
+                    } else {
+                        onComplete()
+                    }
+                } else {
+                    activeRequestId = null
+                    onComplete()
+                }
             }
-            .addOnFailureListener { e ->
-                Log.e("ActiveRequestRestore", "Failed to check active delivery: ${e.message}")
+            .addOnFailureListener {
                 onComplete()
             }
     }
@@ -267,4 +389,5 @@ class NavigationBar : AppCompatActivity() {
             true
         }
     }
+
 }

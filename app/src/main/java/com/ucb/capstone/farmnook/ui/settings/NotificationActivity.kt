@@ -108,8 +108,6 @@ class NotificationActivity : AppCompatActivity() {
                         val millis = doc.getLong("timestamp") ?: 0L
                         Date(millis)
                     }
-                    Log.d("NotificationActivity", "Data: ${doc.data}")
-                    Log.d("NotificationActivity", "Parsing notification: ${doc.id}")
                     val sdf = SimpleDateFormat("MMM dd, yyyy - hh:mm a", Locale.getDefault())
 
                     Notification(
@@ -139,7 +137,7 @@ class NotificationActivity : AppCompatActivity() {
                     batch.delete(doc.reference)
                 }
                 batch.commit().addOnSuccessListener {
-                    adapter.updateList(emptyList()) // Clear the list in UI
+                    adapter.updateList(emptyList())
                 }
             }
     }

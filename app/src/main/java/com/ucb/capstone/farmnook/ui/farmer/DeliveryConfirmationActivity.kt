@@ -33,7 +33,6 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_delivery_confirmation)
 
-
         // Bind views
         profileImage = findViewById(R.id.profileImage)
         haulerNameTextView = findViewById(R.id.haulerName)
@@ -62,6 +61,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
             return
         }
 
+
         fetchDeliveryDetails(deliveryId, haulerId)
 
         val confirmButton = findViewById<Button>(R.id.confirm_button)
@@ -74,6 +74,8 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
             val rateDialog = RateDeliveryDialog.newInstance(deliveryId, businessId!!, farmerId)
             rateDialog.show(supportFragmentManager, "RateDeliveryDialog")
         }
+
+        checkIfAlreadyRated(deliveryId)
 
     }
 
@@ -108,13 +110,11 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
                 val productType = requestDoc.getString("productType") ?: ""
                 val purpose = requestDoc.getString("purpose")?.replaceFirstChar { it.uppercase() } ?: ""
                 val vehicleId = requestDoc.getString("vehicleId") ?: ""
-                val destinationLocation = requestDoc.getString("destinationLocation") ?: ""
-                val geocoder = Geocoder(this, Locale.getDefault())
-                val readableAddress = getAddressFromLatLng(destinationLocation, geocoder)
+                val destinationLocation = requestDoc.getString("destinationName") ?: ""
 
                 productTypeTextView.text = productType
                 capacityTextView.text = purpose
-                locationTextView.text = readableAddress
+                locationTextView.text = destinationLocation
 
                 fetchVehicleDetails(vehicleId)
             }
@@ -161,17 +161,47 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
                 val userType = haulerDoc.getString("userType") ?: ""
                 val userId = haulerDoc.getString("userId") ?: ""
 
-                // Set businessId conditionally
                 businessId = haulerDoc.getString("businessId")
-                // Fallback if this is the Business Admin herself
+
                 if (businessId == null && userType == "Hauler Business Admin") {
                     businessId = userId
                 }
 
-                val businessName = haulerDoc.getString("businessName") ?: ""
-                businessNameTextView.text = businessName
+                businessId?.let { id ->
+                    db.collection("users").document(id)
+                        .addSnapshotListener { businessDoc, error ->
+                            if (error != null || businessDoc == null || !businessDoc.exists()) {
+                                return@addSnapshotListener
+                            }
 
-                Log.d("DeliveryConfirmation", "Resolved businessId: $businessId")
+                            val businessName = businessDoc.getString("businessName") ?: ""
+                            businessNameTextView.text = businessName
+                        }
+                }
+            }
+    }
+
+    private fun checkIfAlreadyRated(deliveryId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val confirmButton = findViewById<Button>(R.id.confirm_button)
+
+        db.collection("feedback")
+            .whereEqualTo("deliveryId", deliveryId)
+            .addSnapshotListener { snapshots, error ->
+                if (error != null) {
+                    Log.e("DeliveryConfirmation", "Error listening for feedback: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                if (snapshots != null && !snapshots.isEmpty) {
+                    confirmButton.isEnabled = false
+                    confirmButton.text = "Confirmed"
+                    confirmButton.alpha = 0.5f
+                } else {
+                    confirmButton.isEnabled = true
+                    confirmButton.text = "Confirm"
+                    confirmButton.alpha = 1f
+                }
             }
     }
 }
