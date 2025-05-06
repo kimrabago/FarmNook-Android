@@ -24,6 +24,8 @@ import de.hdodenhof.circleimageview.CircleImageView
 import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+import android.location.Location
+import com.google.firebase.database.FirebaseDatabase
 
 class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_status) {
 
@@ -32,6 +34,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
     private lateinit var confirmationLayout: View
     private lateinit var haulerToPickupLayout: View
     private lateinit var haulerArrivalLayout: View
+    private lateinit var haulerOnDeliveryLayout: View
+    private lateinit var haulerArrivedAtDestinationLayout: View
     private lateinit var noActiveDeliveryLayout: View
     private lateinit var webView: WebView
     private lateinit var geocoder: Geocoder
@@ -80,6 +84,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         confirmationLayout = view.findViewById(R.id.confirmationLayout)
         haulerToPickupLayout = view.findViewById(R.id.haulerToPickupLayout)
         haulerArrivalLayout = view.findViewById(R.id.haulerArrival)
+        haulerOnDeliveryLayout = view.findViewById(R.id.haulerOnDelivery)
+        haulerArrivedAtDestinationLayout = view.findViewById(R.id.haulerArrivedAtDestination)
         noActiveDeliveryLayout = view.findViewById(R.id.noActiveDeliveryLayout)
 
         geocoder = Geocoder(requireContext(), Locale.getDefault())
@@ -276,11 +282,13 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
             val isDone = snapshot.getBoolean("isDone") ?: false
             val arrivedAtDestination = snapshot.getBoolean("arrivedAtDestination") ?: false
             val arrivedAtPickup = snapshot.getBoolean("arrivedAtPickup") ?: false
+            val isStarted = snapshot.getBoolean("isStarted")?: false
 
             when {
                 isDone -> showCompletedMessage()
-                arrivedAtDestination -> showArrivalLayout()
-                arrivedAtPickup -> showEnRouteLayout()
+                arrivedAtDestination -> showArrivedAtDestinationLayout()
+                arrivedAtPickup -> showArrivalLayout()
+                isStarted -> showEnRouteLayout()
                 else -> showConfirmationLayout()
             }
         }
@@ -449,6 +457,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         haulerToPickupLayout.visibility = View.GONE
         haulerArrivalLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.GONE
+        haulerOnDeliveryLayout.visibility = View.GONE
+        haulerArrivedAtDestinationLayout.visibility = View.GONE
     }
 
     private fun showConfirmationLayout() {
@@ -457,6 +467,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         haulerToPickupLayout.visibility = View.GONE
         haulerArrivalLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.GONE
+        haulerOnDeliveryLayout.visibility = View.GONE
+        haulerArrivedAtDestinationLayout.visibility = View.GONE
     }
 
     private fun showEnRouteLayout() {
@@ -465,6 +477,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         haulerToPickupLayout.visibility = View.VISIBLE
         haulerArrivalLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.GONE
+        haulerOnDeliveryLayout.visibility = View.GONE
+        haulerArrivedAtDestinationLayout.visibility = View.GONE
     }
 
     private fun showArrivalLayout() {
@@ -473,7 +487,29 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         haulerToPickupLayout.visibility = View.GONE
         haulerArrivalLayout.visibility = View.VISIBLE
         noActiveDeliveryLayout.visibility = View.GONE
+        haulerOnDeliveryLayout.visibility = View.GONE
+        haulerArrivedAtDestinationLayout.visibility = View.GONE
     }
+    private fun showHaulerOnDelivery() {
+        loadingLayout.visibility = View.GONE
+        confirmationLayout.visibility = View.GONE
+        haulerToPickupLayout.visibility = View.GONE
+        haulerArrivalLayout.visibility = View.GONE
+        noActiveDeliveryLayout.visibility = View.GONE
+        haulerOnDeliveryLayout.visibility = View.VISIBLE
+        haulerArrivedAtDestinationLayout.visibility = View.GONE
+    }
+    private fun showArrivedAtDestinationLayout() {
+        loadingLayout.visibility = View.GONE
+        confirmationLayout.visibility = View.GONE
+        haulerToPickupLayout.visibility = View.GONE
+        haulerArrivalLayout.visibility = View.GONE
+        noActiveDeliveryLayout.visibility = View.GONE
+        haulerOnDeliveryLayout.visibility = View.GONE
+        haulerArrivedAtDestinationLayout.visibility = View.VISIBLE
+    }
+
+
 
     private fun showCompletedMessage() {
         Toast.makeText(requireContext(), "✅ Delivery completed!", Toast.LENGTH_LONG).show()
@@ -482,6 +518,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         haulerToPickupLayout.visibility = View.GONE
         haulerArrivalLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.VISIBLE
+        haulerOnDeliveryLayout.visibility = View.GONE
+        haulerArrivedAtDestinationLayout.visibility = View.GONE
     }
 
     private fun showNoActiveDelivery() {
@@ -490,6 +528,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         haulerToPickupLayout.visibility = View.GONE
         haulerArrivalLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.VISIBLE
+        haulerOnDeliveryLayout.visibility = View.GONE
+        haulerArrivedAtDestinationLayout.visibility = View.GONE
 
         // Only show this gray fallback when no delivery exists
         webView.setBackgroundColor(Color.parseColor("#E0E0E0"))
