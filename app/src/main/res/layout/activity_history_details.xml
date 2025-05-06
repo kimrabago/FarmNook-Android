@@ -85,36 +85,41 @@
                         android:src="@drawable/profile_circle"
                         android:layout_marginEnd="8dp"/>
 
-                    <TextView
-                        android:id="@+id/farmerName"
+                    <!-- Name and Time Column -->
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/baliwag_santomaru"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/farmerName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:textSize="18sp"
+                        android:fontFamily="@font/poppins_bold"
                         android:textColor="@color/dark_green"/>
+
+                        <TextView
+                            android:id="@+id/estimatedTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="11sp"
+                            android:textColor="@color/dark_green"
+                            android:fontFamily="@font/poppins_semibold"/>
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/totalCost"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/php"
                         android:textSize="15sp"
                         android:layout_marginEnd="10dp"
                         android:fontFamily="@font/dm_sans_bold"
                         android:textColor="@color/dark_green"/>
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/estimatedTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/usa_ka_oras"
-                    android:textSize="16sp"
-                    android:layout_marginTop="5dp"
-                    android:textColor="@color/dark_green"
-                    android:fontFamily="@font/poppins_semibold"/>
+
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"

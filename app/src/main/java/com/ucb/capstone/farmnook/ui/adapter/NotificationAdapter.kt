@@ -1,5 +1,6 @@
 package com.ucb.capstone.farmnook.ui.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +19,12 @@ class NotificationAdapter(
             binding.notificationTitle.text = item.title
             binding.notificationMessage.text = item.message
             binding.notificationTimestamp.text = item.timestamp
+
+            if (!item.isRead) {
+                binding.root.setBackgroundColor(Color.parseColor("#DEDDCD"))
+            } else {
+                binding.root.setBackgroundColor(Color.WHITE)
+            }
 
             binding.root.setOnClickListener { onClick(item) }
         }

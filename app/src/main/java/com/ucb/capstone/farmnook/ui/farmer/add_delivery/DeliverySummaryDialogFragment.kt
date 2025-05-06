@@ -40,23 +40,27 @@ class DeliverySummaryDialogFragment : DialogFragment() {
         val inflater = LayoutInflater.from(requireContext())
         val view = inflater.inflate(R.layout.dialog_delivery_summary, null)
 
-        // Convert lat/lng to readable addresses
-        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-        val pickupAddress = getAddressFromLatLng(deliveryReq.pickupLocation, geocoder)
-        val destinationAddress = getAddressFromLatLng(deliveryReq.destinationLocation, geocoder)
-        val businessLoc = getAddressFromLatLng(vehicleWtBusiness.businessLocation, geocoder)
+//        // Convert lat/lng to readable addresses
+//        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+//        val pickupAddress = deliveryReq.pickupName
+//        val destinationAddress = deliveryReq.destinationName
+//        val businessLoc = getAddressFromLatLng(vehicleWtBusiness.businessLocation, geocoder)
         view.findViewById<TextView>(R.id.businessName).text = vehicleWtBusiness.businessName
         val profileImageUrl = vehicleWtBusiness.profileImage
         val profileImage = view.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
         profileImage.loadImage(profileImageUrl)
 
         view.findViewById<TextView>(R.id.businessName).text = vehicleWtBusiness.businessName
-        view.findViewById<TextView>(R.id.businessLocation).text = businessLoc
+        view.findViewById<TextView>(R.id.businessLocation).text = vehicleWtBusiness.locationName
 
         // Set values in included item_detail_row views
         setItemRow(view, R.id.plateRow, "Plate Number", vehicleWtBusiness.plateNumber)
-        setItemRow(view, R.id.pickupRow, "Pickup", pickupAddress)
-        setItemRow(view, R.id.destinationRow, "Destination", destinationAddress)
+        deliveryReq.pickupName?.let { setItemRow(view, R.id.pickupRow, "Pickup", it) }
+        deliveryReq.destinationName?.let {
+            setItemRow(view, R.id.destinationRow, "Destination",
+                it
+            )
+        }
         setItemRow(view, R.id.vehicleRow, "Vehicle", "${vehicleWtBusiness.vehicleType} - ${vehicleWtBusiness.model}")
         setItemRow(view, R.id.purposeRow, "Purpose",
             deliveryReq.purpose?.replaceFirstChar { it.uppercase() } ?: "")

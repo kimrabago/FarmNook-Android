@@ -74,6 +74,10 @@ class RegisterActivity : AppCompatActivity() {
 
             binding.businessLocation.setText(selectedLocation)
             binding.businessLocation.tag = selectedCoordinates  // Store lat,lng as hidden metadata // Update the location input field
+
+
+            binding.businessLocation.setTag(R.id.business_location_name_tag, selectedLocation)
+
         }
     }
 
@@ -114,7 +118,11 @@ class RegisterActivity : AppCompatActivity() {
             if (tagValue != null && tagValue.toString().lowercase() != "null") tagValue.toString() else null
         } else null
 
-        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, userType, businessName, businessLocation)
+        val locationName = if (userType == "Hauler Business Admin") {
+            binding.businessLocation.getTag(R.id.business_location_name_tag)?.toString()
+        } else null
+
+        registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, userType, businessName, businessLocation, locationName)
         Log.d("RegisterDebug", "Captured businessLocation: ${businessLocation}")
     }
 
@@ -156,7 +164,6 @@ class RegisterActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-
     private fun navigateToLogin(userType: String) {
         if (userType == "Hauler Business Admin") {
             val dialog = Dialog(this)
@@ -164,7 +171,6 @@ class RegisterActivity : AppCompatActivity() {
 
             val closeButton = dialog.findViewById<Button>(R.id.closeButton)
             closeButton.setOnClickListener {
-                dialog.dismiss()
                 goToLoginScreen()
             }
 

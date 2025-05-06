@@ -195,6 +195,8 @@ class AddDeliveryActivity : AppCompatActivity() {
                                                 val intent = Intent(this@AddDeliveryActivity, RecommendationActivity::class.java).apply {
                                                     putExtra("pickupLocation", pickupCoordinates)
                                                     putExtra("destinationLocation", destinationCoordinates)
+                                                    putExtra("pickupName", fromLocation.text.toString())
+                                                    putExtra("destinationName", toLocation.text.toString())
                                                     putExtra("purpose", purpose)
                                                     putExtra("productType", productType)
                                                     putExtra("farmerId", farmerId)

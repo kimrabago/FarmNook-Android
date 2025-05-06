@@ -7,5 +7,5 @@ data class Notification(
     val isRead: Boolean = false,
     val timestamp: String = "",
     val deliveryId: String? = null,
-    val farmerId: String? = null
+    val farmerId: String? = null,
 )

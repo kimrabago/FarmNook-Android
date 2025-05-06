@@ -81,15 +81,9 @@
                     }
             }
 
-            // Set up click listener for the close button
             closeButton.setOnClickListener {
-                dismiss()  // Close the dialog when the close button is clicked
+                dismiss()
             }
-        }
-
-        // Function to close the dialog (could be used in other places if needed)
-        private fun closeDialog() {
-            dismiss()  // Close the dialog
         }
 
         override fun onStart() {

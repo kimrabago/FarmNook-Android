@@ -10,6 +10,7 @@ data class VehicleWithBusiness(
     val businessName: String,
     val businessId: String,
     val businessLocation: String,
+    val locationName: String,
     val profileImage: String? = null,
     val averageRating: Double?,
     var estimatedCost: Double? = null,

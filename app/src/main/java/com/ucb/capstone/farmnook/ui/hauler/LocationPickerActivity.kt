@@ -56,11 +56,19 @@ class LocationPickerActivity : AppCompatActivity() {
                     val types = component.types
                     val name = component.name
 
-                    // Skip country and province-level to avoid "Philippines" or "Cebu" duplication
-                    if (types.contains("country") || types.contains("administrative_area_level_2")) return@forEach
+                    // Skip "Central Visayas"
+                    if (name.equals("Central Visayas", ignoreCase = true)) return@forEach
 
-                    // Add unique, relevant components only
-                    if (types.any { it in listOf("subpremise", "premise", "route", "street_address", "sublocality", "sublocality_level_1", "locality") }) {
+                    if (types.contains("premise") || types.contains("route") || types.contains("street_address")) {
+                        addressParts.add(name)
+                    }
+                    if (types.contains("sublocality") || types.contains("sublocality_level_1")) {
+                        addressParts.add(name)
+                    }
+                    if (types.contains("locality")) {
+                        addressParts.add(name)
+                    }
+                    if (types.contains("administrative_area_level_1")) {
                         addressParts.add(name)
                     }
                 }

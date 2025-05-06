@@ -10,6 +10,7 @@ import android.os.*
 import android.util.Log
 import android.view.*
 import android.webkit.*
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -256,6 +257,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
         val pickupLoc = Location("").apply { latitude = pickupLat; longitude = pickupLng }
         val dropLoc = Location("").apply { latitude = dropLat; longitude = dropLng }
+        val doneDeliveryBtn = view?.findViewById<Button>(R.id.doneDeliveryBtn)
 
         deliveryRef.get().addOnSuccessListener { doc ->
             val atPickup = doc.getBoolean("arrivedAtPickup") ?: false
@@ -269,6 +271,9 @@ class HaulerDeliveryStatusFragment : Fragment() {
                 atPickup && !atDestination && location.distanceTo(dropLoc) <= 20 -> {
                     deliveryRef.update("arrivedAtDestination", true)
                     currentStatus = "Arrived at Destination"
+
+                    // ✅ Show the completed button
+                    doneDeliveryBtn?.visibility = View.VISIBLE
                 }
             }
 

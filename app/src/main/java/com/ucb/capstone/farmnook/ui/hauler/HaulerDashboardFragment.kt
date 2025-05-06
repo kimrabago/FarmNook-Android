@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryDisplayItem
+import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.ui.adapter.AssignedDeliveryAdapter
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import com.ucb.capstone.farmnook.utils.EstimateTravelTimeUtil
@@ -72,6 +73,7 @@ class HaulerDashboardFragment : Fragment() {
                 putExtra("destination", delivery.rawDrop)
                 putExtra("estimatedTime", delivery.estimatedTime)
                 putExtra("totalCost", delivery.totalCost)
+                putExtra("requestId", delivery.requestId)
                 putExtra("requestId", delivery.requestId)
             }
             startActivity(intent)
@@ -129,12 +131,8 @@ class HaulerDashboardFragment : Fragment() {
                             val estimatedTime = requestDoc.getString("estimatedTime") ?: return@async null
                             val pickup = requestDoc.getString("pickupLocation") ?: return@async null
                             val drop = requestDoc.getString("destinationLocation") ?: return@async null
-
-                            val pickupAddressDeferred = async { reverseGeocode(pickup) }
-                            val dropAddressDeferred = async { reverseGeocode(drop) }
-
-                            val pickupAddress = pickupAddressDeferred.await()
-                            val dropAddress = dropAddressDeferred.await()
+                            val pickupAddress =  requestDoc.getString("pickupName") ?: return@async null
+                            val dropAddress = requestDoc.getString("destinationName") ?: return@async null
 
                             DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId)
                         }

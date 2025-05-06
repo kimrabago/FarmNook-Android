@@ -13,10 +13,13 @@ object EstimateTravelTimeUtil {
 
     suspend fun getEstimatedTravelTime(pickup: String, drop: String): String =
         suspendCancellableCoroutine { cont ->
-            val (startLat, startLng) = pickup.split(",").map { it.trim() }
-            val (endLat, endLng) = drop.split(",").map { it.trim() }
+            val (pickupLat, pickupLng) = pickup.split(",").map { it.trim().toDouble() }
+            val (dropLat, dropLng) = drop.split(",").map { it.trim().toDouble() }
 
-            val url = "https://api.mapbox.com/directions/v5/mapbox/driving/$startLng,$startLat;$endLng,$endLat?access_token=$mapboxToken&overview=false"
+            // ✅ Proper order: longitude,latitude
+            val url = "https://api.mapbox.com/directions/v5/mapbox/driving/" +
+                    "$pickupLng,$pickupLat;$dropLng,$dropLat" +
+                    "?access_token=$mapboxToken&overview=false"
 
             val client = OkHttpClient()
             val request = Request.Builder().url(url).build()
@@ -34,7 +37,7 @@ object EstimateTravelTimeUtil {
                         if (routes.length() > 0) {
                             val durationSec = routes.getJSONObject(0).getDouble("duration")
                             val minutes = (durationSec / 60).toInt()
-                            if (minutes < 60) "$minutes min" else "${minutes / 60} hr ${minutes % 60} min"
+                            if (minutes < 60) "$minutes min" else "${minutes / 60} hr ${minutes % 60} mins"
                         } else {
                             "Unknown"
                         }
