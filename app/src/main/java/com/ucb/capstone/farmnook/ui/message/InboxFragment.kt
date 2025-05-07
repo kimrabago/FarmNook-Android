@@ -1,5 +1,6 @@
 package com.ucb.capstone.farmnook.ui.message
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,69 +17,85 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.adapter.InboxAdapter
 import com.ucb.capstone.farmnook.data.model.ChatItem
 
+
 class InboxFragment : Fragment() {
+
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var inboxAdapter: InboxAdapter
     private lateinit var chatList: MutableList<ChatItem>
 
+
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_inbox, container, false)
 
+
         recyclerView = view.findViewById(R.id.messagesRecyclerView)
         val newMessageBtn = view.findViewById<ImageButton>(R.id.new_message_btn)
 
+
         chatList = mutableListOf()
-        // Pass a click callback to the adapter so we can open the chat
         inboxAdapter = InboxAdapter(chatList) { chatItem ->
-            // When user clicks an item, open MessageActivity
-            val intent = Intent(requireContext(), MessageActivity::class.java)
-            intent.putExtra("receiverId", chatItem.otherUserId)
-            intent.putExtra("receiverName", chatItem.userName)
-            startActivity(intent)
+            Intent(requireContext(), MessageActivity::class.java).apply {
+                putExtra("chatId", chatItem.chatId)
+                putExtra("recipientId", chatItem.otherUserId)
+                putExtra("receiverName", chatItem.userName)
+            }.also { startActivity(it) }
         }
+
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = inboxAdapter
 
+
         newMessageBtn.setOnClickListener {
-            val intent = Intent(requireContext(), NewMessageActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireContext(), NewMessageActivity::class.java))
         }
 
-        fetchChats()
 
+        fetchChats()
         return view
     }
+
 
     private fun fetchChats() {
         val currentUserId = auth.currentUser?.uid ?: return
 
+
         firestore.collection("chats")
             .whereArrayContains("userIds", currentUserId)
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { value, _ ->
-                if (value != null) {
-                    chatList.clear()
-                    for (doc in value.documents) {
-                        val userIds = doc.get("userIds") as? List<String> ?: continue
-                        val otherUserId = userIds.firstOrNull { it != currentUserId } ?: continue
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    // Handle error
+                    return@addSnapshotListener
+                }
 
-                        val lastMessage = doc.getString("lastMessage") ?: "No messages yet"
-                        val timestamp = doc.getLong("timestamp") ?: 0L
 
-                        // We'll fetch the user's name, then add to chatList
-                        fetchUserDetails(doc.id, otherUserId, lastMessage, timestamp)
-                    }
+                chatList.clear()
+                value?.documents?.forEach { doc ->
+                    val userIds = doc.get("userIds") as? List<String> ?: return@forEach
+                    val otherUserId = userIds.firstOrNull { it != currentUserId } ?: return@forEach
+
+
+                    fetchUserDetails(
+                        chatId = doc.id,
+                        otherUserId = otherUserId,
+                        lastMessage = doc.getString("lastMessage") ?: "No messages yet",
+                        timestamp = doc.getLong("timestamp") ?: 0L
+                    )
                 }
             }
     }
+
 
     private fun fetchUserDetails(
         chatId: String,
@@ -93,15 +110,27 @@ class InboxFragment : Fragment() {
                 val fullName = "$firstName $lastName".trim()
                 val profileImage = userDoc.getString("profileImageUrl") ?: ""
 
-                val chatItem = ChatItem(
+
+                chatList.add(ChatItem(
                     chatId = chatId,
                     otherUserId = otherUserId,
                     profileImageUrl = profileImage,
                     userName = fullName,
                     lastMessage = lastMessage,
                     timestamp = timestamp
-                )
-                chatList.add(chatItem)
+                ))
+                inboxAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener {
+                // Fallback if user details can't be fetched
+                chatList.add(ChatItem(
+                    chatId = chatId,
+                    otherUserId = otherUserId,
+                    profileImageUrl = "",
+                    userName = "Unknown User",
+                    lastMessage = lastMessage,
+                    timestamp = timestamp
+                ))
                 inboxAdapter.notifyDataSetChanged()
             }
     }

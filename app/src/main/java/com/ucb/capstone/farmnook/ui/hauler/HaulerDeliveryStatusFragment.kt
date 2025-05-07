@@ -27,6 +27,7 @@ import com.ucb.capstone.farmnook.data.model.DeliveryHistory
 import com.ucb.capstone.farmnook.data.model.Message
 import com.ucb.capstone.farmnook.ui.hauler.services.DeliveryLocationService
 import com.ucb.capstone.farmnook.ui.hauler.HistoryDetailsActivity
+import com.ucb.capstone.farmnook.ui.message.MessageActivity
 import com.ucb.capstone.farmnook.ui.message.NewMessageActivity
 import com.ucb.capstone.farmnook.utils.SendPushNotification
 import okhttp3.*
@@ -61,9 +62,70 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
         val messageIcon = view.findViewById<ImageButton>(R.id.messageIcon)
         messageIcon.setOnClickListener {
-            val intent = Intent(requireContext(), NewMessageActivity::class.java)
-            startActivity(intent)
+            val deliveryId = arguments?.getString("deliveryId") ?: return@setOnClickListener
+
+
+
+
+            FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId).get()
+                .addOnSuccessListener { deliveryDoc ->
+                    val requestId = deliveryDoc.getString("requestId") ?: return@addOnSuccessListener
+                    val haulerId = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnSuccessListener
+
+
+
+
+                    FirebaseFirestore.getInstance().collection("deliveryRequests").document(requestId).get()
+                        .addOnSuccessListener { reqDoc ->
+                            val farmerId = reqDoc.getString("farmerId") ?: return@addOnSuccessListener
+
+
+
+
+                            // Generate chat ID (consistent with your existing format)
+                            val chatId = if (haulerId < farmerId) "$haulerId-$farmerId" else "$farmerId-$haulerId"
+
+
+
+
+                            // Fetch farmer's details to get their name
+                            FirebaseFirestore.getInstance().collection("users").document(farmerId).get()
+                                .addOnSuccessListener { farmerDoc ->
+                                    val firstName = farmerDoc.getString("firstName") ?: ""
+                                    val lastName = farmerDoc.getString("lastName") ?: ""
+                                    val farmerName = "$firstName $lastName".trim()
+
+
+                                    // Start MessageActivity with all details
+                                    Intent(requireContext(), MessageActivity::class.java).apply {
+                                        putExtra("chatId", chatId)
+                                        putExtra("recipientId", farmerId)
+                                        putExtra("receiverName", farmerName)
+                                        // Add any other needed extras
+                                    }.also { startActivity(it) }
+                                }
+                                .addOnFailureListener {
+                                    // Fallback if farmer details can't be fetched
+                                    Intent(requireContext(), MessageActivity::class.java).apply {
+                                        putExtra("chatId", chatId)
+                                        putExtra("recipientId", farmerId)
+                                        putExtra("receiverName", "Farmer")
+                                    }.also { startActivity(it) }
+                                }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(requireContext(),
+                                "Failed to load request details",
+                                Toast.LENGTH_SHORT).show()
+                        }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(),
+                        "Failed to load delivery details",
+                        Toast.LENGTH_SHORT).show()
+                }
         }
+
 
         webView = view.findViewById(R.id.mapView)
         setupWebView()
