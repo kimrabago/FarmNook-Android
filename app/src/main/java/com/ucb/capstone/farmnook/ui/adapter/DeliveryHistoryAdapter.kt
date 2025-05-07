@@ -36,12 +36,12 @@ class DeliveryHistoryAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+        val sdf = SimpleDateFormat("MM/dd/yy", Locale.getDefault())
         val arrivalDateOnly = item.deliveryArrivalTime?.toDate()?.let { sdf.format(it) } ?: "Unknown"
 
         val name = farmerNames[item.deliveryId] ?: "Farmer"
         holder.farmerName.text = name
-        holder.deliveryIdText.text = "Delivery ID: ${item.deliveryId}"
+        holder.deliveryIdText.text = "DRef: ${item.deliveryId}"
         holder.dateOnly.text = arrivalDateOnly
 
         holder.itemView.setOnClickListener {
@@ -52,7 +52,5 @@ class DeliveryHistoryAdapter(
         holder.profileImg.loadImage(imageUrl)
 
     }
-
     override fun getItemCount(): Int = items.size
-
 }

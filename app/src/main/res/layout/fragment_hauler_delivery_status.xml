@@ -208,14 +208,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/checking"
-                    android:textStyle="bold"
                     android:textSize="16sp"
                     android:textColor="@color/white"
                     android:fontFamily="@font/dm_sans"
                     android:layout_toEndOf="@id/statusTxtview"
                     android:layout_marginStart="8dp"
-                    android:background="@color/red"
-                    android:padding="5dp"
+                    android:background="@drawable/red_rounded_button"
+                    android:padding="7dp"
                     android:textAlignment="center"/>
 
             </RelativeLayout>
@@ -225,13 +224,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="COMPLETED"
+                android:visibility="gone"
                 android:textColor="@color/white"
                 android:layout_marginHorizontal="80dp"
                 android:background="@drawable/red_rounded_button"
                 android:fontFamily="@font/poppins_semibold"
                 android:textAllCaps="false"
                 android:textSize="17sp"
-                android:visibility="gone"
                 android:layout_marginTop="5dp"
                 android:drawableTint="@color/white"/>
 

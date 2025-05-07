@@ -12,8 +12,15 @@ import com.ucb.capstone.farmnook.data.model.DeliveryDisplayItem
 
 class AssignedDeliveryAdapter(
     private var deliveries: List<DeliveryDisplayItem>,
+    private var anyDeliveryStarted: Boolean,
     private val onViewClick: (DeliveryDisplayItem) -> Unit
 ) : RecyclerView.Adapter<AssignedDeliveryAdapter.ViewHolder>() {
+
+    fun updateData(newDeliveries: List<DeliveryDisplayItem>, hasStarted: Boolean) {
+        deliveries = newDeliveries
+        anyDeliveryStarted = hasStarted
+        notifyDataSetChanged()
+    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val pickupLocation: TextView = view.findViewById(R.id.pickUpLocation)
@@ -28,6 +35,9 @@ class AssignedDeliveryAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val delivery = deliveries[position]
+
+        val anyDeliveryStarted = deliveries.any { it.isStarted }
+
         holder.pickupLocation.text = "Pickup Location"
         holder.provincePickup.text = delivery.pickupLocation
         holder.destination.text = "Destination Location"
@@ -35,9 +45,10 @@ class AssignedDeliveryAdapter(
         holder.estimatedTime.text = delivery.estimatedTime
         holder.totalCost.text = "₱${delivery.totalCost}"
 
+        // Hide ALL view buttons if any delivery has started
+        holder.viewBtn.visibility = if (anyDeliveryStarted) View.GONE else View.VISIBLE
 
         holder.viewBtn.setOnClickListener {
-            Log.d("DeliveryAdapter", "View button clicked for ${delivery.deliveryId}")
             onViewClick(delivery)
         }
     }
@@ -48,6 +59,5 @@ class AssignedDeliveryAdapter(
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_delivery, parent, false)
         return ViewHolder(view)
     }
-
 }
 

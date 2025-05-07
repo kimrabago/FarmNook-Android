@@ -11,23 +11,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryDisplayItem
-import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.ui.adapter.AssignedDeliveryAdapter
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
-import com.ucb.capstone.farmnook.utils.EstimateTravelTimeUtil
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
-import okhttp3.*
-import org.json.JSONObject
-import java.io.IOException
 
 class HaulerDashboardFragment : Fragment() {
 
@@ -60,11 +52,9 @@ class HaulerDashboardFragment : Fragment() {
             (activity as? NavigationBar)?.navigateToProfile()
         }
 
-        val tempList = mutableListOf<DeliveryDisplayItem>()
-
         val recyclerView: RecyclerView = rootView.findViewById(R.id.deliveries_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        assignedDeliveryAdapter = AssignedDeliveryAdapter(deliveryList) { delivery ->
+        assignedDeliveryAdapter = AssignedDeliveryAdapter(deliveryList, false) { delivery ->
             val intent = Intent(requireContext(), DeliveryDetailsActivity::class.java).apply {
                 putExtra("deliveryId", delivery.deliveryId)
                 putExtra("pickupAddress", delivery.pickupLocation)
@@ -74,39 +64,14 @@ class HaulerDashboardFragment : Fragment() {
                 putExtra("estimatedTime", delivery.estimatedTime)
                 putExtra("totalCost", delivery.totalCost)
                 putExtra("requestId", delivery.requestId)
-                putExtra("requestId", delivery.requestId)
             }
             startActivity(intent)
         }
         recyclerView.adapter = assignedDeliveryAdapter
 
-        profileImageFetch()
         loadDeliveries()
 
         return rootView
-    }
-
-    private fun profileImageFetch() {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            firestore.collection("users").document(userId)
-                .get(Source.CACHE)
-                .addOnSuccessListener { document ->
-                    val imageUrl = document.getString("profileImageUrl")
-                    if (!imageUrl.isNullOrEmpty()) {
-                        Glide.with(this@HaulerDashboardFragment)
-                            .load(imageUrl)
-                            .placeholder(R.drawable.profile_circle)
-                            .error(R.drawable.profile_circle)
-                            .into(profileIcon)
-                    } else {
-                        profileIcon.setImageResource(R.drawable.profile_circle)
-                    }
-                }
-                .addOnFailureListener {
-                    profileIcon.setImageResource(R.drawable.profile_circle)
-                }
-        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -125,6 +90,9 @@ class HaulerDashboardFragment : Fragment() {
                         async {
                             val deliveryId = doc.id
                             val requestId = doc.getString("requestId") ?: return@async null
+                            val isStarted = doc.getBoolean("isStarted") ?: false
+                            val isDone = doc.getBoolean("isDone") ?: false
+                            if (isDone) return@async null
 
                             val requestDoc = firestore.collection("deliveryRequests").document(requestId).get().await()
                             val totalCost = requestDoc.getLong("estimatedCost")?.toInt()?.toString() ?: return@async null
@@ -134,45 +102,16 @@ class HaulerDashboardFragment : Fragment() {
                             val pickupAddress =  requestDoc.getString("pickupName") ?: return@async null
                             val dropAddress = requestDoc.getString("destinationName") ?: return@async null
 
-                            DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId)
+                            DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId, isStarted)
                         }
                     }
 
-                    deliveryList.addAll(jobs.mapNotNull { it.await() })
-                    assignedDeliveryAdapter.notifyDataSetChanged()
+                    val resultList = jobs.mapNotNull { it.await() }
+                    val anyStarted = resultList.any { it.isStarted }
+
+                    deliveryList.addAll(resultList)
+                    assignedDeliveryAdapter.updateData(deliveryList, anyStarted)
                 }
             }
-    }
-
-    suspend fun reverseGeocode(latLng: String): String = suspendCancellableCoroutine { cont ->
-        val (lat, lng) = latLng.split(",").map { it.trim().toDouble() }
-        val url = "https://api.mapbox.com/geocoding/v5/mapbox.places/$lng,$lat.json?access_token=$mapboxToken"
-
-        val request = Request.Builder().url(url).build()
-        val call = OkHttpClient().newCall(request)
-
-        cont.invokeOnCancellation {
-            call.cancel()
-        }
-
-        call.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                if (cont.isActive) cont.resume("Unknown", null)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                val address = try {
-                    val json = JSONObject(body ?: "")
-                    json.getJSONArray("features")
-                        .optJSONObject(0)
-                        ?.getString("place_name") ?: "Unknown location"
-                } catch (e: Exception) {
-                    "Unknown location"
-                }
-
-                if (cont.isActive) cont.resume(address, null)
-            }
-        })
     }
 }

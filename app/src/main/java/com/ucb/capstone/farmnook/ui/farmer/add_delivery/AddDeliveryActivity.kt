@@ -139,10 +139,12 @@ class AddDeliveryActivity : AppCompatActivity() {
 
         val farmerId = FirebaseAuth.getInstance().currentUser?.uid
 
+        //RECOMMENDATION REQUEST
         val testRequest = RecommendationRequest(productType, weight.toInt(), purpose)
         val retrofit = RetrofitClient.instance
         val apiService = retrofit?.create(ApiService::class.java)
 
+        //RECOMMENDATION RESPONSE
         apiService?.getRecommendation(testRequest)?.enqueue(object : Callback<RecommendationResponse> {
             override fun onResponse(call: Call<RecommendationResponse>, response: Response<RecommendationResponse>) {
                 if (response.isSuccessful) {
@@ -159,6 +161,8 @@ class AddDeliveryActivity : AppCompatActivity() {
                             }
 
                             val vehiclesToDistance = mutableListOf<Triple<String, Double, String>>() // businessId, distance, vehicleId
+
+                            //Get user's coordinates
                             val pickupLat = userLatitude ?: return@addOnSuccessListener
                             val pickupLng = userLongitude ?: return@addOnSuccessListener
 
