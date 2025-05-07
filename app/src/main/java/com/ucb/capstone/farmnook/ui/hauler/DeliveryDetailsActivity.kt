@@ -20,14 +20,21 @@ import com.ucb.capstone.farmnook.data.model.Message
 import com.ucb.capstone.farmnook.ui.hauler.services.DeliveryLocationService
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import com.ucb.capstone.farmnook.utils.SendPushNotification
+import com.ucb.capstone.farmnook.utils.loadImage
 import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import de.hdodenhof.circleimageview.CircleImageView
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Suppress("LABEL_NAME_CLASH")
 class DeliveryDetailsActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private lateinit var productTypeTextView: TextView
+    private lateinit var weightTextView: TextView
+    private lateinit var requestDateTextView: TextView
+    private lateinit var vehicleTypeTextView: TextView
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +49,11 @@ class DeliveryDetailsActivity : AppCompatActivity() {
 
         val farmerNameTextView = findViewById<TextView>(R.id.farmerName)
         val profileImageView = findViewById<CircleImageView>(R.id.profileImage)
+        productTypeTextView = findViewById(R.id.productType)
+        weightTextView = findViewById(R.id.weightAmount)
+        requestDateTextView = findViewById(R.id.dateTime)
+        vehicleTypeTextView = findViewById(R.id.vehicle)
+
 
         //Removed the geocode
         val pickupAddress = intent.getStringExtra("pickupAddress")
@@ -58,16 +70,12 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.provincePickup).text = pickupAddress
         findViewById<TextView>(R.id.provinceDestination).text = destinationAddress
 
-        fetchFarmerDetails(requestId, farmerNameTextView, profileImageView)
+        fetchFarmerDetails(requestId, farmerNameTextView, profileImageView, productTypeTextView, weightTextView, requestDateTextView, vehicleTypeTextView)
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 
         findViewById<Button>(R.id.startDeliveryBtn).setOnClickListener {
             startDelivery(deliveryId, pickup, destination, pickupAddress, destinationAddress)
-        }
-        //Changes
-        findViewById<Button>(R.id.doneDeliveryBtn).setOnClickListener {
-            confirmDeliveryCompletion(deliveryId, pickup, destination, pickupAddress, destinationAddress)
         }
 
         webView = findViewById(R.id.mapView)
@@ -161,149 +169,17 @@ class DeliveryDetailsActivity : AppCompatActivity() {
 
         finish()
     }
-
-    private fun confirmDeliveryCompletion(
-        deliveryId: String,
-        pickup: String,
-        destination: String,
-        pickupAddress: String?,
-        destinationAddress: String?
-    ) {
-        AlertDialog.Builder(this)
-            .setTitle("Confirm Delivery Completion")
-            .setMessage("Are you sure you've completed delivering the products?")
-            .setPositiveButton("Yes") { dialog, _ ->
-                dialog.dismiss()
-                val firestore = FirebaseFirestore.getInstance()
-                val deliveryRef = firestore.collection("deliveries").document(deliveryId)
-
-                deliveryRef.update("status", "completed")
-                    .addOnSuccessListener {
-                        val historyRef = firestore.collection("deliveryHistory").document()
-                        val completedAt = Timestamp.now()
-                        val history = DeliveryHistory(historyRef.id, deliveryId, completedAt, "N/A")
-
-                        historyRef.set(history).addOnSuccessListener {
-                            deliveryRef.get().addOnSuccessListener { deliveryDoc ->
-                                val requestId = deliveryDoc.getString("requestId")
-                                    ?: return@addOnSuccessListener
-                                val haulerId = deliveryDoc.getString("haulerAssignedId")
-                                    ?: return@addOnSuccessListener
-
-                                firestore.collection("deliveryRequests").document(requestId).get()
-                                    .addOnSuccessListener { reqDoc ->
-                                        val farmerId = reqDoc.getString("farmerId")
-                                            ?: return@addOnSuccessListener
-                                        val businessId = reqDoc.getString("businessId")
-                                            ?: return@addOnSuccessListener
-                                        val estimatedTime =
-                                            reqDoc.getString("estimatedTime") ?: "N/A"
-
-
-                                        val chatId = if (haulerId < farmerId) "$haulerId-$farmerId"
-                                        else "$farmerId-$haulerId"
-
-                                        firestore.collection("users").document(farmerId).get()
-                                            .addOnSuccessListener { farmerDoc ->
-                                                val farmerName =
-                                                    "${farmerDoc.getString("firstName") ?: ""} ${
-                                                        farmerDoc.getString("lastName") ?: ""
-                                                    }".trim()
-                                                val profileImage =
-                                                    farmerDoc.getString("profileImageUrl") ?: "N/A"
-
-                                                //Hauler
-                                                firestore.collection("users").document(haulerId)
-                                                    .get()
-                                                    .addOnSuccessListener { haulerDoc ->
-                                                        val fullName =
-                                                            "${haulerDoc.getString("firstName") ?: ""} " +
-                                                                    (haulerDoc.getString("lastName") ?: "").trim()
-                                                        val title = "Delivery Completed"
-                                                        val message =
-                                                            "$fullName has completed the delivery."
-                                                        val nowMillis = completedAt.toDate().time
-
-
-                                                        SendPushNotification.sendCompletedDeliveryNotification(
-                                                            "recipientId", farmerId,
-                                                            deliveryId, title, message,
-                                                            completedAt, this
-                                                        )
-                                                        SendPushNotification.sendCompletedDeliveryNotification(
-                                                            "businessId", businessId,
-                                                            deliveryId, title, message,
-                                                            completedAt, this
-                                                        )
-
-                                                        val chatRef =
-                                                            firestore.collection("chats")
-                                                                .document(chatId)
-                                                        chatRef.set(
-                                                            mapOf(
-                                                                "userIds" to listOf(
-                                                                    haulerId,
-                                                                    farmerId
-                                                                ),
-                                                                "lastMessage" to message,
-                                                                "timestamp" to nowMillis
-                                                            ),
-                                                            com.google.firebase.firestore.SetOptions.merge()
-                                                        )
-
-                                                        val autoMsg = Message(
-                                                            senderId = haulerId,
-                                                            receiverId = farmerId,
-                                                            content = message,
-                                                            timestamp = nowMillis,
-                                                            senderName = fullName
-                                                        )
-                                                        chatRef.collection("messages").add(autoMsg)
-
-                                                        stopService(
-                                                            Intent(
-                                                                this,
-                                                                DeliveryLocationService::class.java
-                                                            )
-                                                        )
-                                                        Intent(
-                                                            this,
-                                                            HistoryDetailsActivity::class.java
-                                                        ).apply {
-                                                            putExtra("deliveryId", deliveryId)
-                                                            //Changes
-                                                            putExtra("pickup", pickup)
-                                                            putExtra("destination", destination)
-                                                            putExtra("pickupAddress", pickupAddress)
-                                                            putExtra("destinationAddress", destinationAddress)
-                                                            putExtra("estimatedTime", estimatedTime)
-                                                            putExtra("farmerName", farmerName)
-                                                            putExtra("profileImg", profileImage)
-                                                        }.also { startActivity(it) }
-                                                        finish()
-                                                    }
-                                            }
-                                    }
-                            }
-                        }
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(
-                            this,
-                            "Failed to complete delivery: ${it.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-            }
-            .setNegativeButton("No") { dlg, _ -> dlg.dismiss() }
-            .create().show()
-    }
 }
 
+@SuppressLint("SetTextI18n")
 fun fetchFarmerDetails(
     requestId: String,
     farmerNameTextView: TextView,
-    profileImageView: CircleImageView
+    profileImageView: CircleImageView,
+    productTypeTextView: TextView,
+    weightTextView: TextView,
+    requestDateTextView: TextView,
+    vehicleTypeTextView: TextView
 ) {
     val firestore = FirebaseFirestore.getInstance()
 
@@ -319,7 +195,19 @@ fun fetchFarmerDetails(
             }
 
             val farmerId = requestDoc.getString("farmerId") ?: return@addSnapshotListener
+            val purpose = requestDoc.getString("purpose") ?: return@addSnapshotListener
+            val productType = requestDoc.getString("productType") ?: return@addSnapshotListener
+            val weight = requestDoc.getString("weight") ?: return@addSnapshotListener
+            val vehicleType = requestDoc.getString("purpose") ?: return@addSnapshotListener
+            val timestamp = requestDoc.getTimestamp("timestamp") ?: return@addSnapshotListener
+            val requestDate = timestamp.toDate()
+            val formatter = SimpleDateFormat("MMM dd, yyyy: hh:mm a", Locale.US)
+            val formattedDate = formatter.format(requestDate)
 
+            requestDateTextView.text = formattedDate
+            productTypeTextView.text = "$purpose - $productType"
+            weightTextView.text = "$weight kg"
+            vehicleTypeTextView.text = vehicleType
             // Now listen to the farmer's user document
             firestore.collection("users").document(farmerId)
                 .addSnapshotListener { farmerDoc, err ->
@@ -336,15 +224,7 @@ fun fetchFarmerDetails(
                         "${farmerDoc.getString("firstName") ?: ""} ${farmerDoc.getString("lastName") ?: ""}".trim()
                     farmerNameTextView.text = fullName
 
-                    if (!profileImageUrl.isNullOrEmpty()) {
-                        Glide.with(profileImageView.context)
-                            .load(profileImageUrl)
-                            .placeholder(R.drawable.profile_circle)
-                            .into(profileImageView)
-                    } else {
-                        profileImageView.setImageResource(R.drawable.profile_circle)
-                    }
+                    profileImageView.loadImage(profileImageUrl)
                 }
         }
 }
-

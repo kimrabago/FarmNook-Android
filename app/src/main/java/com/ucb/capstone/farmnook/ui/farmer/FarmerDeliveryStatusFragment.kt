@@ -170,22 +170,6 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         argVehicleModel = requireArguments().getString("vehicleModel")
         argPlateNumber = requireArguments().getString("plateNumber")
 
-
-        // Log the values to check what's being received
-        Log.d("ARGUMENTS_DEBUG", "pickupName: $argPickupName")
-        Log.d("ARGUMENTS_DEBUG", "destinationName: $argDestinationName")
-        Log.d("ARGUMENTS_DEBUG", "productType: $argProductType")
-        Log.d("ARGUMENTS_DEBUG", "weight: $argWeight")
-        Log.d("ARGUMENTS_DEBUG", "businessName: $argBusinessName")
-        Log.d("ARGUMENTS_DEBUG", "estimatedCost: $argTotalCost")
-        Log.d("ARGUMENTS_DEBUG", "estimatedTime: $argEstimatedTime")
-        Log.d("ARGS_DEBUG", "businessName: $argBusinessName")
-        Log.d("ARGS_DEBUG", "locationName: $argLocationName")
-        Log.d("ARGS_DEBUG", "profileImage: $argProfileImage")
-        Log.d("ARGS_DEBUG", "vehicleType: $argVehicleType")
-        Log.d("ARGS_DEBUG", "vehicleModel: $argVehicleModel")
-        Log.d("ARGS_DEBUG", "plateNumber: $argPlateNumber")
-
         if (requestId.isNullOrEmpty()) {
             showNoActiveDelivery()
             return
@@ -338,7 +322,7 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
                 arrivedAtDestination -> showArrivedAtDestinationLayout()
                 arrivedAtPickup -> showArrivalLayout()
                 isStarted -> showEnRouteLayout()
-                else -> showConfirmationLayout()
+                else -> showNoActiveDelivery()
             }
         }
     }
@@ -558,8 +542,6 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         haulerArrivedAtDestinationLayout.visibility = View.VISIBLE
     }
 
-
-
     private fun showCompletedMessage() {
         Toast.makeText(requireContext(), "✅ Delivery completed!", Toast.LENGTH_LONG).show()
         loadingLayout.visibility = View.GONE
@@ -569,6 +551,18 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         noActiveDeliveryLayout.visibility = View.VISIBLE
         haulerOnDeliveryLayout.visibility = View.GONE
         haulerArrivedAtDestinationLayout.visibility = View.GONE
+
+        val navBar = activity as? NavigationBar
+        navBar?.let { nav ->
+            nav.activeRequestId = null // ✅ Clear the active request
+            nav.restoreActiveRequestId {
+                if (isAdded) {
+                    requireActivity().runOnUiThread {
+                        nav.resetToDashboard() // ✅ Back to dashboard to allow new request
+                    }
+                }
+            }
+        }
     }
 
     private fun showNoActiveDelivery() {

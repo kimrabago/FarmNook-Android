@@ -8,6 +8,7 @@ data class DeliveryDisplayItem(
     val rawDrop: String,                  // coordinates
     val estimatedTime: String,
     val totalCost: String,
-    val requestId: String
+    val requestId: String,
+    val isStarted: Boolean
 )
 

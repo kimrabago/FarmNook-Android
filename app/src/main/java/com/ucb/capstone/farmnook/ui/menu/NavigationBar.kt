@@ -41,6 +41,7 @@ class NavigationBar : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var drawerToggle: ActionBarDrawerToggle
     var activeRequestId: String? = null
+    private var activeDeliveryId: String? = null  // 🔁 For haulers
 
     private var userType: String = "farmer"
 
@@ -59,10 +60,6 @@ class NavigationBar : AppCompatActivity() {
     private var vehicleType: String? = null
     private var vehicleModel: String? = null
     private var plateNumber: String? = null
-
-    private var deliveryListener: ListenerRegistration? = null
-    private var businessListener: ListenerRegistration? = null
-    private var vehicleListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,22 +117,6 @@ class NavigationBar : AppCompatActivity() {
                     vehicleModel = intent.getStringExtra("vehicleModel") ?: vehicleModel
                     plateNumber = intent.getStringExtra("plateNumber") ?: plateNumber
 
-
-                    Log.d("INTENT_DEBUG", "requestId: $activeRequestId")
-                    Log.d("INTENT_DEBUG", "pickupName: $pickupName")
-                    Log.d("INTENT_DEBUG", "destinationName: $destinationName")
-                    Log.d("INTENT_DEBUG", "productType: $productType")
-                    Log.d("INTENT_DEBUG", "weight: $weight")
-                    Log.d("INTENT_DEBUG", "businessId: $businessId")
-                    Log.d("INTENT_DEBUG", "totalCost: $totalCost")
-                    Log.d("INTENT_DEBUG", "estimatedTime: $estimatedTime")
-                    Log.d("INTENT_DEBUG", "businessName: $businessName")
-                    Log.d("INTENT_DEBUG", "locationName: $locationName")
-                    Log.d("INTENT_DEBUG", "profileImage: $profileImage")
-                    Log.d("INTENT_DEBUG", "vehicleType: $vehicleType")
-                    Log.d("INTENT_DEBUG", "vehicleModel: $vehicleModel")
-                    Log.d("INTENT_DEBUG", "plateNumber: $plateNumber")
-
                     FarmerDeliveryStatusFragment().apply {
                         arguments = Bundle().apply { putString("requestId", activeRequestId)
                             putString("pickupName", pickupName)
@@ -178,13 +159,12 @@ class NavigationBar : AppCompatActivity() {
                 R.id.home -> resetToDashboard()
                 R.id.history -> replaceFragment(DeliveryHistoryFragment(), "History")
                 R.id.delivery -> {
-                    val bundle = Bundle().apply {
-                        val key = if (userType == "Hauler" || userType == "Hauler Business Admin") "deliveryId" else "requestId"
-                        val value = if (key == "deliveryId") intent.getStringExtra("deliveryId") else activeRequestId
-                        putString(key, value)
-                    }
                     val fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
-                        HaulerDeliveryStatusFragment().apply { arguments = bundle }
+                        val bundle = Bundle().apply {
+                            putString("deliveryId", activeDeliveryId)
+                        }
+                        HaulerDeliveryStatusFragment().apply { arguments = bundle
+                            Log.d("NAV", "✅ Pass deliveryId: $activeDeliveryId")}
                     } else {
                         FarmerDeliveryStatusFragment().apply {
                             arguments = Bundle().apply {
@@ -248,55 +228,96 @@ class NavigationBar : AppCompatActivity() {
             .whereEqualTo("farmerId", userId)
             .get()
             .addOnSuccessListener { querySnapshot ->
-                val activeDoc = querySnapshot.documents.firstOrNull { doc ->
-                    val status = doc.getString("status") ?: ""
-                    status != "Cancelled"
+
+                val requestDocs = querySnapshot.documents
+                if (requestDocs.isEmpty()) {
+                    activeRequestId = null
+                    onComplete()
+                    return@addOnSuccessListener
                 }
 
-                if (activeDoc != null) {
-                    activeRequestId = activeDoc.getString("requestId")
-                    pickupName = activeDoc.getString("pickupName")
-                    destinationName = activeDoc.getString("destinationName")
-                    purpose = activeDoc.getString("purpose")
-                    productType = activeDoc.getString("productType")
-                    weight = activeDoc.getString("weight")
-                    totalCost = activeDoc.getDouble("estimatedCost") ?: -1.0
-                    estimatedTime = activeDoc.getString("estimatedTime")
-                    businessId = activeDoc.getString("businessId")
-                    vehicleId = activeDoc.getString("vehicleId")
+                // Go through each deliveryRequest and check if its delivery is not done
+                val iterator = requestDocs.iterator()
 
-                    if (!businessId.isNullOrEmpty()) {
-                        database.collection("users").document(businessId!!)
-                            .get()
-                            .addOnSuccessListener { businessDoc ->
-                                businessName = businessDoc.getString("businessName")
-                                locationName = businessDoc.getString("locationName")
-                                profileImage = businessDoc.getString("profileImageUrl")
+                fun checkNext() {
+                    if (!iterator.hasNext()) {
+                        activeRequestId = null
+                        onComplete()
+                        return
+                    }
 
-                                if (!vehicleId.isNullOrEmpty()) {
-                                    database.collection("vehicles").document(vehicleId!!)
+                    val doc = iterator.next()
+                    val requestId = doc.getString("requestId") ?: return@checkNext
+                    val status = doc.getString("status") ?: ""
+
+                    // Skip cancelled requests
+                    if (status == "Cancelled") {
+                        checkNext()
+                        return
+                    }
+
+                    // Now check corresponding delivery
+                    database.collection("deliveries")
+                        .whereEqualTo("requestId", requestId)
+                        .limit(1)
+                        .get()
+                        .addOnSuccessListener { deliverySnapshot ->
+                            val deliveryDoc = deliverySnapshot.documents.firstOrNull()
+                            val isDone = deliveryDoc?.getBoolean("isDone") ?: false
+
+                            if (isDone) {
+                                checkNext() // Skip this one, try next
+                            } else {
+                                // ✅ Found valid ongoing delivery
+                                activeRequestId = requestId
+                                pickupName = doc.getString("pickupName")
+                                destinationName = doc.getString("destinationName")
+                                purpose = doc.getString("purpose")
+                                productType = doc.getString("productType")
+                                weight = doc.getString("weight")
+                                totalCost = doc.getDouble("estimatedCost") ?: -1.0
+                                estimatedTime = doc.getString("estimatedTime")
+                                businessId = doc.getString("businessId")
+                                vehicleId = doc.getString("vehicleId")
+
+                                // Load business and vehicle details
+                                if (!businessId.isNullOrEmpty()) {
+                                    database.collection("users").document(businessId!!)
                                         .get()
-                                        .addOnSuccessListener { vehicleDoc ->
-                                            vehicleType = vehicleDoc.getString("vehicleType")
-                                            vehicleModel = vehicleDoc.getString("model")
-                                            plateNumber = vehicleDoc.getString("plateNumber")
-                                            onComplete()
+                                        .addOnSuccessListener { businessDoc ->
+                                            businessName = businessDoc.getString("businessName")
+                                            locationName = businessDoc.getString("locationName")
+                                            profileImage = businessDoc.getString("profileImageUrl")
+
+                                            if (!vehicleId.isNullOrEmpty()) {
+                                                database.collection("vehicles").document(vehicleId!!)
+                                                    .get()
+                                                    .addOnSuccessListener { vehicleDoc ->
+                                                        vehicleType = vehicleDoc.getString("vehicleType")
+                                                        vehicleModel = vehicleDoc.getString("model")
+                                                        plateNumber = vehicleDoc.getString("plateNumber")
+                                                        onComplete()
+                                                    }
+                                                    .addOnFailureListener { onComplete() }
+                                            } else {
+                                                onComplete()
+                                            }
                                         }
                                         .addOnFailureListener { onComplete() }
                                 } else {
                                     onComplete()
                                 }
                             }
-                            .addOnFailureListener { onComplete() }
-                    } else {
-                        onComplete()
-                    }
-                } else {
-                    activeRequestId = null
-                    onComplete()
+                        }
+                        .addOnFailureListener {
+                            checkNext()
+                        }
                 }
+
+                checkNext()
             }
             .addOnFailureListener {
+                activeRequestId = null
                 onComplete()
             }
     }
@@ -338,10 +359,9 @@ class NavigationBar : AppCompatActivity() {
                     val firstName = document.getString("firstName") ?: "User"
                     val lastName = document.getString("lastName") ?: ""
                     val fullName = "$firstName $lastName"
-                    userType = document.getString("userType") ?: "farmer"
-
                     val dateJoined = document.getString("dateJoined") ?: ""
                     val formattedDate = formatDateJoined(dateJoined)
+                    userType = document.getString("userType") ?: "farmer"
 
                     val headerView: View = navigationView.getHeaderView(0)
                     headerView.findViewById<TextView>(R.id.full_name).text = fullName
@@ -351,14 +371,23 @@ class NavigationBar : AppCompatActivity() {
                     profileImage.loadImage(profileImageUrl)
 
                     if (userType == "Farmer") {
-                        // ONLY Farmers wait for restoreActiveRequestId ✅
-                        restoreActiveRequestId {
-                            onFinished()
-                        }
+                        restoreActiveRequestId { onFinished() }
                     } else {
-                        // Haulers / Admins: IMMEDIATELY run onFinished() ✅
-                        activeRequestId = null
-                        onFinished()
+                        // 🔁 Store it, don't open anything yet
+                        database.collection("deliveries")
+                            .whereEqualTo("haulerAssignedId", userId)
+                            .whereEqualTo("isStarted", true)
+                            .get()
+                            .addOnSuccessListener { snapshot ->
+                                val active = snapshot.documents.firstOrNull { doc ->
+                                    val done = doc.getBoolean("isDone") ?: false
+                                    !done // ✅ Only set activeDeliveryId if not done
+                                }
+
+                                activeDeliveryId = active?.id
+                                Log.d("NAV", "✅ Restored activeDeliveryId: $activeDeliveryId")
+                                onFinished()
+                            }
                     }
                 }
             }
