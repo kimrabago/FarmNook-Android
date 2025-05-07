@@ -2,6 +2,7 @@ package com.ucb.capstone.farmnook.ui.farmer
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Color
 import android.location.Geocoder
 import android.os.Bundle
@@ -25,7 +26,9 @@ import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import android.location.Location
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.ucb.capstone.farmnook.ui.message.MessageActivity
 
 class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_status) {
 
@@ -66,6 +69,52 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val messageIcon = view.findViewById<ImageButton>(R.id.messageIcon)
+        messageIcon.setOnClickListener {
+            val deliveryId = this.deliveryId ?: return@setOnClickListener
+
+
+            FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId).get()
+                .addOnSuccessListener { deliveryDoc ->
+                    val farmerId = FirebaseAuth.getInstance().currentUser?.uid
+                        ?: return@addOnSuccessListener
+                    val haulerId = deliveryDoc.getString("haulerAssignedId")
+                        ?: return@addOnSuccessListener
+
+
+                    // Generate chat ID (must match format used elsewhere)
+                    val chatId = if (farmerId < haulerId) "$farmerId-$haulerId"
+                    else "$haulerId-$farmerId"
+
+
+                    // Fetch hauler details for the chat
+                    FirebaseFirestore.getInstance().collection("users").document(haulerId).get()
+                        .addOnSuccessListener { haulerDoc ->
+                            val firstName = haulerDoc.getString("firstName") ?: ""
+                            val lastName = haulerDoc.getString("lastName") ?: ""
+                            val haulerName = "$firstName $lastName".trim()
+
+
+                            Intent(requireContext(), MessageActivity::class.java).apply {
+                                putExtra("chatId", chatId)
+                                putExtra("recipientId", haulerId)
+                                putExtra("receiverName", haulerName)
+                            }.also { startActivity(it) }
+                        }
+                        .addOnFailureListener {
+                            // Start chat even if name fetch fails
+                            Intent(requireContext(), MessageActivity::class.java).apply {
+                                putExtra("chatId", chatId)
+                                putExtra("recipientId", haulerId)
+                            }.also { startActivity(it) }
+                        }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(),
+                        "Failed to load delivery details",
+                        Toast.LENGTH_SHORT).show()
+                }
+        }
 
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.bottomSheet)).apply {
             peekHeight = 100
