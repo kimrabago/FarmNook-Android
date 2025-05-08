@@ -133,9 +133,20 @@ class NewMessageActivity : AppCompatActivity() {
     }
 
     private fun openChatScreen(userId: String, userName: String) {
-        val intent = Intent(this, MessageActivity::class.java)
-        intent.putExtra("receiverId", userId)
-        intent.putExtra("receiverName", userName)
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        // Generate chat ID consistently with your other screens
+        val chatId = if (currentUserId < userId) {
+            "$currentUserId-$userId"
+        } else {
+            "$userId-$currentUserId"
+        }
+
+        val intent = Intent(this, MessageActivity::class.java).apply {
+            putExtra("chatId", chatId) // This is required for message loading
+            putExtra("recipientId", userId) // Must match parameter name in MessageActivity
+            putExtra("receiverName", userName)
+        }
         startActivity(intent)
     }
 

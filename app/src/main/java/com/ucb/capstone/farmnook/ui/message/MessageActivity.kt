@@ -17,10 +17,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-
-
 class MessageActivity : AppCompatActivity() {
-
 
     private lateinit var messagesRecyclerView: RecyclerView
     private lateinit var replyEditText: EditText
@@ -29,12 +26,8 @@ class MessageActivity : AppCompatActivity() {
 
     private lateinit var messageAdapter: MessageAdapter
     private val messageList = mutableListOf<Message>()
-
-
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-
-
     private lateinit var chatId: String
     private lateinit var receiverId: String
     private lateinit var receiverName: String
@@ -45,25 +38,17 @@ class MessageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message)
 
-
         // Initialize views
         messagesRecyclerView = findViewById(R.id.messagesRecyclerView)
         replyEditText = findViewById(R.id.replyEditText)
         sendButton = findViewById(R.id.sendButton)
         receiverNameTextView = findViewById(R.id.receiverName)
 
-
-
-
-        // Get intent extras with null checks
         chatId = intent.getStringExtra("chatId") ?: run {
             Toast.makeText(this, "Chat not found", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
-
-
-
 
         receiverId = intent.getStringExtra("recipientId") ?: run {
             Toast.makeText(this, "Recipient not found", Toast.LENGTH_SHORT).show()
@@ -73,22 +58,13 @@ class MessageActivity : AppCompatActivity() {
         val backButton: ImageButton = findViewById(R.id.btn_back)
         backButton.setOnClickListener { finish() }
 
-
-
-
         receiverName = intent.getStringExtra("receiverName") ?: "Unknown User"
         receiverNameTextView.text = receiverName
-
-
-
-
         senderId = auth.currentUser?.uid ?: run {
             Toast.makeText(this, "Not authenticated", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
-
-
 
 
         // Setup RecyclerView
@@ -99,11 +75,7 @@ class MessageActivity : AppCompatActivity() {
         }
 
 
-
-
         loadMessages()
-
-
 
 
         sendButton.setOnClickListener {
@@ -113,8 +85,6 @@ class MessageActivity : AppCompatActivity() {
             }
         }
     }
-
-
 
 
     private fun loadMessages() {
@@ -172,17 +142,12 @@ class MessageActivity : AppCompatActivity() {
     }
 
 
-
-
     private fun sendMessage(content: String) {
         firestore.collection("users").document(senderId).get()
             .addOnSuccessListener { document ->
                 val firstName = document.getString("firstName") ?: ""
                 val lastName = document.getString("lastName") ?: ""
                 val senderName = "$firstName $lastName".trim()
-
-
-
 
                 val message = Message(
                     senderId = senderId,
@@ -192,16 +157,11 @@ class MessageActivity : AppCompatActivity() {
                     senderName = senderName
                 )
 
-
-
-
                 // Update chat document
                 firestore.collection("chats").document(chatId).update(
                     "lastMessage", content,
                     "timestamp", System.currentTimeMillis()
                 )
-
-
 
 
                 // Add message to subcollection
