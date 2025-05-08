@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryItem
-import com.ucb.capstone.farmnook.ui.hauler.DeliveryDetailsActivity
+import com.ucb.capstone.farmnook.ui.users.hauler.DeliveryDetailsActivity
 ///WAY GAMIT
 class DeliveryAdapter(private val deliveryList: List<DeliveryItem>) :
     RecyclerView.Adapter<DeliveryAdapter.DeliveryViewHolder>() {

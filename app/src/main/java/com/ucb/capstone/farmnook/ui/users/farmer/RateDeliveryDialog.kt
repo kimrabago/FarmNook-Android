@@ -1,4 +1,4 @@
-    package com.ucb.capstone.farmnook.ui.farmer.add_delivery
+    package com.ucb.capstone.farmnook.ui.users.farmer
 
     import android.os.Bundle
     import android.util.Log
@@ -20,7 +20,7 @@
         private lateinit var ratingBar: RatingBar
         private lateinit var commentBox: EditText
         private lateinit var rateButton: Button
-        private lateinit var closeButton: ImageView  // Reference to close button
+        private lateinit var closeButton: ImageView
 
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -35,14 +35,12 @@
             ratingBar = view.findViewById(R.id.ratingBar)
             commentBox = view.findViewById(R.id.commentBox)
             rateButton = view.findViewById(R.id.rate_button)
-            closeButton = view.findViewById(R.id.closeDialog)  // Initialize close button
+            closeButton = view.findViewById(R.id.closeDialog)
 
-            // Get data from arguments passed to the dialog
             val deliveryId = arguments?.getString("deliveryId")
             val businessId = arguments?.getString("businessId")
             val farmerId = arguments?.getString("farmerId")
 
-            // Set up click listener for the rate button
             rateButton.setOnClickListener {
                 val rating = ratingBar.rating
                 val comment = commentBox.text.toString()
@@ -58,10 +56,10 @@
                 }
 
                 val db = FirebaseFirestore.getInstance()
-                val feedbackRef = db.collection("feedback").document() // Auto-generate doc ID
+                val feedbackRef = db.collection("feedback").document()
 
                 val feedback = hashMapOf(
-                    "feedbackId" to feedbackRef.id, // Match doc ID
+                    "feedbackId" to feedbackRef.id,
                     "deliveryId" to deliveryId,
                     "farmerId" to farmerId,
                     "businessId" to businessId,
@@ -75,8 +73,7 @@
                         Toast.makeText(context, "Feedback submitted!", Toast.LENGTH_SHORT).show()
                         dismiss()
                     }
-                    .addOnFailureListener { e ->
-                        Log.e("RateDelivery", "Failed to submit feedback", e)
+                    .addOnFailureListener {
                         Toast.makeText(context, "Error submitting feedback.", Toast.LENGTH_SHORT).show()
                     }
             }

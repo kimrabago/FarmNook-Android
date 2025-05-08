@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.hauler
+package com.ucb.capstone.farmnook.ui.users
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -10,11 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
-import com.ucb.capstone.farmnook.util.getAddressFromLatLng
 import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import java.text.SimpleDateFormat
 import java.util.Locale
-import android.location.Geocoder
 import android.util.Log
 import com.ucb.capstone.farmnook.utils.loadImage
 

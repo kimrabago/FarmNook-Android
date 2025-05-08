@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.farmer.add_delivery
+package com.ucb.capstone.farmnook.ui.users.farmer.add_delivery
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -18,8 +18,9 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.algo.RecommendationRequest
 import com.ucb.capstone.farmnook.data.model.algo.RecommendationResponse
 import com.ucb.capstone.farmnook.data.service.ApiService
-import com.ucb.capstone.farmnook.ui.hauler.LocationPickerActivity
+import com.ucb.capstone.farmnook.ui.users.LocationPickerActivity
 import com.ucb.capstone.farmnook.utils.RetrofitClient
+import com.ucb.capstone.farmnook.utils.GeoUtils.haversine
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -55,7 +56,6 @@ class AddDeliveryActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Views Spinners
         pickUpLocButton= findViewById(R.id.fromButton)
         destinationButton= findViewById(R.id.toButton)
         fromLocation = findViewById(R.id.from_location)
@@ -77,7 +77,6 @@ class AddDeliveryActivity : AppCompatActivity() {
             startActivityForResult(intent, DESTINATION_LOCATION_REQUEST)
         }
 
-        // Create a list of items for the dropdown
         val options = listOf("Select Purpose", "Livestock", "Crops", "Perishable Crops")
 
         purposeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
@@ -226,17 +225,6 @@ class AddDeliveryActivity : AppCompatActivity() {
                 Toast.makeText(this@AddDeliveryActivity, "🚫 API Failed: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
-    }
-
-    private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val R = 6371e3 // meters
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2)
-        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-        return R * c
     }
 
     @SuppressLint("MissingPermission")

@@ -14,7 +14,7 @@ import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.data.model.Notification
 import com.ucb.capstone.farmnook.databinding.ActivityNotificationBinding
 import com.ucb.capstone.farmnook.ui.adapter.NotificationAdapter
-import com.ucb.capstone.farmnook.ui.farmer.DeliveryConfirmationActivity
+import com.ucb.capstone.farmnook.ui.users.farmer.DeliveryConfirmationActivity
 import java.text.SimpleDateFormat
 import java.util.*
 

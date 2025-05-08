@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.hauler
+package com.ucb.capstone.farmnook.ui.users.hauler
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -25,10 +25,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryHistory
 import com.ucb.capstone.farmnook.data.model.Message
-import com.ucb.capstone.farmnook.ui.hauler.services.DeliveryLocationService
-import com.ucb.capstone.farmnook.ui.hauler.HistoryDetailsActivity
+import com.ucb.capstone.farmnook.ui.users.hauler.services.DeliveryLocationService
+import com.ucb.capstone.farmnook.ui.users.HistoryDetailsActivity
 import com.ucb.capstone.farmnook.ui.message.MessageActivity
-import com.ucb.capstone.farmnook.ui.message.NewMessageActivity
 import com.ucb.capstone.farmnook.utils.SendPushNotification
 import okhttp3.*
 import org.json.JSONObject
