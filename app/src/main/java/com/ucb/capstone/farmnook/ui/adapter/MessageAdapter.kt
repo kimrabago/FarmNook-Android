@@ -10,7 +10,7 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.Message
 
 
-class MessageAdapter(private val messageList: List<Message>, private val currentUserId: String) :
+class MessageAdapter(private var messageList: List<Message>, private val currentUserId: String) :
     RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
 
 
@@ -21,7 +21,10 @@ class MessageAdapter(private val messageList: List<Message>, private val current
             LayoutInflater.from(parent.context).inflate(R.layout.message_item_received, parent, false)
         return MessageViewHolder(view)
     }
-
+    fun updateMessages(newMessages: List<Message>) {
+        this.messageList = newMessages
+        notifyDataSetChanged()
+    }
 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
         val message = messageList[position]

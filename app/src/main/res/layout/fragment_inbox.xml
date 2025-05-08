@@ -6,54 +6,61 @@
     android:layout_height="match_parent"
     tools:context=".ui.message.InboxFragment">
 
-    <LinearLayout
+    <!-- Wrap your entire content with SwipeRefreshLayout -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:ignore="UselessParent">
+        android:layout_height="match_parent">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
-
-            <TextView
-                android:id="@+id/inbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/inbox"
-                android:fontFamily="@font/poppins_bold"
-                android:textColor="@color/dark_green"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp"
-                android:layout_centerVertical="true"
-                tools:ignore="RelativeOverlap" />
-
-            <ImageButton
-                android:id="@+id/new_message_btn"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@null"
-                android:src="@drawable/new_msg"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="10dp"
-                android:contentDescription="@string/new_message"/>
-        </RelativeLayout>
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/half_border"
-            android:padding="10dp">
+            android:orientation="vertical"
+            tools:ignore="UselessParent">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/messagesRecyclerView"
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp">
+
+                <TextView
+                    android:id="@+id/inbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/inbox"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textColor="@color/dark_green"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_centerVertical="true"
+                    tools:ignore="RelativeOverlap" />
+
+                <ImageButton
+                    android:id="@+id/new_message_btn"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@null"
+                    android:src="@drawable/new_msg"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="10dp"
+                    android:contentDescription="@string/new_message"/>
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                tools:listitem="@layout/message_item"/>
-        </RelativeLayout>
-    </LinearLayout>
+                android:background="@drawable/half_border"
+                android:padding="10dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/messagesRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    tools:listitem="@layout/message_item"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </FrameLayout>
