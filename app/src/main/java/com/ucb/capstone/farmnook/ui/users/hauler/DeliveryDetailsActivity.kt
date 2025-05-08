@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.hauler
+package com.ucb.capstone.farmnook.ui.users.hauler
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -17,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryHistory
 import com.ucb.capstone.farmnook.data.model.Message
-import com.ucb.capstone.farmnook.ui.hauler.services.DeliveryLocationService
+import com.ucb.capstone.farmnook.ui.users.hauler.services.DeliveryLocationService
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import com.ucb.capstone.farmnook.utils.SendPushNotification
 import com.ucb.capstone.farmnook.utils.loadImage

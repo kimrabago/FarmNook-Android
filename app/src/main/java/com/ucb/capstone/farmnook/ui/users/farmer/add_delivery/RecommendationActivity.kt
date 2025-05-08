@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.farmer.add_delivery
+package com.ucb.capstone.farmnook.ui.users.farmer.add_delivery
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -26,11 +26,11 @@ import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import com.ucb.capstone.farmnook.utils.EstimateTravelTimeUtil
 import com.ucb.capstone.farmnook.utils.RetrofitClient
 import com.ucb.capstone.farmnook.utils.SendPushNotification
+import com.ucb.capstone.farmnook.utils.GeoUtils.haversine
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.math.pow
 
 class RecommendationActivity : AppCompatActivity() {
 
@@ -137,10 +137,10 @@ class RecommendationActivity : AppCompatActivity() {
                         val locationCoords = locationStr.split(",")
                         if (locationCoords.size != 2) return@forEach
 
-                        val lat = locationCoords[0].toDoubleOrNull() ?: return@forEach
-                        val lng = locationCoords[1].toDoubleOrNull() ?: return@forEach
+                        val businessLat = locationCoords[0].toDoubleOrNull() ?: return@forEach
+                        val businessLng = locationCoords[1].toDoubleOrNull() ?: return@forEach
 
-                        val pickupDistance = haversine(lat, lng, pickupLat, pickupLng)
+                        val pickupDistance = haversine(businessLat, businessLng, pickupLat, pickupLng)
                         val deliveryDistance = haversine(pickupLat, pickupLng, destinationLat, destinationLng)
 
                         // 👇 Convert meters to kilometers and log
@@ -216,17 +216,6 @@ class RecommendationActivity : AppCompatActivity() {
     private fun sortByRatings() {
         vehicleList.sortByDescending { it.averageRating ?: 0.0 }
         adapter.notifyDataSetChanged()
-    }
-
-    private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val R = 6371e3
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-        val a = Math.sin(dLat / 2).pow(2.0) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                Math.sin(dLon / 2).pow(2.0)
-        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-        return R * c
     }
 
     private fun onAvailableClicked(vehicle: VehicleWithBusiness) {

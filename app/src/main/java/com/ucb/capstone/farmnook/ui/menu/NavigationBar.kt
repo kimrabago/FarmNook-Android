@@ -17,14 +17,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.ui.auth.LoginActivity
-import com.ucb.capstone.farmnook.ui.farmer.FarmerDeliveryStatusFragment
-import com.ucb.capstone.farmnook.ui.farmer.FarmerDashboardFragment
-import com.ucb.capstone.farmnook.ui.hauler.DeliveryHistoryFragment
-import com.ucb.capstone.farmnook.ui.hauler.HaulerDashboardFragment
-import com.ucb.capstone.farmnook.ui.hauler.HaulerDeliveryStatusFragment
+import com.ucb.capstone.farmnook.ui.users.farmer.FarmerDeliveryStatusFragment
+import com.ucb.capstone.farmnook.ui.users.farmer.FarmerDashboardFragment
+import com.ucb.capstone.farmnook.ui.users.DeliveryHistoryFragment
+import com.ucb.capstone.farmnook.ui.users.hauler.HaulerDashboardFragment
+import com.ucb.capstone.farmnook.ui.users.hauler.HaulerDeliveryStatusFragment
 import com.ucb.capstone.farmnook.ui.message.InboxFragment
 import com.ucb.capstone.farmnook.ui.settings.*
 import com.ucb.capstone.farmnook.utils.loadImage
@@ -41,7 +40,7 @@ class NavigationBar : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var drawerToggle: ActionBarDrawerToggle
     var activeRequestId: String? = null
-    private var activeDeliveryId: String? = null  // 🔁 For haulers
+    private var activeDeliveryId: String? = null
 
     private var userType: String = "farmer"
 
@@ -250,13 +249,11 @@ class NavigationBar : AppCompatActivity() {
                     val requestId = doc.getString("requestId") ?: return@checkNext
                     val status = doc.getString("status") ?: ""
 
-                    // Skip cancelled requests
                     if (status == "Cancelled") {
                         checkNext()
                         return
                     }
 
-                    // Now check corresponding delivery
                     database.collection("deliveries")
                         .whereEqualTo("requestId", requestId)
                         .limit(1)
@@ -266,9 +263,9 @@ class NavigationBar : AppCompatActivity() {
                             val isDone = deliveryDoc?.getBoolean("isDone") ?: false
 
                             if (isDone) {
-                                checkNext() // Skip this one, try next
+                                checkNext()
                             } else {
-                                // ✅ Found valid ongoing delivery
+                                // Found valid ongoing delivery
                                 activeRequestId = requestId
                                 pickupName = doc.getString("pickupName")
                                 destinationName = doc.getString("destinationName")
@@ -373,7 +370,6 @@ class NavigationBar : AppCompatActivity() {
                     if (userType == "Farmer") {
                         restoreActiveRequestId { onFinished() }
                     } else {
-                        // 🔁 Store it, don't open anything yet
                         database.collection("deliveries")
                             .whereEqualTo("haulerAssignedId", userId)
                             .whereEqualTo("isStarted", true)
@@ -381,7 +377,7 @@ class NavigationBar : AppCompatActivity() {
                             .addOnSuccessListener { snapshot ->
                                 val active = snapshot.documents.firstOrNull { doc ->
                                     val done = doc.getBoolean("isDone") ?: false
-                                    !done // ✅ Only set activeDeliveryId if not done
+                                    !done
                                 }
 
                                 activeDeliveryId = active?.id

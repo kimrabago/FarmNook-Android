@@ -17,7 +17,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.databinding.ActivityRegisterBinding
-import com.ucb.capstone.farmnook.ui.hauler.LocationPickerActivity
+import com.ucb.capstone.farmnook.ui.users.LocationPickerActivity
 import com.ucb.capstone.farmnook.viewmodel.auth.RegistrationViewModel
 
 class RegisterActivity : AppCompatActivity() {
@@ -123,7 +123,6 @@ class RegisterActivity : AppCompatActivity() {
         } else null
 
         registrationViewModel.registerUser(firstName, lastName, email, password, confirmPass, userType, businessName, businessLocation, locationName)
-        Log.d("RegisterDebug", "Captured businessLocation: ${businessLocation}")
     }
 
     @SuppressLint("ClickableViewAccessibility")

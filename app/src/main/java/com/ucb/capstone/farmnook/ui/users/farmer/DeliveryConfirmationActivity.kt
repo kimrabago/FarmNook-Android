@@ -1,20 +1,15 @@
-package com.ucb.capstone.farmnook.ui.farmer
+package com.ucb.capstone.farmnook.ui.users.farmer
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
-import com.ucb.capstone.farmnook.util.getAddressFromLatLng
-import android.location.Geocoder
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
-import com.ucb.capstone.farmnook.ui.farmer.add_delivery.RateDeliveryDialog
 import com.ucb.capstone.farmnook.utils.loadImage
-import java.util.Locale
 
 class DeliveryConfirmationActivity : AppCompatActivity() {
 

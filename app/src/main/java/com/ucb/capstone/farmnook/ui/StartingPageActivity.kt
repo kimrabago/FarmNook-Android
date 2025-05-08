@@ -26,17 +26,14 @@ class StartingPageActivity : AppCompatActivity() {
                 .build())
         }
 
-        // **Check if user is already logged in**
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
-            // **Navigate directly to BottomNavigationBar**
             val intent = Intent(this, NavigationBar::class.java)
             startActivity(intent)
-            finish() // Close StartingPageActivity
+            finish()
             return
         }
 
-        // If user is not logged in, show StartingPageActivity
         setContentView(R.layout.activity_starting_page)
 
         val startBtn = findViewById<Button>(R.id.startButton)

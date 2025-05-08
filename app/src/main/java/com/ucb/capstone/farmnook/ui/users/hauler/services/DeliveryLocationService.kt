@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.hauler.services
+package com.ucb.capstone.farmnook.ui.users.hauler.services
 
 import android.annotation.SuppressLint
 import android.app.Service

@@ -1,4 +1,4 @@
-package com.ucb.capstone.farmnook.ui.farmer
+package com.ucb.capstone.farmnook.ui.users.farmer
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -63,7 +63,6 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
 
     private lateinit var vehicleWtBusiness: VehicleWithBusiness
     private lateinit var deliveryReq: DeliveryRequest
-
 
     private lateinit var haulerProfileImage: CircleImageView
 
