@@ -35,12 +35,10 @@ class ApplicationClass : Application(), LifecycleObserver {
     override fun onCreate() {
         super.onCreate()
 
-        // 🔐 Initialize Firebase first
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        // 📍 Initialize Google Places API
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, "AIzaSyBgn5YSLD0N6p62OrEHqjVqVsfijHdupY8")
         }
@@ -52,7 +50,7 @@ class ApplicationClass : Application(), LifecycleObserver {
             OneSignal.Notifications.requestPermission(false)
         }
 
-        // 🎯 Handle notification clicks and routing
+        // Handle notification clicks and routing
         OneSignal.Notifications.addClickListener(object : INotificationClickListener {
             override fun onClick(event: INotificationClickEvent) {
                 val data = event.notification.additionalData
@@ -105,22 +103,21 @@ class ApplicationClass : Application(), LifecycleObserver {
             }
         }
 
-        // 🧠 Listen for app foreground/background
+        //Listen for app foreground/background
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
-        // ⚠️ Catch crashes and force status offline
+        // Catch crashes and force status offline
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             auth.currentUser?.uid?.let { uid ->
                 firestore.collection("users").document(uid)
                     .update("status", false)
-                    .addOnSuccessListener { Log.d("Crash", "💥 Status set to false after crash") }
             }
 
             Thread.getDefaultUncaughtExceptionHandler()?.uncaughtException(thread, throwable)
         }
     }
 
-    // 🟢 App moves to foreground — start heartbeat if user is hauler
+    //App moves to foreground — start heartbeat if user is hauler
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onAppForeground() {
         FirebaseAuth.getInstance().addAuthStateListener { auth ->
@@ -130,18 +127,13 @@ class ApplicationClass : Application(), LifecycleObserver {
             userRef.get().addOnSuccessListener { doc ->
                 val userType = doc.getString("userType")
                 if (userType == "Hauler") {
-                    Log.d("Heartbeat", "🟢 App foreground — Starting heartbeat")
                     startHeartbeat(user.uid)
-                } else {
-                    Log.d("Heartbeat", "🔕 Not a hauler — heartbeat skipped")
                 }
-            }.addOnFailureListener {
-                Log.e("Heartbeat", "🔥 Failed to get userType for heartbeat", it)
             }
         }
     }
 
-    // 🔴 App moves to background — stop heartbeat and mark offline
+    // App moves to background — stop heartbeat and mark offline
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onAppBackground() {
         val user = auth.currentUser ?: return
@@ -149,11 +141,9 @@ class ApplicationClass : Application(), LifecycleObserver {
 
         firestore.collection("users").document(user.uid)
             .update("status", false)
-            .addOnSuccessListener { Log.d("Heartbeat", "🔴 App background — Status set to false") }
-            .addOnFailureListener { Log.e("Heartbeat", "❌ Failed to set status=false on background", it) }
     }
 
-    // 🧹 Best-effort cleanup on force close / swipe away
+    // Best-effort cleanup on force close / swipe away
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         if (level >= TRIM_MEMORY_COMPLETE) {
@@ -164,7 +154,7 @@ class ApplicationClass : Application(), LifecycleObserver {
         }
     }
 
-    // ♻️ Start heartbeat loop every 30s to update `lastSeen`
+    //Start heartbeat loop every 30s to update `lastSeen`
     private fun startHeartbeat(userId: String) {
         val userRef = firestore.collection("users").document(userId)
 
@@ -189,7 +179,7 @@ class ApplicationClass : Application(), LifecycleObserver {
         }
     }
 
-    // 🛑 Stop heartbeat coroutine when app goes background
+    // Stop heartbeat coroutine when app goes background
     private fun stopHeartbeat() {
         heartbeatJob?.cancel()
         heartbeatJob = null

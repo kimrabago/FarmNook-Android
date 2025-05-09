@@ -162,8 +162,7 @@ class NavigationBar : AppCompatActivity() {
                         val bundle = Bundle().apply {
                             putString("deliveryId", activeDeliveryId)
                         }
-                        HaulerDeliveryStatusFragment().apply { arguments = bundle
-                            Log.d("NAV", "✅ Pass deliveryId: $activeDeliveryId")}
+                        HaulerDeliveryStatusFragment().apply { arguments = bundle}
                     } else {
                         FarmerDeliveryStatusFragment().apply {
                             arguments = Bundle().apply {
@@ -381,7 +380,6 @@ class NavigationBar : AppCompatActivity() {
                                 }
 
                                 activeDeliveryId = active?.id
-                                Log.d("NAV", "✅ Restored activeDeliveryId: $activeDeliveryId")
                                 onFinished()
                             }
                     }

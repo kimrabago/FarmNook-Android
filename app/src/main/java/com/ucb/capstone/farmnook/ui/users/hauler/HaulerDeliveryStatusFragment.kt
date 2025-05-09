@@ -305,6 +305,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
             })
     }
 
+    //NEED IBALHIN
     private fun getEstimatedTravelTime(pickup: String, drop: String, callback: (String, Double) -> Unit) {
         val (startLat, startLng) = pickup.split(",")
         val (endLat, endLng) = drop.split(",")
