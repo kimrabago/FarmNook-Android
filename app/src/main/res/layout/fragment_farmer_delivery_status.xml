@@ -69,7 +69,6 @@
         android:padding="10dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <!-- Loading State inside CardView -->
         <androidx.cardview.widget.CardView
             android:id="@+id/loadingLayout"
             android:layout_width="match_parent"
@@ -131,6 +130,7 @@
                 android:padding="5dp">
 
                 <TextView
+                    android:id="@+id/status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -139,6 +139,7 @@
                     android:text="@string/delivery_confirmed"
                     android:textColor="@color/dark_green"
                     android:textSize="14sp"
+                    android:layout_marginTop="7dp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -154,147 +155,6 @@
                     android:textStyle="bold" />
 
                 <include layout="@layout/hauler_details_layout" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/haulerToPickupLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:visibility="gone"
-            android:layout_margin="13dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="6dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:gravity="center"
-                    android:text="@string/hauler_on_route_to_the_farmer_location"
-                    android:textColor="@color/dark_green"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <!-- Include hauler details layout -->
-                <include layout="@layout/hauler_details_layout" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/haulerArrival"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="13dp"
-            android:visibility="gone"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:background="@android:color/white"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/profileImage"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:src="@drawable/profile_circle"
-                    android:layout_marginEnd="16dp"/>
-
-                <TextView
-                    android:id="@+id/haulerStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="@string/your_hauler_is_here"
-                    android:textColor="@color/dark_green"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/haulerOnDelivery"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="13dp"
-            android:visibility="gone"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:background="@android:color/white"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/profileImage1"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:src="@drawable/profile_circle"
-                    android:layout_marginEnd="16dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Hauler is on Delivery."
-                    android:textColor="@color/dark_green"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/haulerArrivedAtDestination"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="13dp"
-            android:visibility="gone"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:background="@android:color/white"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/profileImage2"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:src="@drawable/profile_circle"
-                    android:layout_marginEnd="16dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Hauler arrived at the destination."
-                    android:textColor="@color/dark_green"
-                    android:textSize="16sp" />
-
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

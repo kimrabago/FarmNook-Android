@@ -13,7 +13,7 @@ import org.json.JSONObject
 object SendPushNotification {
 
     private const val ONE_SIGNAL_APP_ID = "4e5673fb-8d4d-4ee6-a268-7fab9d390be7"
-    private const val ONE_SIGNAL_API_KEY = "os_v2_app_jzlhh64njvhonitip6vz2oil46g64bdagwdumafaqquyisuuucapph6jnfwofmjcs3oaauutfhxzdq6sbyu72jgbiktprkewj5uty5y" // Replace with your actual OneSignal REST API key
+    private const val ONE_SIGNAL_API_KEY = "os_v2_app_jzlhh64njvhonitip6vz2oil46g64bdagwdumafaqquyisuuucapph6jnfwofmjcs3oaauutfhxzdq6sbyu72jgbiktprkewj5uty5y"
 
     fun notifyBusinessOfRequest(context: Context, businessId: String, farmerName: String) {
         val db = FirebaseFirestore.getInstance()
@@ -71,7 +71,6 @@ object SendPushNotification {
         }
 
         Volley.newRequestQueue(context).add(request)
-        Log.d("PushDebug", "Sending to $playerIds for msg: $message")
     }
 
     fun sendMessageNotification(context: Context, receiverId: String, senderName: String, message: String) {
@@ -115,7 +114,7 @@ object SendPushNotification {
                 }
             }
     }
-    // ✅ Helper to store Firestore + Send Message Notification (to Farmer or Business Admin)
+
     fun sendCompletedDeliveryNotification(
         recipientField: String, // "farmerId" or "businessId"
         recipientId: String,
@@ -140,7 +139,6 @@ object SendPushNotification {
 
         notifRef.set(notification)
 
-        // Reuse existing push sender
         sendMessageNotification(
             context = context,
             receiverId = recipientId,

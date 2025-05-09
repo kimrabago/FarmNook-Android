@@ -7,10 +7,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
-import com.ucb.capstone.farmnook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.Source
 import com.ucb.capstone.farmnook.data.model.Notification
 import com.ucb.capstone.farmnook.databinding.ActivityNotificationBinding
 import com.ucb.capstone.farmnook.ui.adapter.NotificationAdapter
@@ -47,12 +45,10 @@ class NotificationActivity : AppCompatActivity() {
                             }
                             startActivity(intent)
                         } else {
-                            Log.e("NotificationActivity", "Delivery document not found for $deliveryId")
                             Toast.makeText(this, "Delivery details not found", Toast.LENGTH_SHORT).show()
                         }
                     }
                     .addOnFailureListener { exception ->
-                        Log.e("NotificationActivity", "Failed to fetch delivery info", exception)
                         Toast.makeText(this, "Failed to fetch delivery info", Toast.LENGTH_SHORT).show()
                     }
             } else {
@@ -85,7 +81,6 @@ class NotificationActivity : AppCompatActivity() {
 
     private fun fetchNotifications() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        Log.d("NotificationActivity", "Current userId: $userId")
 
         val db = FirebaseFirestore.getInstance()
 
@@ -95,7 +90,6 @@ class NotificationActivity : AppCompatActivity() {
             .addSnapshotListener { snapshot, error ->
                 if (error != null || snapshot == null) return@addSnapshotListener
 
-                Log.d("NotificationDebug", "Snapshot size: ${snapshot.size()}")
 
                 for (doc in snapshot.documents) {
                     Log.d("NotificationDebug", "Doc ID: ${doc.id}, Data: ${doc.data}")

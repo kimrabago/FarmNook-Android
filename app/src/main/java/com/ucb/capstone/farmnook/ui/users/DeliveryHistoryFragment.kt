@@ -42,12 +42,11 @@ class DeliveryHistoryFragment : Fragment() {
 
         val now = Calendar.getInstance()
 
-        // Step 1: Determine userType first
         firestore.collection("users").document(currentUserId).get()
             .addOnSuccessListener { userDoc ->
                 val userType = userDoc.getString("userType") ?: "Farmer"
 
-                // Step 2: Load history
+                //Load history
                 historyListener = firestore.collection("deliveryHistory")
                     .addSnapshotListener { historyDocs, error ->
                         if (error != null || historyDocs == null) return@addSnapshotListener
@@ -82,7 +81,7 @@ class DeliveryHistoryFragment : Fragment() {
                                             val destinationAddress = reqDoc.getString("destinationName") ?: "Unknown"
                                             val estimatedTime = reqDoc.getString("estimatedTime") ?: "Unknown"
 
-                                            // ✅ Only add if current user was involved
+                                            // Only add if current user was involved
                                             val involved = (userType == "Farmer" && currentUserId == farmerId) ||
                                                     (userType != "Farmer" && currentUserId == haulerId)
                                             if (!involved) return@addOnSuccessListener

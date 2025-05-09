@@ -32,13 +32,12 @@
             android:fontFamily="@font/dm_sans"/>
 
         <TextView
-            android:text="@string/vehicle"
+            android:text="@string/license_no"
             android:textSize="14sp"
             android:textStyle="bold"
             android:fontFamily="@font/dm_sans_bold"/>
         <TextView
-            android:id="@+id/vehicleType"
-            android:text="@string/vehicle_type1"
+            android:id="@+id/licenseNo"
             android:textSize="14sp"
             android:layout_marginStart="5dp"
             android:fontFamily="@font/dm_sans"/>

@@ -232,6 +232,7 @@
     <string name="_04_03_25_10_45_am">04/03/25; 10:45 AM</string>
     <string name="message">Message</string>
     <string name="add_notes_to_your_delivery">Add notes to your delivery</string>
+    <string name="license_no">License No.</string>
 
     <string-array name="filter_options">
         <item>Location</item>

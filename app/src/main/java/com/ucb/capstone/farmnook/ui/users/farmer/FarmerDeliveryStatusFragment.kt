@@ -21,13 +21,11 @@ import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import com.ucb.capstone.farmnook.util.getAddressFromLatLng
 import com.ucb.capstone.farmnook.utils.loadImage
+import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.Locale
 import kotlin.math.ceil
-import kotlin.math.roundToInt
-import android.location.Location
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.ucb.capstone.farmnook.ui.message.MessageActivity
 
 class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_status) {
@@ -36,9 +34,6 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
     private lateinit var loadingLayout: View
     private lateinit var confirmationLayout: View
     private lateinit var haulerToPickupLayout: View
-    private lateinit var haulerArrivalLayout: View
-    private lateinit var haulerOnDeliveryLayout: View
-    private lateinit var haulerArrivedAtDestinationLayout: View
     private lateinit var noActiveDeliveryLayout: View
     private lateinit var webView: WebView
     private lateinit var geocoder: Geocoder
@@ -59,7 +54,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
     private var argVehicleType: String? = null
     private var argVehicleModel: String? = null
     private var argPlateNumber: String? = null
-
+    private lateinit var pickup: String
+    private lateinit var destination: String
 
     private lateinit var vehicleWtBusiness: VehicleWithBusiness
     private lateinit var deliveryReq: DeliveryRequest
@@ -101,7 +97,6 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
                             }.also { startActivity(it) }
                         }
                         .addOnFailureListener {
-                            // Start chat even if name fetch fails
                             Intent(requireContext(), MessageActivity::class.java).apply {
                                 putExtra("chatId", chatId)
                                 putExtra("recipientId", haulerId)
@@ -131,9 +126,6 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
         loadingLayout = view.findViewById(R.id.loadingLayout)
         confirmationLayout = view.findViewById(R.id.confirmationLayout)
         haulerToPickupLayout = view.findViewById(R.id.haulerToPickupLayout)
-        haulerArrivalLayout = view.findViewById(R.id.haulerArrival)
-        haulerOnDeliveryLayout = view.findViewById(R.id.haulerOnDelivery)
-        haulerArrivedAtDestinationLayout = view.findViewById(R.id.haulerArrivedAtDestination)
         noActiveDeliveryLayout = view.findViewById(R.id.noActiveDeliveryLayout)
 
         geocoder = Geocoder(requireContext(), Locale.getDefault())
@@ -183,8 +175,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
                 return@addOnSuccessListener
             }
 
-            val pickup = doc.getString("pickupLocation") ?: ""
-            val destination = doc.getString("destinationLocation") ?: ""
+            pickup = doc.getString("pickupLocation") ?: ""
+            destination = doc.getString("destinationLocation") ?: ""
 
             if (pickup.isNotEmpty() && destination.isNotEmpty()) {
                 val pickupLocName = argPickupName ?: getAddressFromLatLng(pickup, geocoder)
@@ -316,12 +308,26 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
             val arrivedAtPickup = snapshot.getBoolean("arrivedAtPickup") ?: false
             val isStarted = snapshot.getBoolean("isStarted")?: false
 
+            val statusTextView = view?.findViewById<TextView>(R.id.status)
+
+
             when {
                 isDone -> showCompletedMessage()
-                arrivedAtDestination -> showArrivedAtDestinationLayout()
-                arrivedAtPickup -> showArrivalLayout()
-                isStarted -> showEnRouteLayout()
-                else -> showNoActiveDelivery()
+                arrivedAtDestination -> {
+                    showConfirmationLayout()
+                    statusTextView?.text = "🚩 Arrived at Destination"
+                }
+                arrivedAtPickup -> {
+                    showConfirmationLayout()
+                    statusTextView?.text = "📍 Arrived at Pickup Point"
+                }
+                isStarted -> {
+                    showConfirmationLayout()
+                    statusTextView?.text = "🚚 Hauler is on the Way to Pickup"
+                }
+                else -> {
+                    showNoActiveDelivery()
+                }
             }
         }
     }
@@ -376,11 +382,9 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
                     val destinationLocation = getAddressFromLatLng(drop, geocoder)
 
 
-                    // Fetch vehicle details and assign to `vehicleWtBusiness`
                     fetchVehicleDetails(vehicleId) { fetchedVehicleWithBusiness ->
                         this.vehicleWtBusiness = fetchedVehicleWithBusiness
 
-                        // Now safe to fetch hauler and update UI
                         fetchHaulerDetails(haulerId)
                     }
                 }
@@ -404,10 +408,14 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
                 val haulerName =
                     document.getString("firstName") + " " + document.getString("lastName")
                 val haulerProfileImg = document.getString("profileImageUrl")
+                val haulerLicenseNo = document.getString("licenseNo")
+
 
                 val haulerNameTextView = view?.findViewById<TextView>(R.id.haulerName)
+                val licenseNoTextView = view?.findViewById<TextView>(R.id.licenseNo)
 
                 haulerNameTextView?.text = haulerName
+                licenseNoTextView?.text = haulerLicenseNo
 
                 haulerProfileImage.loadImage(haulerProfileImg)
 
@@ -486,78 +494,32 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
     private fun showLoadingLayout() {
         loadingLayout.visibility = View.VISIBLE
         confirmationLayout.visibility = View.GONE
-        haulerToPickupLayout.visibility = View.GONE
-        haulerArrivalLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.GONE
-        haulerOnDeliveryLayout.visibility = View.GONE
-        haulerArrivedAtDestinationLayout.visibility = View.GONE
+
+        if (::deliveryReq.isInitialized) {
+            loadMapInWebView(webView, pickup, destination)
+        }
     }
 
     private fun showConfirmationLayout() {
         loadingLayout.visibility = View.GONE
         confirmationLayout.visibility = View.VISIBLE
-        haulerToPickupLayout.visibility = View.GONE
-        haulerArrivalLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.GONE
-        haulerOnDeliveryLayout.visibility = View.GONE
-        haulerArrivedAtDestinationLayout.visibility = View.GONE
-    }
-
-    private fun showEnRouteLayout() {
-        loadingLayout.visibility = View.GONE
-        confirmationLayout.visibility = View.GONE
-        haulerToPickupLayout.visibility = View.VISIBLE
-        haulerArrivalLayout.visibility = View.GONE
-        noActiveDeliveryLayout.visibility = View.GONE
-        haulerOnDeliveryLayout.visibility = View.GONE
-        haulerArrivedAtDestinationLayout.visibility = View.GONE
-    }
-
-    private fun showArrivalLayout() {
-        loadingLayout.visibility = View.GONE
-        confirmationLayout.visibility = View.GONE
-        haulerToPickupLayout.visibility = View.GONE
-        haulerArrivalLayout.visibility = View.VISIBLE
-        noActiveDeliveryLayout.visibility = View.GONE
-        haulerOnDeliveryLayout.visibility = View.GONE
-        haulerArrivedAtDestinationLayout.visibility = View.GONE
-    }
-    private fun showHaulerOnDelivery() {
-        loadingLayout.visibility = View.GONE
-        confirmationLayout.visibility = View.GONE
-        haulerToPickupLayout.visibility = View.GONE
-        haulerArrivalLayout.visibility = View.GONE
-        noActiveDeliveryLayout.visibility = View.GONE
-        haulerOnDeliveryLayout.visibility = View.VISIBLE
-        haulerArrivedAtDestinationLayout.visibility = View.GONE
-    }
-    private fun showArrivedAtDestinationLayout() {
-        loadingLayout.visibility = View.GONE
-        confirmationLayout.visibility = View.GONE
-        haulerToPickupLayout.visibility = View.GONE
-        haulerArrivalLayout.visibility = View.GONE
-        noActiveDeliveryLayout.visibility = View.GONE
-        haulerOnDeliveryLayout.visibility = View.GONE
-        haulerArrivedAtDestinationLayout.visibility = View.VISIBLE
     }
 
     private fun showCompletedMessage() {
         Toast.makeText(requireContext(), "✅ Delivery completed!", Toast.LENGTH_LONG).show()
         loadingLayout.visibility = View.GONE
         confirmationLayout.visibility = View.GONE
-        haulerToPickupLayout.visibility = View.GONE
-        haulerArrivalLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.VISIBLE
-        haulerOnDeliveryLayout.visibility = View.GONE
-        haulerArrivedAtDestinationLayout.visibility = View.GONE
 
         val navBar = activity as? NavigationBar
         navBar?.let { nav ->
-            nav.activeRequestId = null // ✅ Clear the active request
+            nav.activeRequestId = null
             nav.restoreActiveRequestId {
                 if (isAdded) {
                     requireActivity().runOnUiThread {
-                        nav.resetToDashboard() // ✅ Back to dashboard to allow new request
+                        nav.resetToDashboard()
                     }
                 }
             }
@@ -567,13 +529,8 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
     private fun showNoActiveDelivery() {
         loadingLayout.visibility = View.GONE
         confirmationLayout.visibility = View.GONE
-        haulerToPickupLayout.visibility = View.GONE
-        haulerArrivalLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.VISIBLE
-        haulerOnDeliveryLayout.visibility = View.GONE
-        haulerArrivedAtDestinationLayout.visibility = View.GONE
 
-        // Only show this gray fallback when no delivery exists
         webView.setBackgroundColor(Color.parseColor("#E0E0E0"))
         webView.loadData(
             "<html><body style='background-color:#E0E0E0;'><h3 style='color:#888; text-align:center; margin-top:50%;'>No Active Delivery</h3></body></html>",
