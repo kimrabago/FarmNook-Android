@@ -140,12 +140,9 @@ class RecommendationActivity : AppCompatActivity() {
                         val businessLat = locationCoords[0].toDoubleOrNull() ?: return@forEach
                         val businessLng = locationCoords[1].toDoubleOrNull() ?: return@forEach
 
+                        // Get the distance meters
                         val pickupDistance = haversine(businessLat, businessLng, pickupLat, pickupLng)
                         val deliveryDistance = haversine(pickupLat, pickupLng, destinationLat, destinationLng)
-
-                        // 👇 Convert meters to kilometers and log
-                        Log.d("DISTANCE_DEBUG", "Pickup Distance: ${pickupDistance / 1000.0} km")
-                        Log.d("DISTANCE_DEBUG", "Delivery Distance: ${deliveryDistance / 1000.0} km")
 
                         val vehicleObj = VehicleWithBusiness(
                             vehicleId = vehicleDoc.id,
@@ -192,6 +189,7 @@ class RecommendationActivity : AppCompatActivity() {
         }
     }
 
+    //find nearest location
     @SuppressLint("NotifyDataSetChanged")
     private fun sortByLocation() {
         val pickupCoords = pickupLocation.split(",").mapNotNull { it.toDoubleOrNull() }
@@ -222,10 +220,6 @@ class RecommendationActivity : AppCompatActivity() {
         val farmerId = intent.getStringExtra("farmerId") ?: ""
 
         lifecycleScope.launch {
-
-            Log.d("ESTIMATE_INPUT", "PickupLocation: $pickupLocation")
-            Log.d("ESTIMATE_INPUT", "DestinationLocation: $destinationLocation")
-
             val estimatedTime =
                 EstimateTravelTimeUtil.getEstimatedTravelTime(pickupLocation, destinationLocation)
 
