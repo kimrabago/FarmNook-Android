@@ -144,7 +144,6 @@ class LocationPickerActivity : AppCompatActivity() {
                 super.onPageFinished(view, url)
                 webViewLoaded = true
 
-                // If coordinates were selected before WebView loaded, center the map now
                 selectedCoordinates?.let {
                     val parts = it.split(",")
                     if (parts.size == 2) {

@@ -39,6 +39,7 @@ class NavigationBar : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var drawerToggle: ActionBarDrawerToggle
+    val activeRequestIds = mutableListOf<String>()
     var activeRequestId: String? = null
     private var activeDeliveryId: String? = null
 
@@ -99,7 +100,7 @@ class NavigationBar : AppCompatActivity() {
                         arguments = Bundle().apply { putString("deliveryId", deliveryId) }
                     }
                 } else {
-                    activeRequestId = intent.getStringExtra("requestId")
+                    val activeRequestId = intent.getStringExtra("requestId")
                     pickupName = intent.getStringExtra("pickupName") ?: pickupName
                     destinationName = intent.getStringExtra("destinationName") ?: destinationName
                     productType = intent.getStringExtra("productType") ?: productType

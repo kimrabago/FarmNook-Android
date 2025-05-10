@@ -21,13 +21,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FarmNook"
         android:usesCleartextTraffic="true"
-        tools:targetApi="31"
-        android:windowSoftInputMode="adjustResize">
+        android:windowSoftInputMode="adjustResize"
+        tools:targetApi="31">
+        <activity
+            android:name=".ui.users.farmer.SetScheduleActivity"
+            android:exported="true">
+        </activity>
         <activity
             android:name=".ui.users.HistoryDetailsActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true"></activity>
         <activity
             android:name=".ui.users.LocationPickerActivity"
             android:exported="true" />
@@ -45,7 +47,6 @@
         <activity
             android:name=".ui.users.farmer.DeliveryConfirmationActivity"
             android:exported="false" />
-
         <activity
             android:name=".ui.users.farmer.add_delivery.RecommendationActivity"
             android:exported="true" />
@@ -78,10 +79,11 @@
             android:exported="true" />
 
         <service android:name=".ui.users.hauler.services.DeliveryLocationService" />
+
         <activity
             android:name=".ui.menu.NavigationBar"
-            android:hardwareAccelerated="true"
-            android:exported="true" />
+            android:exported="true"
+            android:hardwareAccelerated="true" />
         <activity
             android:name=".ui.StartingPageActivity"
             android:exported="true">

@@ -35,15 +35,20 @@ import com.ucb.capstone.farmnook.viewmodel.users.farmer.FarmerDashboardViewModel
 
 class FarmerDashboardFragment : Fragment() {
 
-    private lateinit var viewModel: FarmerDashboardViewModel
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     private lateinit var menuBurger: ImageView
     private lateinit var profileIcon: ImageView
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var addDeliveryBtn: Button
     private lateinit var webView: WebView
-
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
+    private var lastLocation: Location? = null
     private var webViewLoaded = false
+    private var profileListenerRegistration: ListenerRegistration? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,25 +62,24 @@ class FarmerDashboardFragment : Fragment() {
         addDeliveryBtn = rootView.findViewById(R.id.addDeliveryBtn)
         webView = rootView.findViewById(R.id.webView)
 
-        viewModel = ViewModelProvider(this)[FarmerDashboardViewModel::class.java]
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        observeViewModel()
+        profileImageFetch()
         setupWebView()
         setupClickListeners()
-        viewModel.fetchProfileImage()
 
         return rootView
     }
 
-    private fun observeViewModel() {
-        viewModel.profileImageUrl.observe(viewLifecycleOwner) { imageUrl ->
-            profileIcon.loadImage(imageUrl)
-        }
-
-        viewModel.location.observe(viewLifecycleOwner) { location ->
-            location?.let {
-                sendLocationToWebView(it.latitude, it.longitude)
-            }
+    private fun profileImageFetch() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            firestore.collection("users").document(userId)
+                .get(Source.CACHE)
+                .addOnSuccessListener { document ->
+                    val imageUrl = document.getString("profileImageUrl")
+                    profileIcon.loadImage(imageUrl)
+                }
         }
     }
 
@@ -91,7 +95,6 @@ class FarmerDashboardFragment : Fragment() {
                 (activity as? NavigationBar)?.navigateToProfile()
             }
         }
-
         addDeliveryBtn.setOnClickListener {
             val intent = Intent(requireContext(), AddDeliveryActivity::class.java)
             startActivity(intent)
@@ -107,8 +110,15 @@ class FarmerDashboardFragment : Fragment() {
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                Log.d("WEBVIEW", "Page finished loading.")
                 webViewLoaded = true
-                checkPermissionsAndStartLocation()
+
+                // Only call if fragment is attached
+                if (isAdded && context != null) {
+                    checkPermissionsAndStartLocation()
+                } else {
+                    Log.w("WEBVIEW", "Fragment not attached — skipping location setup.")
+                }
             }
         }
 
@@ -127,14 +137,50 @@ class FarmerDashboardFragment : Fragment() {
                 1
             )
         } else {
-            if (isGPSEnabled(requireContext())) {
-                viewModel.startLocationUpdates()
-                viewModel.getLastLocation()
+            setupLocationUpdates()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setupLocationUpdates() {
+        if (!isGPSEnabled(requireContext())) {
+            Toast.makeText(requireContext(), "Please enable GPS!", Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            return
+        }
+
+        // Try last known location on resume
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                lastLocation = location
+                Log.d("LOCATION", "Using last known location: ${location.latitude}, ${location.longitude}")
+                sendLocationToWebView(location.latitude, location.longitude)
             } else {
-                Toast.makeText(requireContext(), "Please enable GPS!", Toast.LENGTH_LONG).show()
-                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                Log.w("LOCATION", "lastLocation is null, waiting for updates...")
             }
         }
+
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
+            .setMinUpdateDistanceMeters(1f)
+            .setMinUpdateIntervalMillis(10000)
+            .build()
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                val location = result.lastLocation
+                if (location != null) {
+                    lastLocation = location
+                    Log.d("LOCATION_CALLBACK", "Location update: ${location.latitude}, ${location.longitude}")
+                    sendLocationToWebView(location.latitude, location.longitude)
+                }
+            }
+        }
+
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
 
     private fun isGPSEnabled(context: Context): Boolean {
@@ -143,32 +189,31 @@ class FarmerDashboardFragment : Fragment() {
     }
 
     private fun sendLocationToWebView(lat: Double, lng: Double) {
-        if (!webViewLoaded) return
+        if (!webViewLoaded) {
+            Log.w("WEBVIEW", "Not sending location — WebView not fully loaded.")
+            return
+        }
+
         webView.post {
             val js = "window.updateUserLocation($lat, $lng);"
+            Log.d("SEND_LOCATION", "Injecting JS: $js")
             webView.evaluateJavascript(js, null)
-        }
-    }
-
-    private fun checkActiveRequestStatus() {
-        val activity = activity as? NavigationBar
-        val activeRequestId = activity?.let { it.activeRequestId }
-
-        if (!activeRequestId.isNullOrEmpty()) {
-            addDeliveryBtn.visibility = View.GONE
-        } else {
-            addDeliveryBtn.visibility = View.VISIBLE
         }
     }
 
     override fun onResume() {
         super.onResume()
-        checkActiveRequestStatus()
-        viewModel.getLastLocation()
+        // Always try to re-send last location when user returns
+        lastLocation?.let {
+            sendLocationToWebView(it.latitude, it.longitude)
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.stopLocationUpdates()
+        profileListenerRegistration?.remove()
+        if (::locationCallback.isInitialized) {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        }
     }
 }
