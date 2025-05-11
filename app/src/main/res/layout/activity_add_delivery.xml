@@ -170,11 +170,42 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <EditText
+                    android:id="@+id/receiverNameEt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/receiver_s_name"
+                    android:fontFamily="@font/dm_sans"
+                    android:layout_below="@id/to_box"
+                    android:textColor="@color/dark_green"
+                    android:textSize="14sp"
+                    android:layout_marginStart="80dp"
+                    android:layout_marginVertical="5dp"
+                    android:visibility="gone"
+                    android:inputType="textCapWords"
+                    android:background="@drawable/white_rounded_button"/>
+
+                <EditText
+                    android:id="@+id/receiverNumEt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="phone"
+                    android:hint="@string/contact_number"
+                    android:fontFamily="@font/dm_sans"
+                    android:layout_below="@id/receiverNameEt"
+                    android:inputType="number"
+                    android:textColor="@color/dark_green"
+                    android:textSize="14sp"
+                    android:maxLength="11"
+                    android:visibility="gone"
+                    android:layout_marginStart="80dp"
+                    android:background="@drawable/white_rounded_button"/>
+
                 <LinearLayout
                     android:id="@+id/purpose_box"
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
-                    android:layout_below="@id/to_box"
+                    android:layout_below="@id/receiverNumEt"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 

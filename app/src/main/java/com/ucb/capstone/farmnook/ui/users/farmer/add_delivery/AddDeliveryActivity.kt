@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.os.Bundle
 import android.text.TextUtils
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -36,6 +37,9 @@ class AddDeliveryActivity : AppCompatActivity() {
     private lateinit var purposeSpinner: Spinner
     private lateinit var productTypeEditText: EditText
     private lateinit var weightEditText: EditText
+    private lateinit var receiverNameEditText: EditText
+    private lateinit var receiverNumEditText: EditText
+    private var deliveryNoteEditText: EditText? = null
     private lateinit var pickUpLocButton: LinearLayout
     private lateinit var destinationButton: LinearLayout
 
@@ -63,6 +67,9 @@ class AddDeliveryActivity : AppCompatActivity() {
         purposeSpinner = findViewById(R.id.purposeSpinner)
         productTypeEditText = findViewById(R.id.productTypeEditText)
         weightEditText = findViewById(R.id.weightEditText)
+        receiverNameEditText = findViewById(R.id.receiverNameEt)
+        receiverNumEditText = findViewById(R.id.receiverNumEt)
+        deliveryNoteEditText = findViewById(R.id.deliveryNote)
 
         fromLocation.isSelected = true
         toLocation.isSelected = true
@@ -85,11 +92,16 @@ class AddDeliveryActivity : AppCompatActivity() {
             val selectedPurpose = purposeSpinner.selectedItem.toString().lowercase()
             val inputtedProduct = productTypeEditText.getText().toString().trim()
             val inputtedWeight = weightEditText.getText().toString().trim()
+            val inputtedReceiverName = receiverNameEditText.getText().toString().trim()
+            val inputtedReceiverNum = receiverNumEditText.getText().toString().trim()
 
             if (selectedPurpose == "Select Purpose") {
                 Toast.makeText(this, "Please select a purpose", Toast.LENGTH_SHORT).show()
-            } else if (TextUtils.isEmpty(inputtedProduct) || TextUtils.isEmpty(inputtedWeight)) {
-                Toast.makeText(this, "Please enter both product type and weight", Toast.LENGTH_SHORT).show()
+            } else if (TextUtils.isEmpty(inputtedProduct) ||
+                TextUtils.isEmpty(inputtedWeight) ||
+                TextUtils.isEmpty(inputtedReceiverName) ||
+                TextUtils.isEmpty(inputtedReceiverNum)) {
+                Toast.makeText(this, "Please enter the remaining fields", Toast.LENGTH_SHORT).show()
             } else if (destinationLatitude == null || destinationLongitude == null) {
                 Toast.makeText(this, "Please select a destination location.", Toast.LENGTH_SHORT).show()
             } else {
@@ -122,6 +134,12 @@ class AddDeliveryActivity : AppCompatActivity() {
                             toLocation.text = selectedLocation
                             destinationLatitude = coords[0].toDoubleOrNull()
                             destinationLongitude = coords[1].toDoubleOrNull()
+
+                            // Show receiver fields if destination is set
+                            if (!selectedLocation.isNullOrEmpty()) {
+                                receiverNameEditText.visibility = View.VISIBLE
+                                receiverNumEditText.visibility = View.VISIBLE
+                            }
                         }
                     }
                 }
@@ -204,6 +222,9 @@ class AddDeliveryActivity : AppCompatActivity() {
                                                     putExtra("productType", productType)
                                                     putExtra("farmerId", farmerId)
                                                     putExtra("weight", weight)
+                                                    putExtra("receiverName", receiverNameEditText.text.toString())
+                                                    putExtra("receiverNum", receiverNumEditText.text.toString())
+                                                    putExtra("deliveryNote", deliveryNoteEditText?.text.toString())
                                                     putStringArrayListExtra("recommendedTypes", ArrayList(matchedVehicleTypes))
                                                     putStringArrayListExtra("sortedBusinessIds", ArrayList(sortedVehicles.map { it.first }))
                                                     putStringArrayListExtra("sortedVehicleIds", ArrayList(sortedVehicles.map { it.third }))

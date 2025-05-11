@@ -233,6 +233,8 @@
     <string name="message">Message</string>
     <string name="add_notes_to_your_delivery">Add notes to your delivery</string>
     <string name="license_no">License No.</string>
+    <string name="receiver_s_name">Receiver\'s Name</string>
+    <string name="contact_number">Contact Number</string>
 
     <string-array name="filter_options">
         <item>Location</item>

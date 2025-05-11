@@ -111,6 +111,15 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/weightRow"
                 android:layout_marginBottom="8dp"/>
+
+
+            <TextView
+                android:id="@+id/scheduleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No schedule set"
+                android:textColor="@color/dark_green"
+                android:layout_gravity="center" />
         </LinearLayout>
 
         <!-- Buttons -->
@@ -129,11 +138,12 @@
                 android:background="@drawable/red_rounded_button"
                 android:textColor="@android:color/white"/>
 
+
             <Button
                 android:id="@+id/hireButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/hire"
+                android:text="@string/set_schedule"
                 android:background="@drawable/green_rounded_button"
                 android:textColor="@android:color/white"
                 android:layout_marginStart="20dp" />
