@@ -1,37 +1,41 @@
 package com.ucb.capstone.farmnook.ui.message
 
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.ucb.capstone.farmnook.R
-import com.ucb.capstone.farmnook.ui.adapter.InboxAdapter
 import com.ucb.capstone.farmnook.data.model.ChatItem
+import com.ucb.capstone.farmnook.ui.adapter.InboxAdapter
 
 
 class InboxFragment : Fragment() {
 
 
     private lateinit var recyclerView: RecyclerView
-
     private lateinit var inboxAdapter: InboxAdapter
-    private lateinit var chatList: MutableList<ChatItem>
+    private val chatList: MutableList<ChatItem> = mutableListOf()
 
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
 
+    private lateinit var emptyTextView: TextView
+
+
+    @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,11 +45,10 @@ class InboxFragment : Fragment() {
 
 
         recyclerView = view.findViewById(R.id.messagesRecyclerView)
-
+        emptyTextView = view.findViewById(R.id.emptyInboxText)
         val newMessageBtn = view.findViewById<ImageButton>(R.id.new_message_btn)
 
 
-        chatList = mutableListOf()
         inboxAdapter = InboxAdapter(chatList) { chatItem ->
             Intent(requireContext(), MessageActivity::class.java).apply {
                 putExtra("chatId", chatItem.chatId)
@@ -59,10 +62,6 @@ class InboxFragment : Fragment() {
         recyclerView.adapter = inboxAdapter
 
 
-
-
-
-
         newMessageBtn.setOnClickListener {
             startActivity(Intent(requireContext(), NewMessageActivity::class.java))
         }
@@ -73,23 +72,21 @@ class InboxFragment : Fragment() {
     }
 
 
+    override fun onResume() {
+        super.onResume()
+        fetchChats() // Re-fetch chats when the fragment is resumed (i.e., when returning from MessageActivity)
+    }
+
+
     private fun fetchChats() {
         val currentUserId = auth.currentUser?.uid ?: return
-
-
-
-
 
 
         firestore.collection("chats")
             .whereArrayContains("userIds", currentUserId)
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { value, error ->
-
-
-
                 if (error != null) {
-                    // Handle error
                     return@addSnapshotListener
                 }
 
@@ -133,7 +130,7 @@ class InboxFragment : Fragment() {
                     lastMessage = lastMessage,
                     timestamp = timestamp
                 ))
-                inboxAdapter.notifyDataSetChanged()
+                inboxAdapter.notifyDataSetChanged() // Notify adapter that the data has changed
             }
             .addOnFailureListener {
                 // Fallback if user details can't be fetched
@@ -145,7 +142,7 @@ class InboxFragment : Fragment() {
                     lastMessage = lastMessage,
                     timestamp = timestamp
                 ))
-                inboxAdapter.notifyDataSetChanged()
+                inboxAdapter.notifyDataSetChanged() // Notify adapter that the data has changed
             }
     }
 }
