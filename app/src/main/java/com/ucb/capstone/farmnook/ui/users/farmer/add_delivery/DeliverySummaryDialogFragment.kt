@@ -6,12 +6,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.bumptech.glide.Glide
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
+import com.ucb.capstone.farmnook.ui.users.farmer.add_delivery.ScheduleBottomSheet
 import java.util.Locale
 import com.ucb.capstone.farmnook.util.getAddressFromLatLng
 import com.ucb.capstone.farmnook.utils.loadImage
@@ -64,18 +66,22 @@ class DeliverySummaryDialogFragment : DialogFragment() {
         setItemRow(view, R.id.vehicleRow, "Vehicle", "${vehicleWtBusiness.vehicleType} - ${vehicleWtBusiness.model}")
         setItemRow(view, R.id.purposeRow, "Purpose",
             deliveryReq.purpose?.replaceFirstChar { it.uppercase() } ?: "")
-        setItemRow(view, R.id.productRow, "Product Type", "${deliveryReq.productType}")
-        setItemRow(view, R.id.weightRow, "Weight", "${deliveryReq.weight} kg")
-
+        setItemRow(view, R.id.productRow, "Product", "${deliveryReq.productType} (${deliveryReq.weight} kg)")
+        setItemRow(view, R.id.weightRow, "Receiver's Info", "${deliveryReq.receiverName} - ${deliveryReq.receiverNumber} ")
 
         val dialog = AlertDialog.Builder(requireContext())
             .setView(view)
             .create()
 
         view.findViewById<View>(R.id.hireButton).setOnClickListener {
-            // Invoke the callback (onHireConfirmed) to perform any additional logic
-            onHireConfirmed?.invoke(vehicleWtBusiness to deliveryReq)
-            dismiss()
+            view.post {
+                val bottomSheet = ScheduleBottomSheet { selectedTimestamp ->
+                    val updatedDeliveryReq = deliveryReq.copy(scheduledTime = selectedTimestamp)
+                    onHireConfirmed?.invoke(vehicleWtBusiness to updatedDeliveryReq)
+                    dismiss()
+                }
+                bottomSheet.show(parentFragmentManager, "ScheduleBottomSheet")
+            }
         }
 
         view.findViewById<View>(R.id.cancelButton).setOnClickListener {

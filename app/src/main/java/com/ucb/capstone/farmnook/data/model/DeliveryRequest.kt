@@ -15,7 +15,7 @@ data class DeliveryRequest(
     val estimatedCost: Double? = null,
     val estimatedTime: String? = null,
     val estimatedDurationMinutes: Int? = null,
-    val scheduledTime: String? = null,
+    val scheduledTime: Timestamp? = null,
     val farmerId: String? = null, //the userId
     val businessId: String? = null,
     val vehicleID: String? = null,
@@ -26,5 +26,8 @@ data class DeliveryRequest(
     val profileImageUrl: String? = null,
     val vehicleType: String? = null,
     val vehicleModel: String? = null,
-    val plateNumber: String? = null
+    val plateNumber: String? = null,
+    val receiverName: String? = null,
+    val receiverNumber: String? = null,
+    val deliveryNote: String? = null
 )

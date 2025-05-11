@@ -46,6 +46,9 @@ class RecommendationActivity : AppCompatActivity() {
     private lateinit var purpose: String
     private lateinit var productType: String
     private lateinit var weight: String
+    private lateinit var receiverName: String
+    private lateinit var receiverNum: String
+    private var deliveryNote: String? = null
     private lateinit var recommendedTypes: List<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +67,9 @@ class RecommendationActivity : AppCompatActivity() {
         purpose = intent.getStringExtra("purpose") ?: ""
         productType = intent.getStringExtra("productType") ?: ""
         weight = intent.getStringExtra("weight") ?: ""
+        receiverName = intent.getStringExtra("receiverName") ?: ""
+        receiverNum = intent.getStringExtra("receiverNum") ?: ""
+        deliveryNote = intent.getStringExtra("deliveryNote") ?: ""
         pickupName = intent.getStringExtra("pickupName") ?: ""
         destinationName = intent.getStringExtra("destinationName") ?: ""
 
@@ -237,7 +243,10 @@ class RecommendationActivity : AppCompatActivity() {
                 businessId = vehicle.businessId,
                 isAccepted = false,
                 estimatedCost = vehicle.estimatedCost,
-                estimatedTime = estimatedTime
+                estimatedTime = estimatedTime,
+                receiverName = receiverName,
+                receiverNumber = receiverNum,
+                deliveryNote = deliveryNote
             )
 
             val dialog = DeliverySummaryDialogFragment.newInstance(vehicle, delivery) {
@@ -250,6 +259,9 @@ class RecommendationActivity : AppCompatActivity() {
                             putExtra("destinationName", destinationName)
                             putExtra("purpose", purpose)
                             putExtra("productType", productType)
+                            putExtra("weight", weight)
+                            putExtra("receiverName", receiverName)
+                            putExtra("receiverNum", receiverNum)
                             putExtra("weight", weight)
                             putExtra("estimatedCost", delivery.estimatedCost)
                             putExtra("estimatedTime", estimatedTime)
@@ -291,7 +303,11 @@ class RecommendationActivity : AppCompatActivity() {
             "timestamp" to delivery.timestamp,
             "isAccepted" to delivery.isAccepted,
             "estimatedCost" to delivery.estimatedCost,
-            "estimatedTime" to delivery.estimatedTime
+            "estimatedTime" to delivery.estimatedTime,
+            "receiverName" to delivery.receiverName,
+            "receiverNumber" to delivery.receiverNumber,
+            "deliveryNote" to delivery.deliveryNote,
+            "scheduledTime" to delivery.scheduledTime
         )
 
         newRequestRef.set(requestData).addOnSuccessListener {

@@ -12,7 +12,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.firestore.*
 import com.ucb.capstone.farmnook.R
@@ -502,9 +501,24 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
     }
 
     private fun showConfirmationLayout() {
+
         loadingLayout.visibility = View.GONE
         confirmationLayout.visibility = View.VISIBLE
         noActiveDeliveryLayout.visibility = View.GONE
+        // Re-inject the map if pickup & destination are available
+        if (::pickup.isInitialized && ::destination.isInitialized && deliveryId != null) {
+            FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId!!).get()
+                .addOnSuccessListener { deliveryDoc ->
+                    val haulerId = deliveryDoc.getString("haulerAssignedId") ?: return@addOnSuccessListener
+
+                    val encodedPickup = pickup.replace(" ", "")
+                    val encodedDrop = destination.replace(" ", "")
+                    val mapUrl = "https://farmnook-web.vercel.app/live-tracking?pickup=$encodedPickup&drop=$encodedDrop&haulerId=$haulerId"
+
+                    Log.d("MAP_RELOAD", "Reloading map in confirmation: $mapUrl")
+                    webView.loadUrl(mapUrl)
+                }
+        }
     }
 
     private fun showCompletedMessage() {
