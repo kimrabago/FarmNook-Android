@@ -6,6 +6,7 @@
     android:gravity="end"
     android:padding="8dp">
 
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,6 +21,19 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+
+        <ImageView
+            android:id="@+id/messageImageView"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/message_image"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+
         <TextView
             android:id="@+id/messageContentTextView"
             android:layout_width="wrap_content"
@@ -33,6 +47,7 @@
             android:ellipsize="end"
             android:singleLine="false"
             android:scrollHorizontally="false"/>
+
 
         <TextView
             android:id="@+id/messageTimestampTextView"

@@ -1,21 +1,25 @@
 package com.ucb.capstone.farmnook.ui.message
 
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.storage.FirebaseStorage
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.Message
 import com.ucb.capstone.farmnook.ui.adapter.MessageAdapter
 import com.ucb.capstone.farmnook.utils.SendPushNotification
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 
 class MessageActivity : AppCompatActivity() {
@@ -25,15 +29,22 @@ class MessageActivity : AppCompatActivity() {
     private lateinit var replyEditText: EditText
     private lateinit var sendButton: Button
     private lateinit var receiverNameTextView: TextView
+    private lateinit var messageIcon: ImageButton
+
 
     private lateinit var messageAdapter: MessageAdapter
     private val messageList = mutableListOf<Message>()
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    private val storage = FirebaseStorage.getInstance()
     private lateinit var chatId: String
     private lateinit var receiverId: String
     private lateinit var receiverName: String
     private lateinit var senderId: String
+    private lateinit var senderName: String
+
+
+    private val GALLERY_REQUEST_CODE = 2001
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,13 +52,27 @@ class MessageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_message)
 
 
-        // Initialize views
+        initializeViews()
+        initializeChatDetails()
+        setupRecyclerView()
+        loadMessages()
+        setupClickListeners()
+    }
+
+
+    private fun initializeViews() {
         messagesRecyclerView = findViewById(R.id.messagesRecyclerView)
         replyEditText = findViewById(R.id.replyEditText)
         sendButton = findViewById(R.id.sendButton)
         receiverNameTextView = findViewById(R.id.receiverName)
+        messageIcon = findViewById(R.id.messageIcon)
 
 
+        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
+    }
+
+
+    private fun initializeChatDetails() {
         chatId = intent.getStringExtra("chatId") ?: run {
             Toast.makeText(this, "Chat not found", Toast.LENGTH_SHORT).show()
             finish()
@@ -60,8 +85,6 @@ class MessageActivity : AppCompatActivity() {
             finish()
             return
         }
-        val backButton: ImageButton = findViewById(R.id.btn_back)
-        backButton.setOnClickListener { finish() }
 
 
         receiverName = intent.getStringExtra("receiverName") ?: "Unknown User"
@@ -75,25 +98,25 @@ class MessageActivity : AppCompatActivity() {
         }
 
 
-        // Setup RecyclerView
-        messageAdapter = MessageAdapter(messageList, senderId)
-        messagesRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@MessageActivity)
-            adapter = messageAdapter
-        }
-
-
-        loadMessages()
-
-
-        sendButton.setOnClickListener {
-            val messageText = replyEditText.text.toString().trim()
-            if (messageText.isNotEmpty()) {
-                sendMessage(messageText)
+        // Get sender name from Firestore or pass it from previous activity
+        firestore.collection("users").document(senderId).get()
+            .addOnSuccessListener { document ->
+                val firstName = document.getString("firstName") ?: ""
+                val lastName = document.getString("lastName") ?: ""
+                senderName = "$firstName $lastName".trim()
             }
-        }
     }
 
+
+    private fun setupRecyclerView() {
+        messageAdapter = MessageAdapter(messageList, senderId)
+        messagesRecyclerView.apply {
+            layoutManager = LinearLayoutManager(this@MessageActivity).apply {
+                stackFromEnd = true
+            }
+            adapter = messageAdapter
+        }
+    }
 
     private fun loadMessages() {
         firestore.collection("chats").document(chatId)
@@ -101,31 +124,34 @@ class MessageActivity : AppCompatActivity() {
             .orderBy("timestamp", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
+                    Log.e("MessageActivity", "Error loading messages", error)
                     Toast.makeText(this, "Error loading messages", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
-
 
                 messageList.clear()
                 snapshots?.documents?.forEach { doc ->
                     val message = doc.toObject(Message::class.java)
                     message?.let {
-                        // Convert timestamp from Long or com.google.firebase.Timestamp
+                        // Handle timestamp conversion
                         val ts = when (val rawTs = doc.get("timestamp")) {
                             is Long -> rawTs
                             is com.google.firebase.Timestamp -> rawTs.toDate().time
-                            else -> 0L
+                            else -> 0L // Default to 0 if invalid
                         }
                         it.formattedTimestamp = formatTimestamp(ts)
                         messageList.add(it)
                     }
                 }
 
-
                 messageAdapter.notifyDataSetChanged()
-                messagesRecyclerView.scrollToPosition(messageList.size - 1)
+                if (messageList.isNotEmpty()) {
+                    messagesRecyclerView.scrollToPosition(messageList.size - 1)
+                }
             }
     }
+
+
     private fun formatTimestamp(timestamp: Long): String {
         return try {
             val now = System.currentTimeMillis()
@@ -133,10 +159,8 @@ class MessageActivity : AppCompatActivity() {
 
 
             val date = Date(timestamp)
-
-
             val sdfRecent = SimpleDateFormat("h:mm a", Locale.getDefault())
-            val sdfOld = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault()) // e.g. "Apr 30, 4:45 PM"
+            val sdfOld = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())
 
 
             if (now - timestamp < oneDayMillis) {
@@ -150,43 +174,91 @@ class MessageActivity : AppCompatActivity() {
     }
 
 
-    private fun sendMessage(content: String) {
-        firestore.collection("users").document(senderId).get()
-            .addOnSuccessListener { document ->
-                val firstName = document.getString("firstName") ?: ""
-                val lastName = document.getString("lastName") ?: ""
-                val senderName = "$firstName $lastName".trim()
+    private fun setupClickListeners() {
+        sendButton.setOnClickListener {
+            val messageText = replyEditText.text.toString().trim()
+            if (messageText.isNotEmpty()) {
+                sendMessage(messageText)
+            }
+        }
 
 
-                val message = Message(
-                    senderId = senderId,
+        messageIcon.setOnClickListener {
+            openGallery()
+        }
+    }
+
+
+    private fun sendMessage(content: String, imageUrl: String? = null) {
+        val message = Message(
+            senderId = senderId,
+            receiverId = receiverId,
+            content = content,
+            timestamp = System.currentTimeMillis(),
+            senderName = senderName,
+            imageUrl = imageUrl
+        )
+
+
+        // Update chat document
+        firestore.collection("chats").document(chatId).update(
+            "lastMessage", content,
+            "timestamp", FieldValue.serverTimestamp()
+        )
+
+
+        // Add message to subcollection
+        firestore.collection("chats").document(chatId)
+            .collection("messages")
+            .add(message)
+            .addOnSuccessListener {
+                replyEditText.text.clear()
+                SendPushNotification.sendMessageNotification(
+                    context = this,
                     receiverId = receiverId,
-                    content = content,
-                    timestamp = System.currentTimeMillis(),
-                    senderName = senderName
+                    senderName = senderName,
+                    message = content
                 )
-
-                // Update chat document
-                firestore.collection("chats").document(chatId).update(
-                    "lastMessage", content,
-                    "timestamp", System.currentTimeMillis()
-                )
-
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Failed to send message: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
 
 
-                // Add message to subcollection
-                firestore.collection("chats").document(chatId)
-                    .collection("messages")
-                    .add(message)
-                    .addOnSuccessListener {
-                        replyEditText.text.clear()
-                        SendPushNotification.sendMessageNotification(
-                            context = this,
-                            receiverId = receiverId,
-                            senderName = senderName,
-                            message = content
-                        )
-                    }
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, GALLERY_REQUEST_CODE)
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+
+        if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK) {
+            data?.data?.let { uri ->
+                uploadImageToFirebaseStorage(uri)
+            }
+        }
+    }
+
+
+    private fun uploadImageToFirebaseStorage(imageUri: Uri) {
+        val storageRef = storage.reference
+        val fileName = "messages/${System.currentTimeMillis()}.jpg"
+        val imageRef = storageRef.child(fileName)
+
+
+        imageRef.putFile(imageUri)
+            .addOnSuccessListener {
+                imageRef.downloadUrl.addOnSuccessListener { uri ->
+                    sendMessage("Sent an image", uri.toString())
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Image upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }

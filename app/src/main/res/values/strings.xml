@@ -235,6 +235,7 @@
     <string name="license_no">License No.</string>
     <string name="receiver_s_name">Receiver\'s Name</string>
     <string name="contact_number">Contact Number</string>
+    <string name="message_image" />
 
     <string-array name="filter_options">
         <item>Location</item>
