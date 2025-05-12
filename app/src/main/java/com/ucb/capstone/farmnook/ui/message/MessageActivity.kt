@@ -125,23 +125,35 @@ class MessageActivity : AppCompatActivity() {
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     Log.e("MessageActivity", "Error loading messages", error)
-                    Toast.makeText(this, "Error loading messages", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
                 messageList.clear()
                 snapshots?.documents?.forEach { doc ->
-                    val message = doc.toObject(Message::class.java)
-                    message?.let {
-                        // Handle timestamp conversion
-                        val ts = when (val rawTs = doc.get("timestamp")) {
-                            is Long -> rawTs
-                            is com.google.firebase.Timestamp -> rawTs.toDate().time
-                            else -> 0L // Default to 0 if invalid
-                        }
-                        it.formattedTimestamp = formatTimestamp(ts)
-                        messageList.add(it)
+                    // MANUALLY PARSE FIELDS INSTEAD OF USING toObject()
+                    val senderId = doc.getString("senderId") ?: ""
+                    val receiverId = doc.getString("receiverId") ?: ""
+                    val content = doc.getString("content") ?: ""
+                    val timestamp = when (val ts = doc.get("timestamp")) {
+                        is com.google.firebase.Timestamp -> ts.toDate().time // Convert Firestore Timestamp to Long
+                        is Long -> ts // Already a Long
+                        else -> 0L // Fallback
                     }
+                    val senderName = doc.getString("senderName") ?: ""
+                    val imageUrl = doc.getString("imageUrl")
+
+                    val message = Message(
+                        senderId = senderId,
+                        receiverId = receiverId,
+                        content = content,
+                        timestamp = timestamp,
+                        senderName = senderName,
+                        imageUrl = imageUrl
+                    ).apply {
+                        formattedTimestamp = formatTimestamp(timestamp)
+                    }
+
+                    messageList.add(message)
                 }
 
                 messageAdapter.notifyDataSetChanged()
