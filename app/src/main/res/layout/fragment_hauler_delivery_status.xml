@@ -121,8 +121,16 @@
                         android:text="@string/destination_address"
                         android:fontFamily="@font/dm_sans"
                         android:textSize="14sp"
-                        android:paddingBottom="8dp"
                         android:textColor="@color/white" />
+
+                    <TextView
+                        android:id="@+id/receiverInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:background="@drawable/white_rounded_button"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/dm_sans" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

@@ -38,19 +38,15 @@ class HistoryDetailsActivity : AppCompatActivity() {
         val farmerProfileImg = intent.getStringExtra("profileImg")
         val deliveryId = intent.getStringExtra("deliveryId") ?: return
         val estimatedTime = intent.getStringExtra("estimatedTime") ?: ""
+        val receiverName = intent.getStringExtra("receiverName") ?: ""
+        val receiverNum = intent.getStringExtra("receiverNum") ?: ""
 
         val profileImageView = findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
         profileImageView.loadImage(farmerProfileImg)
 
-        Log.d("HistoryDetails", "Received Intent Data:")
-        Log.d("HistoryDetails", "pickup=$pickup")
-        Log.d("HistoryDetails", "drop=$drop")
-        Log.d("HistoryDetails", "pickupAddress=$pickupAddress")
-        Log.d("HistoryDetails", "dropAddress=$dropAddress")
-
-        // Set readable addresses (from Intent)
         findViewById<TextView>(R.id.provincePickup).text = pickupAddress
         findViewById<TextView>(R.id.provinceDestination).text = dropAddress
+        findViewById<TextView>(R.id.receiverInfo).text = "Recipient : $receiverName - $receiverNum"
         findViewById<TextView>(R.id.farmerName).text = farmerName
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
@@ -64,7 +60,8 @@ class HistoryDetailsActivity : AppCompatActivity() {
         pickup: String,
         drop: String,
         estimatedTime: String,
-        farmerName: String
+        farmerName: String,
+
     ) {
         val historyQuery = FirebaseFirestore.getInstance().collection("deliveryHistory")
             .whereEqualTo("deliveryId", deliveryId)
@@ -96,6 +93,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
                     val purpose = req.getString("purpose") ?: "General"
                     val vehicleId = req.getString("vehicleId") ?: ""
                     val estimatedCost = req.getDouble("estimatedCost") ?: 0.0
+
 
                     findViewById<TextView>(R.id.weightAmount).text = "$weight kg"
                     findViewById<TextView>(R.id.productType).text = "$purpose\n$productType"

@@ -9,6 +9,8 @@ data class DeliveryDisplayItem(
     val estimatedTime: String,
     val totalCost: String,
     val requestId: String,
+    val receiverName: String,
+    val receiverNum: String,
     val isStarted: Boolean
 )
 

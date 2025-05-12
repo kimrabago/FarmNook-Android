@@ -80,6 +80,8 @@ class DeliveryHistoryFragment : Fragment() {
                                             val pickupAddress = reqDoc.getString("pickupName") ?: "Unknown"
                                             val destinationAddress = reqDoc.getString("destinationName") ?: "Unknown"
                                             val estimatedTime = reqDoc.getString("estimatedTime") ?: "Unknown"
+                                            val receiverName = reqDoc.getString("receiverName")  ?: "Unknown"
+                                            val receiverNum = reqDoc.getString("receiverNumber")  ?: "Unknown"
 
                                             // Only add if current user was involved
                                             val involved = (userType == "Farmer" && currentUserId == farmerId) ||
@@ -116,6 +118,8 @@ class DeliveryHistoryFragment : Fragment() {
                                                             intent.putExtra("farmerName", name)
                                                             intent.putExtra("profileImg", imageUrl)
                                                             intent.putExtra("estimatedTime", estimatedTime)
+                                                            intent.putExtra("receiverName", receiverName)
+                                                            intent.putExtra("receiverNum", receiverNum)
                                                             startActivity(intent)
                                                         }
                                                     }

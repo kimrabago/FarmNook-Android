@@ -37,6 +37,7 @@ class RecommendationActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: RecommendationAdapter
     private val vehicleList = mutableListOf<VehicleWithBusiness>()
+    private val originalVehicleList = mutableListOf<VehicleWithBusiness>()
     private val firestore = FirebaseFirestore.getInstance()
 
     private lateinit var pickupLocation: String
@@ -75,10 +76,17 @@ class RecommendationActivity : AppCompatActivity() {
 
         val filterSpinner: Spinner = findViewById(R.id.filter_spinner)
         filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @SuppressLint("NotifyDataSetChanged")
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 when (position) {
-                    0 -> sortByLocation()
-                    1 -> sortByRatings()
+                    0 -> { // "Select Filter"
+                        vehicleList.clear()
+                        vehicleList.addAll(originalVehicleList)
+                        adapter.notifyDataSetChanged()
+                    }
+                    1 -> sortByEstimatedCost()
+                    2 -> sortByLocation()
+                    3 -> sortByRatings()
                 }
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -181,6 +189,8 @@ class RecommendationActivity : AppCompatActivity() {
                                     vehicleObj.estimatedCost = cost
                                 }
                                 vehicleList.add(vehicleObj)
+                                originalVehicleList.clear()
+                                originalVehicleList.addAll(vehicleList)
                                 adapter.notifyDataSetChanged()
                             }
 
@@ -193,6 +203,12 @@ class RecommendationActivity : AppCompatActivity() {
                     }
                 }
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun sortByEstimatedCost() {
+        vehicleList.sortBy { it.estimatedCost ?: Double.MAX_VALUE }
+        adapter.notifyDataSetChanged()
     }
 
     //find nearest location

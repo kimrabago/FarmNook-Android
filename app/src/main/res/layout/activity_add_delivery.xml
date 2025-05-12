@@ -385,6 +385,7 @@
                         android:inputType="textMultiLine|textCapSentences"
                         android:fontFamily="@font/dm_sans_medium"
                         android:padding="15dp"
+                        android:textSize="15sp"
                         android:background="@android:color/transparent"/>
 
                 </androidx.cardview.widget.CardView>

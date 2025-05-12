@@ -47,6 +47,8 @@ class HaulerDeliveryStatusFragment : Fragment() {
     private var dropCoords: String? = null
     private var pickupAddress: String? = null
     private var destinationAddress: String? = null
+    private var receiverName: String? = null
+    private var receiverNum: String? = null
     private var currentStatus = "Going to Pickup"
     private var haulerId: String = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
@@ -115,12 +117,12 @@ class HaulerDeliveryStatusFragment : Fragment() {
                 }
         }
 
-
         webView = view.findViewById(R.id.mapView)
         setupWebView()
 
         val fromAddress = view.findViewById<TextView>(R.id.from_address)
         val toAddress = view.findViewById<TextView>(R.id.to_address)
+        val receiverInfo = view.findViewById<TextView>(R.id.receiverInfo)
         val totalKilometer = view.findViewById<TextView>(R.id.totalKilometer)
         val durationTime = view.findViewById<TextView>(R.id.durationTime)
         val status = view.findViewById<TextView>(R.id.status)
@@ -142,7 +144,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
         deliveryId = arguments?.getString("deliveryId")
         if (deliveryId != null) {
-            fetchDeliveryData(deliveryId!!, fromAddress, toAddress, totalKilometer, durationTime, status)
+            fetchDeliveryData(deliveryId!!, fromAddress, toAddress, totalKilometer, durationTime, status, receiverInfo)
         }
 
         // Check initial delivery status
@@ -200,7 +202,8 @@ class HaulerDeliveryStatusFragment : Fragment() {
         toAddress: TextView,
         totalKilometer: TextView,
         durationTime: TextView,
-        status: TextView
+        status: TextView,
+        receiverInfo: TextView
     ) {
         Log.d("DeliveryStatus", "Fetching delivery data for ID: $deliveryId")
         firestore.collection("deliveries").document(deliveryId)
@@ -257,9 +260,12 @@ class HaulerDeliveryStatusFragment : Fragment() {
                         dropCoords = req.getString("destinationLocation")
                         pickupAddress =req.getString("pickupName")
                         destinationAddress = req.getString("destinationName")
+                        receiverName = req.getString("receiverName") ?: "Unknown"
+                        receiverNum = req.getString("receiverNumber") ?: "Unknown"
 
                         fromAddress.text = pickupAddress
                         toAddress.text = destinationAddress
+                        receiverInfo.text = "Recipient : $receiverName - $receiverNum"
 
                         if (pickupCoords == null || dropCoords == null) {
                             Log.e("DeliveryStatus", "⚠️ pickup/drop coords are null!")
@@ -391,8 +397,9 @@ class HaulerDeliveryStatusFragment : Fragment() {
                                     reqDoc.getString("businessId") ?: return@addOnSuccessListener
                                 val estimatedTime = reqDoc.getString("estimatedTime") ?: "N/A"
                                 val pickupAddress = reqDoc.getString("pickupName") ?: "Unknown"
-                                val destinationAddress =
-                                    reqDoc.getString("destinationName") ?: "Unknown"
+                                val destinationAddress = reqDoc.getString("destinationName") ?: "Unknown"
+                                val receiverName = reqDoc.getString("receiverName") ?: "Unknown"
+                                val receiverNum = reqDoc.getString("receiverNumber") ?: "Unknown"
 
                                 val chatId =
                                     if (haulerId < farmerId) "$haulerId-$farmerId" else "$farmerId-$haulerId"

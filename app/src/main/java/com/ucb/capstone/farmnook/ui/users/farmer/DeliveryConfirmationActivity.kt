@@ -1,5 +1,6 @@
 package com.ucb.capstone.farmnook.ui.users.farmer
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
@@ -22,13 +23,13 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
     private lateinit var modelTextView: TextView
     private lateinit var productTypeTextView: TextView
     private lateinit var capacityTextView: TextView
+    private lateinit var receiverTextView: TextView
     private var businessId: String? = null  // NEW
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_delivery_confirmation)
 
-        // Bind views
         profileImage = findViewById(R.id.profileImage)
         haulerNameTextView = findViewById(R.id.haulerName)
         businessNameTextView = findViewById(R.id.businessName)
@@ -38,6 +39,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         modelTextView = findViewById(R.id.model)
         productTypeTextView = findViewById(R.id.productType)
         capacityTextView = findViewById(R.id.capacity)
+        receiverTextView = findViewById(R.id.receiverInfo)
 
         val backButton = findViewById<ImageButton>(R.id.btn_back)
 
@@ -92,6 +94,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
             }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun fetchRequestDetails(requestId: String) {
         val db = FirebaseFirestore.getInstance()
 
@@ -106,7 +109,10 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
                 val purpose = requestDoc.getString("purpose")?.replaceFirstChar { it.uppercase() } ?: ""
                 val vehicleId = requestDoc.getString("vehicleId") ?: ""
                 val destinationLocation = requestDoc.getString("destinationName") ?: ""
+                val receiverName = requestDoc.getString("receiverName") ?: ""
+                val receiverNum = requestDoc.getString("receiverNumber") ?: ""
 
+                receiverTextView.text = "$receiverName\n$receiverNum"
                 productTypeTextView.text = productType
                 capacityTextView.text = purpose
                 locationTextView.text = destinationLocation

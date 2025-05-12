@@ -63,7 +63,7 @@
             android:id="@+id/cardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="13dp"
+            android:layout_marginTop="7dp"
             app:cardCornerRadius="16dp">
 
             <LinearLayout
@@ -203,13 +203,24 @@
                         android:layout_marginTop="8dp" />
 
                     <TextView
+                        android:id="@+id/receiverInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:background="@drawable/green_rounded"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/dm_sans"
+                        app:layout_constraintTop_toBottomOf="@id/destination"
+                        app:layout_constraintStart_toStartOf="@id/destination" />
+
+                    <TextView
                         android:id="@+id/provinceDestination"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/province_destination"
                         android:textColor="@android:color/darker_gray"
-                        app:layout_constraintTop_toBottomOf="@id/destination"
-                        app:layout_constraintStart_toStartOf="@id/destination"
+                        app:layout_constraintTop_toBottomOf="@id/receiverInfo"
+                        app:layout_constraintStart_toStartOf="@id/receiverInfo"
                         app:layout_constraintEnd_toEndOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -218,7 +229,6 @@
                     android:id="@+id/deliveryDetails"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10dp"
                     android:padding="5dp"
                     android:background="@color/dark_cream">
 
