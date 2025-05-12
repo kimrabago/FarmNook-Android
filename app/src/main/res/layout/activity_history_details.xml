@@ -165,7 +165,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/pick_up_location"
-                        android:textStyle="bold"
+                        android:fontFamily="@font/dm_sans_bold"
                         android:textSize="16sp"
                         android:textColor="@color/black"
                         app:layout_constraintTop_toTopOf="parent"
@@ -178,6 +178,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/province"
+                        android:fontFamily="@font/dm_sans"
                         android:textColor="@android:color/darker_gray"
                         app:layout_constraintTop_toBottomOf="@id/pickUpLocation"
                         app:layout_constraintStart_toStartOf="@id/pickUpLocation"
@@ -189,8 +190,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/destination_place"
-                        android:textStyle="bold"
                         android:textSize="16sp"
+                        android:fontFamily="@font/dm_sans_bold"
                         android:textColor="@color/black"
                         app:layout_constraintTop_toBottomOf="@id/provincePickup"
                         app:layout_constraintStart_toStartOf="@id/pickUpLocation"
@@ -198,13 +199,26 @@
                         android:layout_marginTop="8dp" />
 
                     <TextView
+                        android:id="@+id/receiverInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:background="@drawable/green_rounded"
+                        android:textColor="@color/white"
+                        android:text="Kimberly Rabago - 0928392032"
+                        android:fontFamily="@font/dm_sans"
+                        app:layout_constraintTop_toBottomOf="@id/destination"
+                        app:layout_constraintStart_toStartOf="@id/destination" />
+
+                    <TextView
                         android:id="@+id/provinceDestination"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/province_destination"
+                        android:fontFamily="@font/dm_sans"
                         android:textColor="@android:color/darker_gray"
-                        app:layout_constraintTop_toBottomOf="@id/destination"
-                        app:layout_constraintStart_toStartOf="@id/destination"
+                        app:layout_constraintTop_toBottomOf="@id/receiverInfo"
+                        app:layout_constraintStart_toStartOf="@id/receiverInfo"
                         app:layout_constraintEnd_toEndOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -245,6 +259,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
                         android:text="@string/pigs"
+                        android:fontFamily="@font/dm_sans"
                         android:paddingHorizontal="10dp"
                         android:textColor="@color/dark_green"
                         android:textSize="12sp"
@@ -282,6 +297,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:text="@string/weight_amount"
+                    android:fontFamily="@font/dm_sans"
                     android:paddingHorizontal="10dp"
                     android:textColor="@color/dark_green"
                     android:textSize="12sp"
@@ -324,6 +340,7 @@
                     android:paddingHorizontal="10dp"
                     android:textColor="@color/dark_green"
                     android:textStyle="normal"
+                    android:fontFamily="@font/dm_sans"
                     android:textSize="12sp"
                     android:background="@color/white"/>
             </LinearLayout>
@@ -364,6 +381,7 @@
                         android:text="@string/vehicle_type"
                         android:textColor="@color/dark_green"
                         android:textSize="12sp"
+                        android:fontFamily="@font/dm_sans"
                         android:layout_marginStart="10dp"
                         android:background="@color/white"/>
                 </LinearLayout>

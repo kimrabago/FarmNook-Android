@@ -3,6 +3,7 @@ package com.ucb.capstone.farmnook.ui.users.hauler
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.*
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.core.view.GravityCompat
@@ -64,6 +65,9 @@ class HaulerDashboardFragment : Fragment() {
                 putExtra("estimatedTime", delivery.estimatedTime)
                 putExtra("totalCost", delivery.totalCost)
                 putExtra("requestId", delivery.requestId)
+                putExtra("requestId", delivery.requestId)
+                putExtra("receiverName", delivery.receiverName)
+                putExtra("receiverNum", delivery.receiverNum)
             }
             startActivity(intent)
         }
@@ -101,8 +105,11 @@ class HaulerDashboardFragment : Fragment() {
                             val drop = requestDoc.getString("destinationLocation") ?: return@async null
                             val pickupAddress =  requestDoc.getString("pickupName") ?: return@async null
                             val dropAddress = requestDoc.getString("destinationName") ?: return@async null
+                            val receiverName = requestDoc.getString("receiverName") ?: ""
+                            val receiverNum = requestDoc.getString("receiverNumber") ?: ""
+                            Log.d("HaulerDashboard", "Fetched receiver info: Name=$receiverName, Number=$receiverNum for requestId=$requestId")
 
-                            DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId, isStarted)
+                            DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId, receiverName, receiverNum, isStarted)
                         }
                     }
 

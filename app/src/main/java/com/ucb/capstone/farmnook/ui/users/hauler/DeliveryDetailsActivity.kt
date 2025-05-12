@@ -54,8 +54,6 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         requestDateTextView = findViewById(R.id.dateTime)
         vehicleTypeTextView = findViewById(R.id.vehicle)
 
-
-        //Removed the geocode
         val pickupAddress = intent.getStringExtra("pickupAddress")
         val destinationAddress = intent.getStringExtra("destinationAddress")
         val pickup = intent.getStringExtra("pickup") ?: ""
@@ -64,7 +62,10 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         val totalCost = intent.getStringExtra("totalCost") ?: "N/A"
         val deliveryId = intent.getStringExtra("deliveryId") ?: return
         val requestId = intent.getStringExtra("requestId") ?: return
+        val receiverName = intent.getStringExtra("receiverName") ?: ""
+        val receiverNum = intent.getStringExtra("receiverNum") ?: ""
 
+        findViewById<TextView>(R.id.receiverInfo).text = "Recipient : $receiverName - $receiverNum"
         findViewById<TextView>(R.id.estimatedTime).text = estimatedTime
         findViewById<TextView>(R.id.totalCost).text = "₱${totalCost}"
         findViewById<TextView>(R.id.provincePickup).text = pickupAddress
@@ -72,10 +73,11 @@ class DeliveryDetailsActivity : AppCompatActivity() {
 
         fetchFarmerDetails(requestId, farmerNameTextView, profileImageView, productTypeTextView, weightTextView, requestDateTextView, vehicleTypeTextView)
 
+
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 
         findViewById<Button>(R.id.startDeliveryBtn).setOnClickListener {
-            startDelivery(deliveryId, pickup, destination, pickupAddress, destinationAddress)
+            startDelivery(deliveryId, pickup, destination, pickupAddress, destinationAddress, receiverName, receiverNum)
         }
 
         webView = findViewById(R.id.mapView)
@@ -87,7 +89,9 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         pickup: String,
         destination: String,
         pickupAddress: String?,
-        destinationAddress: String?
+        destinationAddress: String?,
+        receiverName: String?,
+        receiverNum: String?,
     ) {
         val haulerId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val firestore = FirebaseFirestore.getInstance()
@@ -165,6 +169,8 @@ class DeliveryDetailsActivity : AppCompatActivity() {
             putExtra("destination", destination)
             putExtra("pickupAddress", pickupAddress)
             putExtra("destinationAddress", destinationAddress)
+            putExtra("receiverName", receiverName)
+            putExtra("receiverNum", receiverNum)
         }.also { startActivity(it) }
 
         finish()
@@ -179,7 +185,7 @@ fun fetchFarmerDetails(
     productTypeTextView: TextView,
     weightTextView: TextView,
     requestDateTextView: TextView,
-    vehicleTypeTextView: TextView
+    vehicleTypeTextView: TextView,
 ) {
     val firestore = FirebaseFirestore.getInstance()
 
@@ -199,7 +205,8 @@ fun fetchFarmerDetails(
             val productType = requestDoc.getString("productType") ?: return@addSnapshotListener
             val weight = requestDoc.getString("weight") ?: return@addSnapshotListener
             val vehicleType = requestDoc.getString("purpose") ?: return@addSnapshotListener
-            val timestamp = requestDoc.getTimestamp("timestamp") ?: return@addSnapshotListener
+            val timestamp = requestDoc.getTimestamp("scheduledTime") ?: return@addSnapshotListener
+
             val requestDate = timestamp.toDate()
             val formatter = SimpleDateFormat("MMM dd, yyyy: hh:mm a", Locale.US)
             val formattedDate = formatter.format(requestDate)
