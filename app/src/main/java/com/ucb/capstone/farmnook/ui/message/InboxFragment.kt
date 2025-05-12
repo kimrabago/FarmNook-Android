@@ -72,13 +72,20 @@ class InboxFragment : Fragment() {
                     return@addSnapshotListener
                 }
 
-                chatList.clear()
+                chatList.clear() // Clearing chat list before adding new data
                 value?.documents?.forEach { doc ->
                     val userIds = doc.get("userIds") as? List<String> ?: return@forEach
                     val otherUserId = userIds.firstOrNull { it != currentUserId } ?: return@forEach
 
-                    val timestamp = doc.getTimestamp("timestamp")?.toDate()?.time ?: 0L
+                    // Safely get the timestamp and handle different formats
+                    val timestamp: Long = when (val timestampValue = doc.get("timestamp")) {
+                        is com.google.firebase.Timestamp -> timestampValue.seconds * 1000 // Convert to milliseconds
+                        is Long -> timestampValue // If it's already a Long, use it
+                        is String -> timestampValue.toLongOrNull() ?: 0L // If it's a String, try converting it to Long
+                        else -> 0L // Default to 0 if it's null or an unexpected type
+                    }
 
+                    // Fetch user details
                     fetchUserDetails(
                         chatId = doc.id,
                         otherUserId = otherUserId,
@@ -89,7 +96,6 @@ class InboxFragment : Fragment() {
             }
     }
 
-
     private fun fetchUserDetails(
         chatId: String,
         otherUserId: String,
@@ -98,34 +104,48 @@ class InboxFragment : Fragment() {
     ) {
         firestore.collection("users").document(otherUserId).get()
             .addOnSuccessListener { userDoc ->
-                val firstName = userDoc.getString("firstName") ?: ""
-                val lastName = userDoc.getString("lastName") ?: ""
+                val firstName = userDoc.getString("firstName") ?: "Unknown"
+                val lastName = userDoc.getString("lastName") ?: "User"
                 val fullName = "$firstName $lastName".trim()
-                val profileImage = userDoc.getString("profileImageUrl") ?: ""
+                val profileImage =
+                    userDoc.getString("profileImageUrl") ?: "" // Default to empty string if null
 
                 Log.d("InboxFragment", "Fetched user details: $fullName")
 
-                chatList.add(ChatItem(
+                // Add chat item and notify the adapter
+                val chatItem = ChatItem(
                     chatId = chatId,
                     otherUserId = otherUserId,
                     profileImageUrl = profileImage,
                     userName = fullName,
                     lastMessage = lastMessage,
                     timestamp = timestamp
-                ))
-                inboxAdapter.notifyDataSetChanged()
+                )
+
+                // Run on main thread for UI updates
+                activity?.runOnUiThread {
+                    chatList.add(chatItem)
+                    inboxAdapter.notifyDataSetChanged()
+                }
             }
-            .addOnFailureListener {
-                Log.e("InboxFragment", "Failed to fetch user details")
-                chatList.add(ChatItem(
+            .addOnFailureListener { exception ->
+                Log.e("InboxFragment", "Failed to fetch user details", exception)
+
+                // Fallback values for unknown users
+                val fallbackChatItem = ChatItem(
                     chatId = chatId,
                     otherUserId = otherUserId,
-                    profileImageUrl = "",
+                    profileImageUrl = "", // No image available
                     userName = "Unknown User",
                     lastMessage = lastMessage,
                     timestamp = timestamp
-                ))
-                inboxAdapter.notifyDataSetChanged()
+                )
+
+                // Run on main thread for UI updates
+                activity?.runOnUiThread {
+                    chatList.add(fallbackChatItem)
+                    inboxAdapter.notifyDataSetChanged()
+                }
             }
     }
 }
