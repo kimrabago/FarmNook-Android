@@ -10,6 +10,7 @@
     tools:context=".ui.message.MessageActivity">
 
 
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -97,4 +98,5 @@
             android:background="@drawable/send_icon"
             android:contentDescription="@string/send_button" />
     </LinearLayout>
+
 </LinearLayout>

@@ -237,6 +237,7 @@
     <string name="contact_number">Contact Number</string>
     <string name="message_image" />
     <string name="receiver">Receiver</string>
+    <string name="delivery_detailss">Delivery Details</string>
 
     <string-array name="filter_options">
         <item>Select Filter</item>

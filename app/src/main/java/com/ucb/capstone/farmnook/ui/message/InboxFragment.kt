@@ -59,9 +59,6 @@ class InboxFragment : Fragment() {
 
     private fun fetchChats() {
         val currentUserId = auth.currentUser?.uid ?: return
-
-        Log.d("InboxFragment", "Fetching chats for user: $currentUserId")
-
         firestore.collection("chats")
             .whereArrayContains("userIds", currentUserId)
             .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -72,29 +69,49 @@ class InboxFragment : Fragment() {
                     return@addSnapshotListener
                 }
 
-                chatList.clear() // Clearing chat list before adding new data
+                val newChatList = mutableListOf<ChatItem>()
+
                 value?.documents?.forEach { doc ->
                     val userIds = doc.get("userIds") as? List<String> ?: return@forEach
                     val otherUserId = userIds.firstOrNull { it != currentUserId } ?: return@forEach
 
-                    // Safely get the timestamp and handle different formats
-                    val timestamp: Long = when (val timestampValue = doc.get("timestamp")) {
-                        is com.google.firebase.Timestamp -> timestampValue.seconds * 1000 // Convert to milliseconds
-                        is Long -> timestampValue // If it's already a Long, use it
-                        is String -> timestampValue.toLongOrNull() ?: 0L // If it's a String, try converting it to Long
-                        else -> 0L // Default to 0 if it's null or an unexpected type
+                    val timestamp = when (val timestampValue = doc.get("timestamp")) {
+                        is com.google.firebase.Timestamp -> timestampValue.seconds * 1000
+                        is Long -> timestampValue
+                        is String -> timestampValue.toLongOrNull() ?: 0L
+                        else -> 0L
                     }
 
-                    // Fetch user details
-                    fetchUserDetails(
-                        chatId = doc.id,
-                        otherUserId = otherUserId,
-                        lastMessage = doc.getString("lastMessage") ?: "No messages yet",
-                        timestamp = timestamp
-                    )
+                    val lastMessage = doc.getString("lastMessage") ?: "No messages yet"
+
+                    firestore.collection("users").document(otherUserId).get()
+                        .addOnSuccessListener { userDoc ->
+                            val name = "${userDoc.getString("firstName") ?: "Unknown"} ${userDoc.getString("lastName") ?: "User"}"
+                            val image = userDoc.getString("profileImageUrl") ?: ""
+                            newChatList.add(ChatItem(doc.id, otherUserId, image, name, lastMessage, timestamp))
+
+                            if (newChatList.size == value.documents.size) {
+                                updateChatList(newChatList)
+                            }
+                        }
+                        .addOnFailureListener {
+                            newChatList.add(ChatItem(doc.id, otherUserId, "", "Unknown User", lastMessage, timestamp))
+                            if (newChatList.size == value.documents.size) {
+                                updateChatList(newChatList)
+                            }
+                        }
                 }
             }
     }
+
+    private fun updateChatList(newList: List<ChatItem>) {
+        chatList.clear()
+        chatList.addAll(newList)
+        activity?.runOnUiThread {
+            inboxAdapter.notifyDataSetChanged()
+        }
+    }
+
 
     private fun fetchUserDetails(
         chatId: String,
