@@ -29,7 +29,7 @@
         </activity>
         <activity
             android:name=".ui.users.HistoryDetailsActivity"
-            android:exported="true"></activity>
+            android:exported="true"/>
         <activity
             android:name=".ui.users.LocationPickerActivity"
             android:exported="true" />
@@ -39,6 +39,9 @@
         <activity
             android:name=".ui.message.NewMessageActivity"
             android:exported="true" />
+        <activity
+            android:name=".ui.users.farmer.FarmerDeliveryDetailsActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.mapbox.token"

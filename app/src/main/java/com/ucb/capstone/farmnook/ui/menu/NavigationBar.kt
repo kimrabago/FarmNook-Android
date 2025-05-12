@@ -159,32 +159,56 @@ class NavigationBar : AppCompatActivity() {
                 R.id.home -> resetToDashboard()
                 R.id.history -> replaceFragment(DeliveryHistoryFragment(), "History")
                 R.id.delivery -> {
-                    val fragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
-                        val bundle = Bundle().apply {
-                            putString("deliveryId", activeDeliveryId)
-                        }
-                        HaulerDeliveryStatusFragment().apply { arguments = bundle}
-                    } else {
-                        FarmerDeliveryStatusFragment().apply {
-                            arguments = Bundle().apply {
-                                putString("requestId", activeRequestId)
-                                putString("pickupName", pickupName)
-                                putString("destinationName", destinationName)
-                                putString("purpose", purpose)
-                                putString("productType", productType)
-                                putString("weight", weight)
-                                putDouble("estimatedCost", totalCost)
-                                putString("estimatedTime", estimatedTime)
-                                putString("businessName", businessName)
-                                putString("locationName", locationName)
-                                putString("profileImageUrl", profileImage)
-                                putString("vehicleType", vehicleType)
-                                putString("vehicleModel", vehicleModel)
-                                putString("plateNumber", plateNumber)
-                            }
+                    // First hide all fragments
+                    supportFragmentManager.fragments.forEach { fragment ->
+                        if (fragment != null) {
+                            supportFragmentManager.beginTransaction()
+                                .hide(fragment)
+                                .commit()
                         }
                     }
-                    replaceFragment(fragment, "Delivery")
+
+                    // Check if fragment already exists
+                    var deliveryFragment = supportFragmentManager.findFragmentByTag("Delivery")
+                    
+                    if (deliveryFragment == null) {
+                        // Create new fragment only if it doesn't exist
+                        deliveryFragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
+                            val bundle = Bundle().apply {
+                                putString("deliveryId", activeDeliveryId)
+                            }
+                            HaulerDeliveryStatusFragment().apply { arguments = bundle }
+                        } else {
+                            FarmerDeliveryStatusFragment().apply {
+                                arguments = Bundle().apply {
+                                    putString("requestId", activeRequestId)
+                                    putString("pickupName", pickupName)
+                                    putString("destinationName", destinationName)
+                                    putString("purpose", purpose)
+                                    putString("productType", productType)
+                                    putString("weight", weight)
+                                    putDouble("estimatedCost", totalCost)
+                                    putString("estimatedTime", estimatedTime)
+                                    putString("businessName", businessName)
+                                    putString("locationName", locationName)
+                                    putString("profileImageUrl", profileImage)
+                                    putString("vehicleType", vehicleType)
+                                    putString("vehicleModel", vehicleModel)
+                                    putString("plateNumber", plateNumber)
+                                }
+                            }
+                        }
+                        // Add the new fragment
+                        supportFragmentManager.beginTransaction()
+                            .add(R.id.navHost, deliveryFragment, "Delivery")
+                            .commit()
+                    } else {
+                        // Show existing fragment
+                        supportFragmentManager.beginTransaction()
+                            .show(deliveryFragment)
+                            .commit()
+                    }
+                    currentFragmentTag = "Delivery"
                 }
                 R.id.message -> replaceFragment(InboxFragment(), "Inbox")
             }
@@ -194,17 +218,33 @@ class NavigationBar : AppCompatActivity() {
 
     private fun replaceFragment(fragment: Fragment, tag: String) {
         currentFragmentTag = tag
+        // First hide all fragments
+        supportFragmentManager.fragments.forEach { existingFragment ->
+            if (existingFragment != null) {
+                supportFragmentManager.beginTransaction()
+                    .hide(existingFragment)
+                    .commit()
+            }
+        }
+        // Then add the new fragment
         supportFragmentManager.beginTransaction()
-            .replace(R.id.navHost, fragment, tag)
-            .addToBackStack(null)
-            .commitAllowingStateLoss()
+            .add(R.id.navHost, fragment, tag)
+            .commit()
     }
 
     fun resetToDashboard() {
         if (supportFragmentManager.isStateSaved) {
             Handler(Looper.getMainLooper()).post { resetToDashboard() }
         } else {
-            supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            // First hide all fragments
+            supportFragmentManager.fragments.forEach { fragment ->
+                if (fragment != null) {
+                    supportFragmentManager.beginTransaction()
+                        .hide(fragment)
+                        .commit()
+                }
+            }
+            
             val dashboardFragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
                 HaulerDashboardFragment()
             } else {

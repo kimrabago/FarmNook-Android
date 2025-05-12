@@ -1,555 +1,352 @@
 package com.ucb.capstone.farmnook.ui.users.farmer
 
-import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Color
-import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import android.widget.*
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.firebase.firestore.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryRequest
-import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
-import com.ucb.capstone.farmnook.ui.menu.NavigationBar
-import com.ucb.capstone.farmnook.util.getAddressFromLatLng
-import com.ucb.capstone.farmnook.utils.loadImage
-import com.ucb.capstone.farmnook.utils.loadMapInWebView
-import de.hdodenhof.circleimageview.CircleImageView
-import java.util.Locale
-import kotlin.math.ceil
-import com.google.firebase.auth.FirebaseAuth
 import com.ucb.capstone.farmnook.ui.message.MessageActivity
+import com.ucb.capstone.farmnook.utils.loadImage
+import de.hdodenhof.circleimageview.CircleImageView
 
 class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_status) {
 
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
-    private lateinit var loadingLayout: View
-    private lateinit var confirmationLayout: View
-    private lateinit var haulerToPickupLayout: View
-    private lateinit var noActiveDeliveryLayout: View
-    private lateinit var webView: WebView
-    private lateinit var geocoder: Geocoder
-
-    private lateinit var deliveryRequestRef: DocumentReference
-    private var deliveryId: String? = null
-    private var listenerRegistration: ListenerRegistration? = null
-    private var argPickupName: String? = null
-    private var argPurpose: String? = null
-    private var argDestinationName: String? = null
-    private var argProductType: String? = null
-    private var argWeight: String? = null
-    private var argTotalCost: Double? = null
-    private var argEstimatedTime: String? = null
-    private var argBusinessName: String? = null
-    private var argLocationName: String? = null
-    private var argProfileImage: String? = null
-    private var argVehicleType: String? = null
-    private var argVehicleModel: String? = null
-    private var argPlateNumber: String? = null
-    private lateinit var pickup: String
-    private lateinit var destination: String
-
-    private lateinit var vehicleWtBusiness: VehicleWithBusiness
-    private lateinit var deliveryReq: DeliveryRequest
-
-    private lateinit var haulerProfileImage: CircleImageView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var noDeliveriesText: View
+    private val deliveries = mutableListOf<DeliveryRequest>()
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+    private var isLoading = false
+    private var currentLoadJob: kotlinx.coroutines.Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val messageIcon = view.findViewById<ImageButton>(R.id.messageIcon)
-        messageIcon.setOnClickListener {
-            val deliveryId = this.deliveryId ?: return@setOnClickListener
-
-
-            FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId).get()
-                .addOnSuccessListener { deliveryDoc ->
-                    val farmerId = FirebaseAuth.getInstance().currentUser?.uid
-                        ?: return@addOnSuccessListener
-                    val haulerId = deliveryDoc.getString("haulerAssignedId")
-                        ?: return@addOnSuccessListener
-
-
-                    // Generate chat ID (must match format used elsewhere)
-                    val chatId = if (farmerId < haulerId) "$farmerId-$haulerId"
-                    else "$haulerId-$farmerId"
-
-
-                    // Fetch hauler details for the chat
-                    FirebaseFirestore.getInstance().collection("users").document(haulerId).get()
-                        .addOnSuccessListener { haulerDoc ->
-                            val firstName = haulerDoc.getString("firstName") ?: ""
-                            val lastName = haulerDoc.getString("lastName") ?: ""
-                            val haulerName = "$firstName $lastName".trim()
-
-
-                            Intent(requireContext(), MessageActivity::class.java).apply {
-                                putExtra("chatId", chatId)
-                                putExtra("recipientId", haulerId)
-                                putExtra("receiverName", haulerName)
-                            }.also { startActivity(it) }
-                        }
-                        .addOnFailureListener {
-                            Intent(requireContext(), MessageActivity::class.java).apply {
-                                putExtra("chatId", chatId)
-                                putExtra("recipientId", haulerId)
-                            }.also { startActivity(it) }
-                        }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(),
-                        "Failed to load delivery details",
-                        Toast.LENGTH_SHORT).show()
-                }
+        try {
+            initializeViews(view)
+            setupRecyclerView()
+            loadDeliveries()
+        } catch (e: Exception) {
+            Log.e("FarmerDeliveryStatus", "Error in onViewCreated: ${e.message}")
+            showError("Failed to initialize delivery status view")
         }
+    }
 
-        bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.bottomSheet)).apply {
-            peekHeight = 100
-            isHideable = false
-            state = BottomSheetBehavior.STATE_EXPANDED
+    private fun initializeViews(view: View) {
+        try {
+            recyclerView = view.findViewById(R.id.deliveriesRecyclerView)
+            noDeliveriesText = view.findViewById(R.id.noDeliveriesText)
+        } catch (e: Exception) {
+            Log.e("FarmerDeliveryStatus", "Error initializing views: ${e.message}")
+            throw e
         }
+    }
 
-        webView = view.findViewById(R.id.mapView)
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
-        webView.setBackgroundColor(Color.TRANSPARENT)
-        webView.webViewClient = WebViewClient()
-
-        haulerProfileImage = view.findViewById(R.id.profileImage)
-        loadingLayout = view.findViewById(R.id.loadingLayout)
-        confirmationLayout = view.findViewById(R.id.confirmationLayout)
-        haulerToPickupLayout = view.findViewById(R.id.haulerToPickupLayout)
-        noActiveDeliveryLayout = view.findViewById(R.id.noActiveDeliveryLayout)
-
-        geocoder = Geocoder(requireContext(), Locale.getDefault())
-        val cancelButton = view.findViewById<Button>(R.id.cancelButton)
-        cancelButton.setOnClickListener { cancelDeliveryRequest() }
-
-        val detailsButton = view.findViewById<Button>(R.id.deliveryDetailsBtn)
-        detailsButton.setOnClickListener {
-            if (::deliveryReq.isInitialized) {
-                showDeliverySummaryDialog()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Delivery details are still loading.",
-                    Toast.LENGTH_SHORT
-                ).show()
+    private fun setupRecyclerView() {
+        try {
+            recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            recyclerView.adapter = DeliveriesAdapter(deliveries) { delivery ->
+                try {
+                    launchDeliveryDetails(delivery)
+                } catch (e: Exception) {
+                    Log.e("FarmerDeliveryStatus", "Error launching delivery details: ${e.message}")
+                    showError("Failed to open delivery details")
+                }
             }
+        } catch (e: Exception) {
+            Log.e("FarmerDeliveryStatus", "Error setting up RecyclerView: ${e.message}")
+            throw e
         }
+    }
 
-        val requestId = requireArguments().getString("requestId")
-        argPickupName = requireArguments().getString("pickupName")
-        argDestinationName = requireArguments().getString("destinationName")
-        argPurpose = requireArguments().getString("purpose")
-        argProductType = requireArguments().getString("productType")
-        argWeight = requireArguments().getString("weight")
-        argBusinessName = requireArguments().getString("businessId")
-        argTotalCost = requireArguments().getDouble("estimatedCost", -1.0)
-        argEstimatedTime = requireArguments().getString("estimatedTime")
-        argBusinessName = requireArguments().getString("businessName")
-        argLocationName = requireArguments().getString("locationName")
-        argProfileImage = requireArguments().getString("profileImageUrl")
-        argVehicleType = requireArguments().getString("vehicleType")
-        argVehicleModel = requireArguments().getString("vehicleModel")
-        argPlateNumber = requireArguments().getString("plateNumber")
+    private fun launchDeliveryDetails(delivery: DeliveryRequest) {
+        Intent(requireContext(), FarmerDeliveryDetailsActivity::class.java).apply {
+            putExtra("requestId", delivery.requestId)
+            putExtra("pickupName", delivery.pickupName)
+            putExtra("destinationName", delivery.destinationName)
+            putExtra("purpose", delivery.purpose)
+            putExtra("productType", delivery.productType)
+            putExtra("weight", delivery.weight)
+            putExtra("estimatedCost", delivery.estimatedCost)
+            putExtra("estimatedTime", delivery.estimatedTime)
+            putExtra("businessName", delivery.businessName)
+            putExtra("locationName", delivery.locationName)
+            putExtra("profileImageUrl", delivery.profileImageUrl)
+            putExtra("vehicleType", delivery.vehicleType)
+            putExtra("vehicleModel", delivery.vehicleModel)
+            putExtra("plateNumber", delivery.plateNumber)
+        }.also { startActivity(it) }
+    }
 
-        if (requestId.isNullOrEmpty()) {
-            showNoActiveDelivery()
+    private fun loadDeliveries() {
+        if (isLoading) return
+        isLoading = true
+
+        val userId = auth.currentUser?.uid ?: run {
+            showError("User not authenticated")
+            isLoading = false
             return
         }
 
-        deliveryRequestRef =
-            FirebaseFirestore.getInstance().collection("deliveryRequests").document(requestId)
+        // Clear existing data
+        deliveries.clear()
+        updateUI()
 
-        deliveryRequestRef.get().addOnSuccessListener { doc ->
-            if (!doc.exists()) {
-                showNoActiveDelivery()
-                return@addOnSuccessListener
-            }
-
-            pickup = doc.getString("pickupLocation") ?: ""
-            destination = doc.getString("destinationLocation") ?: ""
-
-            if (pickup.isNotEmpty() && destination.isNotEmpty()) {
-                val pickupLocName = argPickupName ?: getAddressFromLatLng(pickup, geocoder)
-                val destLocName = argDestinationName ?: getAddressFromLatLng(destination, geocoder)
-
-                deliveryReq = DeliveryRequest(
-                    pickupLocation = pickup,
-                    pickupName = pickupLocName,
-                    destinationLocation = destination,
-                    destinationName = destLocName,
-                    productType = argProductType,
-                    weight = argWeight
-                )
-
-                fetchDeliveryIdAndLoadStatus(doc.id, pickup, destination)
-            } else {
-                Toast.makeText(requireContext(), "Missing pickup/destination", Toast.LENGTH_SHORT)
-                    .show()
-                showNoActiveDelivery()
-            }
-        }
-
-        listenForDeliveryConfirmation()
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun showDeliverySummaryDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_delivery_summary, null)
-
-        val builder = AlertDialog.Builder(requireContext())
-            .setView(dialogView)
-        val dialog = builder.create()
-
-        val businessName = dialogView.findViewById<TextView>(R.id.businessName)
-        val businessLocation = dialogView.findViewById<TextView>(R.id.businessLocation)
-        val profileImage = dialogView.findViewById<CircleImageView>(R.id.profileImage)
-
-        businessName.text = argBusinessName
-        businessLocation.text = argLocationName
-        profileImage.loadImage(argProfileImage)
-
-        // Reusable rows
-        fun setRowText(viewId: Int, label: String, value: String) {
-            val row = dialogView.findViewById<View>(viewId)
-            row.findViewById<TextView>(R.id.label).text = label
-            row.findViewById<TextView>(R.id.value).text = value
-        }
-
-        // Populate rows
-        setRowText(R.id.plateRow, "Plate Number", argPlateNumber ?: "N/A")
-        setRowText(R.id.pickupRow, "Pickup", argPickupName ?: "N/A")
-        setRowText(R.id.destinationRow, "Destination", argDestinationName ?: "N/A")
-        setRowText(
-            R.id.vehicleRow,
-            "Vehicle",
-            "${(argVehicleType ?: "N/A")} - ${(argVehicleModel ?: "N/A")}"
-        )
-        setRowText(
-            R.id.purposeRow,
-            "Product",
-            "${(argPurpose ?: "N/A").replaceFirstChar { it.uppercase() }} - ${argProductType ?: "N/A"} (${argWeight ?: "N/A"} kg)"
-        )
-        val roundedCost = argTotalCost?.let { ceil(it).toInt() } ?: "N/A"
-        setRowText(R.id.productRow, "Cost", "₱$roundedCost")
-        setRowText(R.id.weightRow, "Time", argEstimatedTime ?: "N/A")
-
-        dialogView.findViewById<Button>(R.id.cancelButton).apply {
-            text = "CLOSE"
-            setOnClickListener {
-                dialog.dismiss()
-            }
-        }
-
-        dialogView.findViewById<Button>(R.id.hireButton).apply {
-            visibility = View.GONE
-        }
-
-        dialog.show()
-    }
-
-    private fun fetchDeliveryIdAndLoadStatus(
-        requestId: String,
-        pickup: String,
-        destination: String,
-    ) {
-        FirebaseFirestore.getInstance().collection("deliveries")
-            .whereEqualTo("requestId", requestId)
-            .limit(1)
+        db.collection("deliveryRequests")
+            .whereEqualTo("farmerId", userId)
             .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (querySnapshot.isEmpty) {
-                    showLoadingLayout()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    isLoading = false
+                    updateUI()
                     return@addOnSuccessListener
                 }
 
-                val deliveryDoc = querySnapshot.documents[0]
-                deliveryId = deliveryDoc.id
-                val haulerId =
-                    deliveryDoc.getString("haulerAssignedId") ?: return@addOnSuccessListener
+                val pendingQueries = documents.size()
+                var completedQueries = 0
+                val tempDeliveries = mutableListOf<DeliveryRequest>()
 
-                val encodedPickup = pickup.replace(" ", "")
-                val encodedDrop = destination.replace(" ", "")
-                val mapUrl =
-                    "https://farmnook-web.vercel.app/live-tracking?pickup=$encodedPickup&drop=$encodedDrop&haulerId=$haulerId"
+                for (doc in documents) {
+                    val requestId = doc.getString("requestId") ?: continue
 
-                Log.d("MAP_DEBUG", "🌍 Loading map URL: $mapUrl")
-                webView.loadUrl(mapUrl)
+                    db.collection("deliveries")
+                        .whereEqualTo("requestId", requestId)
+                        .limit(1)
+                        .get()
+                        .addOnSuccessListener { deliveryDocs ->
+                            try {
+                                val statusDoc = deliveryDocs.documents.firstOrNull()
+                                val isDone = statusDoc?.getBoolean("isDone") ?: false
+                                val isStarted = statusDoc?.getBoolean("isStarted") ?: false
 
-                listenToDeliveryStatus(deliveryId!!)
-                fetchHaulerDetails(haulerId)
-            }
-            .addOnFailureListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to get delivery details",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-    }
+                                val delivery = DeliveryRequest(
+                                    id = doc.id,
+                                    requestId = requestId,
+                                    pickupName = doc.getString("pickupName"),
+                                    destinationName = doc.getString("destinationName"),
+                                    purpose = doc.getString("purpose"),
+                                    productType = doc.getString("productType"),
+                                    weight = doc.getString("weight"),
+                                    estimatedCost = doc.getDouble("estimatedCost"),
+                                    estimatedTime = doc.getString("estimatedTime"),
+                                    businessName = doc.getString("businessName"),
+                                    locationName = doc.getString("locationName"),
+                                    profileImageUrl = doc.getString("profileImageUrl"),
+                                    vehicleType = doc.getString("vehicleType"),
+                                    vehicleModel = doc.getString("vehicleModel"),
+                                    plateNumber = doc.getString("plateNumber"),
+                                    isDone = isDone,
+                                    isStarted = isStarted
+                                )
+                                tempDeliveries.add(delivery)
+                            } catch (e: Exception) {
+                                Log.e("FarmerDeliveryStatus", "Error parsing delivery document: ${e.message}")
+                            }
 
-    private fun listenToDeliveryStatus(deliveryId: String) {
-        val deliveryRef =
-            FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId)
-        listenerRegistration = deliveryRef.addSnapshotListener { snapshot, error ->
-            if (error != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
-
-            val isDone = snapshot.getBoolean("isDone") ?: false
-            val arrivedAtDestination = snapshot.getBoolean("arrivedAtDestination") ?: false
-            val arrivedAtPickup = snapshot.getBoolean("arrivedAtPickup") ?: false
-            val isStarted = snapshot.getBoolean("isStarted")?: false
-
-            val statusTextView = view?.findViewById<TextView>(R.id.status)
-
-
-            when {
-                isDone -> showCompletedMessage()
-                arrivedAtDestination -> {
-                    showConfirmationLayout()
-                    statusTextView?.text = "🚩 Arrived at Destination"
-                }
-                arrivedAtPickup -> {
-                    showConfirmationLayout()
-                    statusTextView?.text = "📍 Arrived at Pickup Point"
-                }
-                isStarted -> {
-                    showConfirmationLayout()
-                    statusTextView?.text = "🚚 Hauler is on the Way to Pickup"
-                }
-                else -> {
-                    showNoActiveDelivery()
-                }
-            }
-        }
-    }
-
-    private fun listenForDeliveryConfirmation() {
-        deliveryRequestRef.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to listen for updates.",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                val isAccepted = snapshot.getBoolean("isAccepted") ?: false
-                if (isAccepted) {
-                    fetchDeliveryDetails(snapshot.id)
-                } else {
-                    showLoadingLayout()
-                }
-            }
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun fetchDeliveryDetails(requestId: String) {
-        val deliveriesRef = FirebaseFirestore.getInstance()
-            .collection("deliveries")
-            .whereEqualTo("requestId", requestId)
-
-        deliveriesRef.get().addOnSuccessListener { querySnapshot ->
-            if (!querySnapshot.isEmpty) {
-                val deliveryDoc = querySnapshot.documents[0]
-                val haulerId =
-                    deliveryDoc.getString("haulerAssignedId") ?: return@addOnSuccessListener
-                val deliveryId = deliveryDoc.getString("deliveryId") ?: return@addOnSuccessListener
-
-                val deliveryIdTextView = view?.findViewById<TextView>(R.id.deliveryId)
-                deliveryIdTextView?.text = "Delivery ID: $deliveryId"
-
-                // Fetch deliveryRequest data to build DeliveryRequest object
-                deliveryRequestRef.get().addOnSuccessListener { requestDoc ->
-                    val vehicleId = requestDoc.getString("vehicleId") ?: return@addOnSuccessListener
-                    val cost = requestDoc.getDouble("estimatedCost") ?: return@addOnSuccessListener
-                    val estimatedTime =
-                        requestDoc.getString("estimatedTime") ?: return@addOnSuccessListener
-                    val pickup = requestDoc.getString("pickupLocation") ?: ""
-                    val drop = requestDoc.getString("destinationLocation") ?: ""
-                    val pickupLocation = getAddressFromLatLng(pickup, geocoder)
-                    val destinationLocation = getAddressFromLatLng(drop, geocoder)
-
-
-                    fetchVehicleDetails(vehicleId) { fetchedVehicleWithBusiness ->
-                        this.vehicleWtBusiness = fetchedVehicleWithBusiness
-
-                        fetchHaulerDetails(haulerId)
-                    }
-                }
-
-            } else {
-                Log.w("DeliveryStatusFragment", "No delivery found for requestId: $requestId")
-            }
-        }.addOnFailureListener { e ->
-            Log.e("DeliveryStatusFragment", "Error fetching delivery details: ${e.message}")
-        }
-    }
-
-    private fun fetchHaulerDetails(haulerId: String) {
-        val userRef = FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(haulerId)
-
-        userRef.get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                val haulerID = document.getString("userId")
-                val haulerName =
-                    document.getString("firstName") + " " + document.getString("lastName")
-                val haulerProfileImg = document.getString("profileImageUrl")
-                val haulerLicenseNo = document.getString("licenseNo")
-
-
-                val haulerNameTextView = view?.findViewById<TextView>(R.id.haulerName)
-                val licenseNoTextView = view?.findViewById<TextView>(R.id.licenseNo)
-
-                haulerNameTextView?.text = haulerName
-                licenseNoTextView?.text = haulerLicenseNo
-
-                haulerProfileImage.loadImage(haulerProfileImg)
-
-                showConfirmationLayout()
-            } else {
-                Log.w("DeliveryStatusFragment", "Hauler not found with ID: $haulerId")
-            }
-        }.addOnFailureListener { e ->
-            Log.e("DeliveryStatusFragment", "Error fetching hauler details: ${e.message}")
-        }
-    }
-
-    // added
-    @SuppressLint("SetTextI18n")
-    private fun fetchVehicleDetails(vehicleId: String, callback: (VehicleWithBusiness) -> Unit) {
-        val vehicleRef = FirebaseFirestore.getInstance()
-            .collection("vehicles")
-            .document(vehicleId)
-
-        vehicleRef.get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                val vehicleType = document.getString("vehicleType") ?: "Unknown Type"
-                val model = document.getString("model") ?: "Unknown Model"
-                val plateNumber = document.getString("plateNumber") ?: "Unknown Plate"
-                val businessId = document.getString("businessId") ?: "Unknown"
-
-                val vehicleTypeTextView = view?.findViewById<TextView>(R.id.vehicleType)
-                val plateNumberTextView = view?.findViewById<TextView>(R.id.plateNumber)
-
-                vehicleTypeTextView?.text = "$vehicleType - $model"
-                plateNumberTextView?.text = plateNumber
-
-
-            } else {
-                Log.w("DeliveryStatusFragment", "Vehicle not found with ID: $vehicleId")
-            }
-        }.addOnFailureListener { e ->
-            Log.e("DeliveryStatusFragment", "Error fetching vehicle details: ${e.message}")
-        }
-    }
-
-    private fun cancelDeliveryRequest() {
-        deliveryRequestRef.update("status", "Cancelled")
-            .addOnSuccessListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Delivery request cancelled successfully.",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                val navBar = activity as? NavigationBar
-                navBar?.let { nav ->
-                    nav.restoreActiveRequestId {
-                        if (isAdded) {
-                            requireActivity().runOnUiThread {
-                                nav.resetToDashboard()
+                            completedQueries++
+                            if (completedQueries == pendingQueries) {
+                                // All queries are complete, update UI once
+                                deliveries.clear()
+                                deliveries.addAll(tempDeliveries)
+                                isLoading = false
+                                updateUI()
                             }
                         }
-                    }
+                        .addOnFailureListener {
+                            Log.e("FarmerDeliveryStatus", "Failed to get delivery status for $requestId")
+                            completedQueries++
+                            if (completedQueries == pendingQueries) {
+                                deliveries.clear()
+                                deliveries.addAll(tempDeliveries)
+                                isLoading = false
+                                updateUI()
+                            }
+                        }
                 }
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to cancel delivery request: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+            .addOnFailureListener {
+                Log.e("FarmerDeliveryStatus", "Failed to load deliveries: ${it.message}")
+                showError("Failed to load deliveries")
+                isLoading = false
+                updateUI()
             }
+    }
+
+    private fun updateUI() {
+        if (!isAdded) return // Check if fragment is still attached to activity
+        
+        try {
+            if (deliveries.isEmpty()) {
+                noDeliveriesText.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+            } else {
+                noDeliveriesText.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
+                recyclerView.adapter?.notifyDataSetChanged()
+            }
+        } catch (e: Exception) {
+            Log.e("FarmerDeliveryStatus", "Error updating UI: ${e.message}")
+            showError("Failed to update delivery list")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isVisible && !isLoading) {
+            loadDeliveries()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        listenerRegistration?.remove()
+        deliveries.clear()
+        isLoading = false
+        currentLoadJob?.cancel()
     }
 
-    private fun showLoadingLayout() {
-        loadingLayout.visibility = View.VISIBLE
-        confirmationLayout.visibility = View.GONE
-        noActiveDeliveryLayout.visibility = View.GONE
+    private fun showError(message: String) {
+        if (!isAdded) return
+        try {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e("FarmerDeliveryStatus", "Error showing error message: ${e.message}")
+        }
+    }
+}
 
-        if (::deliveryReq.isInitialized) {
-            loadMapInWebView(webView, pickup, destination)
+class DeliveriesAdapter(
+    private val deliveries: List<DeliveryRequest>,
+    private val onItemClick: (DeliveryRequest) -> Unit
+) : RecyclerView.Adapter<DeliveriesAdapter.ViewHolder>() {
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val deliveryId: TextView = view.findViewById(R.id.deliveryIdText)
+        val deliveryStatus: TextView = view.findViewById(R.id.deliveryStatusText)
+        val haulerName: TextView = view.findViewById(R.id.haulerNameText)
+        val vehicleInfo: TextView = view.findViewById(R.id.vehicleInfoText)
+        val pickupLocation: TextView = view.findViewById(R.id.pickupLocationText)
+        val destinationLocation: TextView = view.findViewById(R.id.destinationLocationText)
+        val messageButton: ImageButton = view.findViewById(R.id.messageButton)
+        val viewSummaryButton: Button = view.findViewById(R.id.viewSummaryButton)
+        val haulerProfileImage: CircleImageView = view.findViewById(R.id.haulerProfileImage)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return try {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_delivery_status, parent, false)
+            ViewHolder(view)
+        } catch (e: Exception) {
+            Log.e("DeliveriesAdapter", "Error creating ViewHolder: ${e.message}")
+            throw e
         }
     }
 
-    private fun showConfirmationLayout() {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        try {
+            val delivery = deliveries[position]
 
-        loadingLayout.visibility = View.GONE
-        confirmationLayout.visibility = View.VISIBLE
-        noActiveDeliveryLayout.visibility = View.GONE
-        // Re-inject the map if pickup & destination are available
-        if (::pickup.isInitialized && ::destination.isInitialized && deliveryId != null) {
-            FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId!!).get()
-                .addOnSuccessListener { deliveryDoc ->
-                    val haulerId = deliveryDoc.getString("haulerAssignedId") ?: return@addOnSuccessListener
+            holder.deliveryId.text = "Delivery #${delivery.requestId?.take(8)}"
+            holder.pickupLocation.text = "From: ${delivery.pickupName}"
+            holder.destinationLocation.text = "To: ${delivery.destinationName}"
+            holder.vehicleInfo.text = "${delivery.vehicleType ?: "N/A"} - ${delivery.vehicleModel ?: "N/A"}"
 
-                    val encodedPickup = pickup.replace(" ", "")
-                    val encodedDrop = destination.replace(" ", "")
-                    val mapUrl = "https://farmnook-web.vercel.app/live-tracking?pickup=$encodedPickup&drop=$encodedDrop&haulerId=$haulerId"
+            // Add null check for profile image
+            if (!delivery.profileImageUrl.isNullOrEmpty()) {
+                holder.haulerProfileImage.loadImage(delivery.profileImageUrl)
+            } else {
+                holder.haulerProfileImage.setImageResource(R.drawable.profile_circle) // Set default image
+            }
 
-                    Log.d("MAP_RELOAD", "Reloading map in confirmation: $mapUrl")
-                    webView.loadUrl(mapUrl)
-                }
-        }
-    }
-
-    private fun showCompletedMessage() {
-        Toast.makeText(requireContext(), "✅ Delivery completed!", Toast.LENGTH_LONG).show()
-        loadingLayout.visibility = View.GONE
-        confirmationLayout.visibility = View.GONE
-        noActiveDeliveryLayout.visibility = View.VISIBLE
-
-        val navBar = activity as? NavigationBar
-        navBar?.let { nav ->
-            nav.activeRequestId = null
-            nav.restoreActiveRequestId {
-                if (isAdded) {
-                    requireActivity().runOnUiThread {
-                        nav.resetToDashboard()
-                    }
+            holder.viewSummaryButton.setOnClickListener { onItemClick(delivery) }
+            holder.messageButton.setOnClickListener {
+                try {
+                    handleMessageButtonClick(delivery, holder.itemView.context)
+                } catch (e: Exception) {
+                    Log.e("DeliveriesAdapter", "Error handling message button click: ${e.message}")
+                    Toast.makeText(holder.itemView.context, "Failed to open chat", Toast.LENGTH_SHORT).show()
                 }
             }
+
+            // Update status based on delivery state
+            holder.deliveryStatus.text = when {
+                delivery.isDone == true -> "Completed"
+                delivery.isStarted == true -> "In Progress"
+                else -> "Pending"
+            }
+        } catch (e: Exception) {
+            Log.e("DeliveriesAdapter", "Error binding ViewHolder: ${e.message}")
         }
     }
 
-    private fun showNoActiveDelivery() {
-        loadingLayout.visibility = View.GONE
-        confirmationLayout.visibility = View.GONE
-        noActiveDeliveryLayout.visibility = View.VISIBLE
+    private fun handleMessageButtonClick(delivery: DeliveryRequest, context: android.content.Context) {
+        val farmerId = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+            Toast.makeText(context, "User not authenticated", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        webView.setBackgroundColor(Color.parseColor("#E0E0E0"))
-        webView.loadData(
-            "<html><body style='background-color:#E0E0E0;'><h3 style='color:#888; text-align:center; margin-top:50%;'>No Active Delivery</h3></body></html>",
-            "text/html", "utf-8"
-        )
+        FirebaseFirestore.getInstance().collection("deliveries")
+            .whereEqualTo("requestId", delivery.requestId)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                try {
+                    if (querySnapshot.isEmpty) {
+                        Toast.makeText(context, "No delivery found", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
+                    }
+                    
+                    val deliveryDoc = querySnapshot.documents[0]
+                    val haulerId = deliveryDoc.getString("haulerAssignedId") ?: run {
+                        Toast.makeText(context, "No hauler assigned", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
+                    }
+
+                    val chatId = if (farmerId < haulerId) "$farmerId-$haulerId"
+                    else "$haulerId-$farmerId"
+
+                    FirebaseFirestore.getInstance().collection("users").document(haulerId).get()
+                        .addOnSuccessListener { haulerDoc ->
+                            try {
+                                val firstName = haulerDoc.getString("firstName") ?: ""
+                                val lastName = haulerDoc.getString("lastName") ?: ""
+                                val haulerName = "$firstName $lastName".trim()
+
+                                Intent(context, MessageActivity::class.java).apply {
+                                    putExtra("chatId", chatId)
+                                    putExtra("recipientId", haulerId)
+                                    putExtra("receiverName", haulerName)
+                                }.also { context.startActivity(it) }
+                            } catch (e: Exception) {
+                                Log.e("DeliveriesAdapter", "Error launching message activity: ${e.message}")
+                                Toast.makeText(context, "Failed to open chat", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("DeliveriesAdapter", "Error fetching hauler details: ${e.message}")
+                            Toast.makeText(context, "Failed to load hauler details", Toast.LENGTH_SHORT).show()
+                        }
+                } catch (e: Exception) {
+                    Log.e("DeliveriesAdapter", "Error processing delivery document: ${e.message}")
+                    Toast.makeText(context, "Failed to process delivery details", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("DeliveriesAdapter", "Error fetching delivery: ${e.message}")
+                Toast.makeText(context, "Failed to load delivery details", Toast.LENGTH_SHORT).show()
+            }
     }
 
+    override fun getItemCount() = deliveries.size
 }
