@@ -29,5 +29,7 @@ data class DeliveryRequest(
     val plateNumber: String? = null,
     val receiverName: String? = null,
     val receiverNumber: String? = null,
-    val deliveryNote: String? = null
+    val deliveryNote: String? = null,
+    val isDone: Boolean = false,
+    val isStarted: Boolean = false
 )
