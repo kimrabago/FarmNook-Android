@@ -11,6 +11,7 @@ data class DeliveryDisplayItem(
     val requestId: String,
     val receiverName: String,
     val receiverNum: String,
+    val deliveryNote: String? = null,
     val isStarted: Boolean
 )
 

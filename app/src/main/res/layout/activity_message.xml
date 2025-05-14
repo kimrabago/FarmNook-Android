@@ -9,14 +9,10 @@
     android:orientation="vertical"
     tools:context=".ui.message.MessageActivity">
 
-
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:layout_marginTop="5dp">
-
+        android:padding="5dp">
 
         <ImageButton
             android:id="@+id/btn_back"
@@ -28,7 +24,6 @@
             android:layout_marginStart="5dp"
             android:contentDescription="@string/back_button" />
 
-
         <TextView
             android:id="@+id/receiverName"
             android:layout_width="wrap_content"
@@ -37,8 +32,18 @@
             android:fontFamily="@font/poppins_bold"
             android:textColor="@color/dark_green"
             android:textSize="24sp"
-            android:textStyle="bold"
             android:layout_centerInParent="true" />
+
+        <TextView
+            android:id="@+id/phoneNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="05050"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/dark_green"
+            android:textSize="15sp"
+            android:layout_below="@id/receiverName"
+            android:layout_centerHorizontal="true"/>
     </RelativeLayout>
 
 

@@ -23,6 +23,7 @@ import com.ucb.capstone.farmnook.data.model.algo.CostEstimationResponse
 import com.ucb.capstone.farmnook.data.service.ApiService
 import com.ucb.capstone.farmnook.ui.adapter.RecommendationAdapter
 import com.ucb.capstone.farmnook.ui.menu.NavigationBar
+import com.ucb.capstone.farmnook.utils.CombineTimeDurations
 import com.ucb.capstone.farmnook.utils.EstimateTravelTimeUtil
 import com.ucb.capstone.farmnook.utils.RetrofitClient
 import com.ucb.capstone.farmnook.utils.SendPushNotification
@@ -60,7 +61,7 @@ class RecommendationActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.recommended_haulers_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = RecommendationAdapter(vehicleList, ::onAvailableClicked)
+        adapter = RecommendationAdapter(vehicleList, ::onAvailableClicked,  filterMode = 0)
         recyclerView.adapter = adapter
 
         pickupLocation = intent.getStringExtra("pickupLocation") ?: ""
@@ -78,12 +79,9 @@ class RecommendationActivity : AppCompatActivity() {
         filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             @SuppressLint("NotifyDataSetChanged")
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                adapter.filterMode = position
                 when (position) {
-                    0 -> { // "Select Filter"
-                        vehicleList.clear()
-                        vehicleList.addAll(originalVehicleList)
-                        adapter.notifyDataSetChanged()
-                    }
+                    0 -> sortByLocation()
                     1 -> sortByEstimatedCost()
                     2 -> sortByLocation()
                     3 -> sortByRatings()
@@ -158,6 +156,7 @@ class RecommendationActivity : AppCompatActivity() {
                         val pickupDistance = haversine(businessLat, businessLng, pickupLat, pickupLng)
                         val deliveryDistance = haversine(pickupLat, pickupLng, destinationLat, destinationLng)
 
+                        //
                         val vehicleObj = VehicleWithBusiness(
                             vehicleId = vehicleDoc.id,
                             vehicleType = vehicleDoc.getString("vehicleType") ?: "Unknown",
@@ -169,7 +168,8 @@ class RecommendationActivity : AppCompatActivity() {
                             locationName = locationName,
                             profileImage = profileImage,
                             averageRating = avgRating,
-                            estimatedCost = null
+                            estimatedCost = null,
+                            pickupDistanceKm = pickupDistance / 1000.0
                         )
 
                         //COSTING REQUEST
@@ -242,8 +242,11 @@ class RecommendationActivity : AppCompatActivity() {
         val farmerId = intent.getStringExtra("farmerId") ?: ""
 
         lifecycleScope.launch {
-            val estimatedTime =
-                EstimateTravelTimeUtil.getEstimatedTravelTime(pickupLocation, destinationLocation)
+            val etaToPickup = EstimateTravelTimeUtil.getEstimatedTravelTime(vehicle.businessLocation, pickupLocation)
+            val etaToDestination = EstimateTravelTimeUtil.getEstimatedTravelTime(pickupLocation, destinationLocation)
+
+            val totalMinutes = CombineTimeDurations.parseMinutes(etaToPickup) + CombineTimeDurations.parseMinutes(etaToDestination)
+            val estimatedTime = "$totalMinutes min"
 
             val delivery = DeliveryRequest(
                 pickupLocation = pickupLocation,
@@ -262,7 +265,9 @@ class RecommendationActivity : AppCompatActivity() {
                 estimatedTime = estimatedTime,
                 receiverName = receiverName,
                 receiverNumber = receiverNum,
-                deliveryNote = deliveryNote
+                deliveryNote = deliveryNote,
+                etaToPickup = etaToPickup,
+                etaToDestination = etaToDestination
             )
 
             val dialog = DeliverySummaryDialogFragment.newInstance(vehicle, delivery) {
@@ -320,10 +325,12 @@ class RecommendationActivity : AppCompatActivity() {
             "isAccepted" to delivery.isAccepted,
             "estimatedCost" to delivery.estimatedCost,
             "estimatedTime" to delivery.estimatedTime,
+            "etaToPickup" to delivery.etaToPickup,
+            "etaToDestination" to delivery.etaToDestination,
             "receiverName" to delivery.receiverName,
             "receiverNumber" to delivery.receiverNumber,
             "deliveryNote" to delivery.deliveryNote,
-            "scheduledTime" to delivery.scheduledTime
+            "scheduledTime" to delivery.scheduledTime,
         )
 
         newRequestRef.set(requestData).addOnSuccessListener {

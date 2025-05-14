@@ -64,8 +64,11 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         val requestId = intent.getStringExtra("requestId") ?: return
         val receiverName = intent.getStringExtra("receiverName") ?: ""
         val receiverNum = intent.getStringExtra("receiverNum") ?: ""
+        val deliveryNote = intent.getStringExtra("deliveryNote") ?: ""
+
 
         findViewById<TextView>(R.id.receiverInfo).text = "Recipient : $receiverName - $receiverNum"
+        findViewById<TextView>(R.id.deliveryNote).text = deliveryNote
         findViewById<TextView>(R.id.estimatedTime).text = estimatedTime
         findViewById<TextView>(R.id.totalCost).text = "₱${totalCost}"
         findViewById<TextView>(R.id.provincePickup).text = pickupAddress
@@ -73,11 +76,10 @@ class DeliveryDetailsActivity : AppCompatActivity() {
 
         fetchFarmerDetails(requestId, farmerNameTextView, profileImageView, productTypeTextView, weightTextView, requestDateTextView, vehicleTypeTextView)
 
-
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 
         findViewById<Button>(R.id.startDeliveryBtn).setOnClickListener {
-            startDelivery(deliveryId, pickup, destination, pickupAddress, destinationAddress, receiverName, receiverNum)
+            startDelivery(deliveryId, pickup, destination, pickupAddress, destinationAddress, receiverName, receiverNum, deliveryNote)
         }
 
         webView = findViewById(R.id.mapView)
@@ -92,6 +94,7 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         destinationAddress: String?,
         receiverName: String?,
         receiverNum: String?,
+        deliveryNote: String?,
     ) {
         val haulerId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val firestore = FirebaseFirestore.getInstance()
@@ -99,6 +102,7 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         // ✅ 1. Initialize all flags to proper starting state
         firestore.collection("deliveries").document(deliveryId)
             .update(
+                //pun anan an value
                 mapOf(
                     "isStarted" to true,
                     "arrivedAtPickup" to false,
@@ -171,6 +175,8 @@ class DeliveryDetailsActivity : AppCompatActivity() {
             putExtra("destinationAddress", destinationAddress)
             putExtra("receiverName", receiverName)
             putExtra("receiverNum", receiverNum)
+            putExtra("deliveryNote", deliveryNote)
+
         }.also { startActivity(it) }
 
         finish()
