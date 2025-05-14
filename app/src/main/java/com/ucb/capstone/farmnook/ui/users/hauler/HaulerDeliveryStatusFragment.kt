@@ -2,10 +2,12 @@ package com.ucb.capstone.farmnook.ui.users.hauler
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
+import android.net.Uri
 import android.os.*
 import android.util.Log
 import android.view.*
@@ -15,6 +17,8 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,6 +29,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.mapbox.maps.extension.style.expressions.dsl.generated.color
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryHistory
@@ -72,6 +77,11 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
     private var isTextVisible = true
 
+    private lateinit var imagePickerLauncher: ActivityResultLauncher<String>
+    private var isProofUploaded = false
+    private var proofImageUrl: String? = null
+    private lateinit var currentDeliveryId: String
+
     private val firestore = FirebaseFirestore.getInstance()
     private val mapboxToken = "pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg"
 
@@ -95,6 +105,17 @@ class HaulerDeliveryStatusFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+        }
+
+        imagePickerLauncher =
+            registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+                uri?.let {
+                    uploadProofImage(it)
+                } ?: Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show()
+            }
+        view.findViewById<Button>(R.id.doneDeliveryBtn).setOnClickListener {
+            val deliveryId =currentDeliveryId // Replace with actual ID
+            showCompletionConfirmation(deliveryId)
         }
 
         val messageIcon = view.findViewById<ImageButton>(R.id.messageIcon)
@@ -260,6 +281,60 @@ class HaulerDeliveryStatusFragment : Fragment() {
         }
 
         dialog.show()
+    }
+    private fun openImagePicker() {
+        imagePickerLauncher.launch("image/*")
+    }
+    private fun uploadProofImage(uri: Uri) {
+        val progressDialog = ProgressDialog(requireContext())
+        progressDialog.setTitle("Uploading proof...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+
+
+        val storageRef = FirebaseStorage.getInstance().reference
+        val proofRef = storageRef.child("proofs/${currentDeliveryId}_${System.currentTimeMillis()}.jpg")
+
+
+        proofRef.putFile(uri)
+            .addOnSuccessListener {
+                proofRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    val imageUrl = downloadUri.toString()
+
+
+                    // Save image URL to Firestore
+                    FirebaseFirestore.getInstance()
+                        .collection("deliveries")
+                        .document(currentDeliveryId)
+                        .update("proofImageUrl", imageUrl)
+                        .addOnSuccessListener {
+                            progressDialog.dismiss()
+                            isProofUploaded = true
+                            proofImageUrl = imageUrl
+                            Toast.makeText(
+                                requireContext(),
+                                "Proof uploaded successfully. You may now confirm delivery.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        .addOnFailureListener {
+                            progressDialog.dismiss()
+                            Toast.makeText(
+                                requireContext(),
+                                "Failed to update Firestore: ${it.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                }
+            }
+            .addOnFailureListener {
+                progressDialog.dismiss()
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to upload image: ${it.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
     }
 
     private fun setupWebView() {
@@ -437,7 +512,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
                                             webView.loadUrl(mapUrl)
                                         }
                                     }
-                                }
+                            }
                     }
                     .addOnFailureListener {
                         Log.e("DeliveryStatus", "❌ Failed to fetch deliveryRequest: ${it.message}")
@@ -496,17 +571,34 @@ class HaulerDeliveryStatusFragment : Fragment() {
     }
 
     private fun showCompletionConfirmation(deliveryId: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Confirm Delivery Completion")
-            .setMessage("Are you sure you've completed delivering the products?")
-            .setPositiveButton("Yes") { dialog, _ ->
-                dialog.dismiss()
-                completeDelivery(deliveryId)
-            }
-            .setNegativeButton("No") { dlg, _ -> dlg.dismiss() }
-            .create()
-            .show()
+        currentDeliveryId = deliveryId
+
+
+        if (!isProofUploaded) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Proof Required")
+                .setMessage("Please upload an image as proof before confirming the delivery.")
+                .setPositiveButton("Upload Now") { dialog, _ ->
+                    dialog.dismiss()
+                    openImagePicker()
+                }
+                .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+                .create()
+                .show()
+        } else {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Confirm Delivery Completion")
+                .setMessage("Are you sure you've completed delivering the products?")
+                .setPositiveButton("Yes") { confirmDialog, _ ->
+                    confirmDialog.dismiss()
+                    completeDelivery(deliveryId)
+                }
+                .setNegativeButton("No") { cancelDialog, _ -> cancelDialog.dismiss() }
+                .create()
+                .show()
+        }
     }
+
 
     private fun completeDelivery(deliveryId: String) {
         val firestore = FirebaseFirestore.getInstance()
