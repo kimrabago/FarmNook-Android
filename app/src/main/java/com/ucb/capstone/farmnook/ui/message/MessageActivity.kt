@@ -1,7 +1,10 @@
 package com.ucb.capstone.farmnook.ui.message
 
 
+import android.app.ProgressDialog
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -18,12 +21,12 @@ import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.Message
 import com.ucb.capstone.farmnook.ui.adapter.MessageAdapter
 import com.ucb.capstone.farmnook.utils.SendPushNotification
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 class MessageActivity : AppCompatActivity() {
-
 
     private lateinit var messagesRecyclerView: RecyclerView
     private lateinit var replyEditText: EditText
@@ -51,7 +54,6 @@ class MessageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message)
 
-
         initializeViews()
         initializeChatDetails()
         setupRecyclerView()
@@ -66,7 +68,6 @@ class MessageActivity : AppCompatActivity() {
         sendButton = findViewById(R.id.sendButton)
         receiverNameTextView = findViewById(R.id.receiverName)
         messageIcon = findViewById(R.id.messageIcon)
-
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
     }
@@ -85,7 +86,6 @@ class MessageActivity : AppCompatActivity() {
             finish()
             return
         }
-
 
         receiverName = intent.getStringExtra("receiverName") ?: "Unknown User"
         receiverNameTextView.text = receiverName
@@ -118,6 +118,7 @@ class MessageActivity : AppCompatActivity() {
         }
     }
 
+
     private fun loadMessages() {
         firestore.collection("chats").document(chatId)
             .collection("messages")
@@ -127,6 +128,7 @@ class MessageActivity : AppCompatActivity() {
                     Log.e("MessageActivity", "Error loading messages", error)
                     return@addSnapshotListener
                 }
+
 
                 messageList.clear()
                 snapshots?.documents?.forEach { doc ->
@@ -142,6 +144,7 @@ class MessageActivity : AppCompatActivity() {
                     val senderName = doc.getString("senderName") ?: ""
                     val imageUrl = doc.getString("imageUrl")
 
+
                     val message = Message(
                         senderId = senderId,
                         receiverId = receiverId,
@@ -153,8 +156,10 @@ class MessageActivity : AppCompatActivity() {
                         formattedTimestamp = formatTimestamp(timestamp)
                     }
 
+
                     messageList.add(message)
                 }
+
 
                 messageAdapter.notifyDataSetChanged()
                 if (messageList.isNotEmpty()) {
@@ -233,9 +238,11 @@ class MessageActivity : AppCompatActivity() {
                 )
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to send message: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Failed to send message: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
+
 
 
     private fun openGallery() {
@@ -243,6 +250,7 @@ class MessageActivity : AppCompatActivity() {
         intent.type = "image/*"
         startActivityForResult(intent, GALLERY_REQUEST_CODE)
     }
+
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -257,19 +265,41 @@ class MessageActivity : AppCompatActivity() {
     }
 
 
+    private fun compressImage(uri: Uri): ByteArray {
+        val inputStream = contentResolver.openInputStream(uri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream) // 50% quality
+        return outputStream.toByteArray()
+    }
+
+
     private fun uploadImageToFirebaseStorage(imageUri: Uri) {
         val storageRef = storage.reference
         val fileName = "messages/${System.currentTimeMillis()}.jpg"
         val imageRef = storageRef.child(fileName)
 
 
-        imageRef.putFile(imageUri)
+        // Show progress
+        val progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Sending image...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+
+
+        // Compress image
+        val data = compressImage(imageUri)
+
+
+        imageRef.putBytes(data)
             .addOnSuccessListener {
                 imageRef.downloadUrl.addOnSuccessListener { uri ->
                     sendMessage("Sent an image", uri.toString())
+                    progressDialog.dismiss()
                 }
             }
             .addOnFailureListener { e ->
+                progressDialog.dismiss()
                 Toast.makeText(this, "Image upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
