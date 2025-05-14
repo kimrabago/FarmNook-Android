@@ -48,6 +48,18 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/deliveryNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="65dp"
+        android:drawableStart="@drawable/notes"
+        android:textColor="@color/gray"
+        android:textSize="12sp"
+        android:text="notes"
+        android:textAllCaps="false"
+        android:contentDescription="@string/add_delivery" />
+
     <!-- Bottom Sheet Layout -->
     <LinearLayout
         android:id="@+id/bottomSheet"
@@ -202,6 +214,18 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         android:layout_marginTop="8dp" />
 
+
+                    <TextView
+                        android:id="@+id/provinceDestination"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/province_destination"
+                        android:textColor="@android:color/darker_gray"
+                        app:layout_constraintTop_toBottomOf="@id/destination"
+                        app:layout_constraintStart_toStartOf="@id/destination"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+
                     <TextView
                         android:id="@+id/receiverInfo"
                         android:layout_width="wrap_content"
@@ -210,19 +234,8 @@
                         android:background="@drawable/green_rounded"
                         android:textColor="@color/white"
                         android:fontFamily="@font/dm_sans"
-                        app:layout_constraintTop_toBottomOf="@id/destination"
-                        app:layout_constraintStart_toStartOf="@id/destination" />
-
-                    <TextView
-                        android:id="@+id/provinceDestination"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/province_destination"
-                        android:textColor="@android:color/darker_gray"
-                        app:layout_constraintTop_toBottomOf="@id/receiverInfo"
-                        app:layout_constraintStart_toStartOf="@id/receiverInfo"
-                        app:layout_constraintEnd_toEndOf="parent" />
-
+                        app:layout_constraintTop_toBottomOf="@id/provinceDestination"
+                        app:layout_constraintStart_toStartOf="@id/provinceDestination" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <RelativeLayout

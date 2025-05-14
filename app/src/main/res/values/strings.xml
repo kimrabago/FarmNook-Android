@@ -240,7 +240,7 @@
     <string name="delivery_detailss">Delivery Details</string>
 
     <string-array name="filter_options">
-        <item>Select Filter</item>
+        <item>Default</item>
         <item>Cost</item>
         <item>Location</item>
         <item>Ratings</item>

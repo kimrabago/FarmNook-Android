@@ -12,26 +12,37 @@ import android.view.*
 import android.webkit.*
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mapbox.maps.extension.style.expressions.dsl.generated.color
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryHistory
+import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.Message
 import com.ucb.capstone.farmnook.ui.users.hauler.services.DeliveryLocationService
 import com.ucb.capstone.farmnook.ui.users.HistoryDetailsActivity
 import com.ucb.capstone.farmnook.ui.message.MessageActivity
 import com.ucb.capstone.farmnook.utils.SendPushNotification
+import com.ucb.capstone.farmnook.utils.loadImage
+import de.hdodenhof.circleimageview.CircleImageView
 import okhttp3.*
 import org.json.JSONObject
+import org.w3c.dom.Text
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Locale
+import kotlin.math.ceil
 
 class HaulerDeliveryStatusFragment : Fragment() {
 
@@ -49,8 +60,17 @@ class HaulerDeliveryStatusFragment : Fragment() {
     private var destinationAddress: String? = null
     private var receiverName: String? = null
     private var receiverNum: String? = null
+    private var deliveryNote: String? = null
+    private var farmerId: String? = null
+    private var farmerName: String? = null
+    private var profileImage: String? = null
+    private var vehicleId: String? = null
     private var currentStatus = "Going to Pickup"
     private var haulerId: String = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    private lateinit var deliveryReq: DeliveryRequest
+    private lateinit var deliveryRequestRef: DocumentReference
+
+    private var isTextVisible = true
 
     private val firestore = FirebaseFirestore.getInstance()
     private val mapboxToken = "pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg"
@@ -62,6 +82,20 @@ class HaulerDeliveryStatusFragment : Fragment() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        val summaryButton = view.findViewById<ImageView>(R.id.deliverySummaryBtn)
+        summaryButton.setOnClickListener {
+            if (::deliveryReq.isInitialized) {
+                showDeliverySummaryDialog()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Delivery details are still loading.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 
         val messageIcon = view.findViewById<ImageButton>(R.id.messageIcon)
         messageIcon.setOnClickListener {
@@ -85,7 +119,6 @@ class HaulerDeliveryStatusFragment : Fragment() {
                                     val firstName = farmerDoc.getString("firstName") ?: ""
                                     val lastName = farmerDoc.getString("lastName") ?: ""
                                     val farmerName = "$firstName $lastName".trim()
-
 
                                     // Start MessageActivity with all details
                                     Intent(requireContext(), MessageActivity::class.java).apply {
@@ -120,6 +153,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
         webView = view.findViewById(R.id.mapView)
         setupWebView()
 
+        val note = view.findViewById<TextView>(R.id.deliveryNote)
         val fromAddress = view.findViewById<TextView>(R.id.from_address)
         val toAddress = view.findViewById<TextView>(R.id.to_address)
         val receiverInfo = view.findViewById<TextView>(R.id.receiverInfo)
@@ -127,6 +161,8 @@ class HaulerDeliveryStatusFragment : Fragment() {
         val durationTime = view.findViewById<TextView>(R.id.durationTime)
         val status = view.findViewById<TextView>(R.id.status)
         val doneDeliveryBtn = view.findViewById<Button>(R.id.doneDeliveryBtn)
+
+
 
         doneDeliveryBtn.setOnClickListener {
             deliveryId?.let { id ->
@@ -144,8 +180,10 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
         deliveryId = arguments?.getString("deliveryId")
         if (deliveryId != null) {
-            fetchDeliveryData(deliveryId!!, fromAddress, toAddress, totalKilometer, durationTime, status, receiverInfo)
+            fetchDeliveryData(deliveryId!!, fromAddress, toAddress, totalKilometer, durationTime, status, receiverInfo, note)
         }
+
+
 
         // Check initial delivery status
         deliveryId?.let { id ->
@@ -162,6 +200,66 @@ class HaulerDeliveryStatusFragment : Fragment() {
                     }
                 }
         }
+    }
+
+
+    @SuppressLint("SetTextI18n")
+    private fun showDeliverySummaryDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_delivery_summary, null)
+
+        val builder = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+        val dialog = builder.create()
+
+        val businessName = dialogView.findViewById<TextView>(R.id.businessName)
+        val businessLocation = dialogView.findViewById<TextView>(R.id.businessLocation)
+        val profileImage = dialogView.findViewById<CircleImageView>(R.id.profileImage)
+
+        businessName.text = deliveryReq.businessName
+        businessLocation.visibility = View.GONE
+        profileImage.loadImage(deliveryReq.profileImageUrl)
+
+        fun setRowText(viewId: Int, label: String, value: String) {
+            val row = dialogView.findViewById<View>(viewId)
+            row.findViewById<TextView>(R.id.label).text = label
+            row.findViewById<TextView>(R.id.value).text = value
+        }
+
+//        // Populate rows
+        setRowText(R.id.plateRow, "Plate Number", deliveryReq.plateNumber ?: "N/A")
+        setRowText(R.id.pickupRow, "Pickup", deliveryReq.pickupName ?: "N/A")
+        setRowText(R.id.destinationRow, "Destination", deliveryReq.destinationName ?: "N/A")
+        setRowText(
+            R.id.vehicleRow,
+            "Vehicle",
+            "${(deliveryReq.vehicleType ?: "N/A")} - ${(deliveryReq.vehicleModel ?: "N/A")}"
+        )
+        setRowText(
+            R.id.purposeRow,
+            "Product",
+            "${(deliveryReq.purpose ?: "N/A").replaceFirstChar { it.uppercase() }} - ${deliveryReq.productType ?: "N/A"} (${deliveryReq.weight ?: "N/A"} kg)"
+        )
+        val roundedCost = deliveryReq.estimatedCost?.let { ceil(it).toInt() } ?: "N/A"
+        setRowText(R.id.productRow, "Cost", "₱$roundedCost")
+
+        val scheduledTimeStr = deliveryReq.scheduledTime?.toDate()?.let { date ->
+            val formatter = SimpleDateFormat("EEE MMM dd, yyyy, hh:mm a", Locale.getDefault())
+            formatter.format(date)
+        } ?: "N/A"
+        setRowText(R.id.weightRow, "Scheduled Time", scheduledTimeStr)
+
+        dialogView.findViewById<Button>(R.id.cancelButton).apply {
+            text = "CLOSE"
+            setOnClickListener {
+                dialog.dismiss()
+            }
+        }
+
+        dialogView.findViewById<Button>(R.id.hireButton).apply {
+            visibility = View.GONE
+        }
+
+        dialog.show()
     }
 
     private fun setupWebView() {
@@ -196,6 +294,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun fetchDeliveryData(
         deliveryId: String,
         fromAddress: TextView,
@@ -203,7 +302,8 @@ class HaulerDeliveryStatusFragment : Fragment() {
         totalKilometer: TextView,
         durationTime: TextView,
         status: TextView,
-        receiverInfo: TextView
+        receiverInfo: TextView,
+        note: TextView
     ) {
         Log.d("DeliveryStatus", "Fetching delivery data for ID: $deliveryId")
         firestore.collection("deliveries").document(deliveryId)
@@ -254,61 +354,95 @@ class HaulerDeliveryStatusFragment : Fragment() {
                 firestore.collection("deliveryRequests").document(requestId)
                     .get()
                     .addOnSuccessListener { req ->
-                        Log.d("DeliveryStatus", "✅ deliveryRequest fetched: ${req.id}")
-
                         pickupCoords = req.getString("pickupLocation")
                         dropCoords = req.getString("destinationLocation")
                         pickupAddress =req.getString("pickupName")
                         destinationAddress = req.getString("destinationName")
                         receiverName = req.getString("receiverName") ?: "Unknown"
                         receiverNum = req.getString("receiverNumber") ?: "Unknown"
+                        deliveryNote = req.getString("deliveryNote") ?: "Unknown"
+                        farmerId = req.getString("farmerId") ?: "Unknown"
+                        vehicleId = req.getString("vehicleId") ?: "Unknown"
 
-                        fromAddress.text = pickupAddress
-                        toAddress.text = destinationAddress
-                        receiverInfo.text = "Recipient : $receiverName - $receiverNum"
+                        firestore.collection("users").document(farmerId!!)
+                            .get()
+                            .addOnSuccessListener { businessDoc ->
+                                val firstName = businessDoc.getString("firstName") ?: ""
+                                val lastName = businessDoc.getString("lastName") ?: ""
+                                farmerName = "$firstName $lastName".trim()
+                                profileImage = businessDoc.getString("profileImageUrl") ?: ""
 
-                        if (pickupCoords == null || dropCoords == null) {
-                            Log.e("DeliveryStatus", "⚠️ pickup/drop coords are null!")
-                            return@addOnSuccessListener
-                        }
+                                firestore.collection("vehicles").document(vehicleId!!)
+                                    .get()
+                                    .addOnSuccessListener { vehicleDoc ->
+                                        deliveryReq = DeliveryRequest(
+                                            pickupLocation = req.getString("pickupLocation") ?: "",
+                                            destinationLocation = req.getString("destinationLocation") ?: "",
+                                            pickupName = pickupAddress,
+                                            destinationName = destinationAddress,
+                                            productType = req.getString("productType") ?: "",
+                                            weight = req.getString("weight") ?: "",
+                                            purpose = req.getString("purpose") ?: "",
+                                            businessId = req.getString("businessId") ?: "",
+                                            farmerId = req.getString("farmerId") ?: "",
+                                            isAccepted = req.getBoolean("isAccepted") ?: false,
+                                            receiverName = req.getString("receiverName"),
+                                            receiverNumber = req.getString("receiverNumber"),
+                                            deliveryNote = deliveryNote,
+                                            estimatedTime = req.getString("estimatedTime"),
+                                            estimatedCost = req.getDouble("estimatedCost") ?: 0.0,
+                                            scheduledTime = req.getTimestamp("scheduledTime"),
+                                            businessName = farmerName,
+                                            profileImageUrl = profileImage,
+                                            vehicleType = vehicleDoc.getString("vehicleType") ?: "",
+                                            vehicleModel = vehicleDoc.getString("model") ?: "",
+                                            plateNumber = vehicleDoc.getString("plateNumber") ?: ""
+                                        )
 
-                                getEstimatedTravelTime(pickupCoords!!, dropCoords!!) { eta, km ->
-                                    durationTime.text = eta
-                                    totalKilometer.text = "${String.format("%.1f", km)} km"
+                                        // ✅ Now initialize the UI after deliveryReq is ready
+                                        note.text = "> ${deliveryNote}"
+                                        note.setBackgroundResource(R.drawable.rounded_gray)
+                                        note.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+                                        isTextVisible = true
 
-                                    val mapUrl =
-                                        "https://farmnook-web.vercel.app/live-tracking?pickup=${pickupCoords!!.replace(" ", "")}&drop=${dropCoords!!.replace(" ", "")}&haulerId=$haulerId"
-                                    Log.d("DeliveryStatus", "🌐 Loading map URL: $mapUrl")
-                                    webView.loadUrl(mapUrl)
+                                        note.setOnClickListener {
+                                            if (isTextVisible) {
+                                                note.text = ""
+                                                note.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.notes, 0, 0)
+                                                note.setBackgroundColor(Color.TRANSPARENT)
+                                            } else {
+                                                note.text = "> ${deliveryNote}"
+                                                note.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+                                                note.setBackgroundResource(R.drawable.rounded_gray)
+                                            }
+                                            isTextVisible = !isTextVisible
+                                        }
+
+                                        fromAddress.text = pickupAddress
+                                        toAddress.text = destinationAddress
+                                        receiverInfo.text = "Recipient : $receiverName - $receiverNum"
+
+                                        if (pickupCoords == null || dropCoords == null) {
+                                            Log.e("DeliveryStatus", "⚠️ pickup/drop coords are null!")
+                                            return@addOnSuccessListener
+                                        }
+
+                                        getEstimatedTravelTime(pickupCoords!!, dropCoords!!) { eta, km ->
+                                            durationTime.text = eta
+                                            totalKilometer.text = "${String.format("%.1f", km)} km"
+
+                                            val mapUrl =
+                                                "https://farmnook-web.vercel.app/live-tracking?pickup=${pickupCoords!!.replace(" ", "")}&drop=${dropCoords!!.replace(" ", "")}&haulerId=$haulerId"
+                                            Log.d("DeliveryStatus", "🌐 Loading map URL: $mapUrl")
+                                            webView.loadUrl(mapUrl)
+                                        }
+                                    }
                                 }
                     }
                     .addOnFailureListener {
                         Log.e("DeliveryStatus", "❌ Failed to fetch deliveryRequest: ${it.message}")
                     }
             }
-    }
-
-    private fun reverseGeocode(latLng: String, callback: (String) -> Unit) {
-        val (lat, lng) = latLng.split(",").map { it.trim() }
-        val url = "https://api.mapbox.com/geocoding/v5/mapbox.places/$lng,$lat.json?access_token=$mapboxToken"
-
-        OkHttpClient().newCall(Request.Builder().url(url).build())
-            .enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    callback("Unknown")
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    val result = response.body?.string()
-                    val address = try {
-                        val json = JSONObject(result ?: "")
-                        json.getJSONArray("features").optJSONObject(0)?.getString("place_name") ?: "Unknown"
-                    } catch (e: Exception) {
-                        "Unknown"
-                    }
-                    Handler(Looper.getMainLooper()).post { callback(address) }
-                }
-            })
     }
 
     //NEED IBALHIN

@@ -111,15 +111,6 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/weightRow"
                 android:layout_marginBottom="8dp"/>
-
-
-            <TextView
-                android:id="@+id/scheduleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No schedule set"
-                android:textColor="@color/dark_green"
-                android:layout_gravity="center" />
         </LinearLayout>
 
         <!-- Buttons -->

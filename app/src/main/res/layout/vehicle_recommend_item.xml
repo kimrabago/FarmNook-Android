@@ -52,16 +52,29 @@
                 android:textColor="@color/black"
                 android:fontFamily="@font/dm_sans_medium"/>
 
-            <TextView
-                android:id="@+id/ratings"
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/ratings_count"
-                android:textSize="12sp"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginStart="5dp"
-                android:drawableStart="@drawable/star_ic"
-                android:drawablePadding="3dp"/>
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/kmAway"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="14 km away"
+                    android:textSize="11sp"
+                    android:textColor="@color/gray"/>
+
+                <TextView
+                    android:id="@+id/ratings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ratings_count"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginStart="5dp"
+                    android:drawableStart="@drawable/star_ic"
+                    android:drawablePadding="3dp"/>
             </LinearLayout>
         </LinearLayout>
 

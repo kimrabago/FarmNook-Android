@@ -68,6 +68,7 @@ class HaulerDashboardFragment : Fragment() {
                 putExtra("requestId", delivery.requestId)
                 putExtra("receiverName", delivery.receiverName)
                 putExtra("receiverNum", delivery.receiverNum)
+                putExtra("deliveryNote", delivery.deliveryNote)
             }
             startActivity(intent)
         }
@@ -107,9 +108,9 @@ class HaulerDashboardFragment : Fragment() {
                             val dropAddress = requestDoc.getString("destinationName") ?: return@async null
                             val receiverName = requestDoc.getString("receiverName") ?: ""
                             val receiverNum = requestDoc.getString("receiverNumber") ?: ""
-                            Log.d("HaulerDashboard", "Fetched receiver info: Name=$receiverName, Number=$receiverNum for requestId=$requestId")
+                            val deliveryNote = requestDoc.getString("deliveryNote") ?: ""
 
-                            DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId, receiverName, receiverNum, isStarted)
+                            DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId, receiverName, receiverNum, deliveryNote, isStarted)
                         }
                     }
 
