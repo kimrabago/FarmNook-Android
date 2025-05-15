@@ -238,6 +238,7 @@
     <string name="message_image" />
     <string name="receiver">Receiver</string>
     <string name="delivery_detailss">Delivery Details</string>
+    <string name="proof_image">proof_image</string>
 
     <string-array name="filter_options">
         <item>Default</item>
