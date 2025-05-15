@@ -13,6 +13,7 @@ import androidx.fragment.app.DialogFragment
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
+import com.ucb.capstone.farmnook.utils.SendPushNotification
 
 class RateDeliveryDialog : DialogFragment() {
 
@@ -56,6 +57,7 @@ class RateDeliveryDialog : DialogFragment() {
 
             val db = FirebaseFirestore.getInstance()
             val feedbackRef = db.collection("feedback").document()
+            val nowTimestamp = Timestamp.now()
 
             val feedback = hashMapOf(
                 "feedbackId" to feedbackRef.id,
@@ -64,22 +66,64 @@ class RateDeliveryDialog : DialogFragment() {
                 "businessId" to businessId,
                 "rating" to rating,
                 "comment" to comment,
-                "timestamp" to Timestamp.now()
+                "timestamp" to nowTimestamp
             )
 
+            // Step 1: Submit feedback
             feedbackRef.set(feedback)
                 .addOnSuccessListener {
-                    Toast.makeText(context, "Feedback submitted!", Toast.LENGTH_SHORT).show()
-                    dismiss()
+                    val deliveryRef = db.collection("deliveries").document(deliveryId)
+
+                    // Step 2: Set isValidated = true
+                    deliveryRef.update("isValidated", true)
+                        .addOnSuccessListener {
+                            // Step 3: Create deliveryHistory
+                            deliveryRef.get().addOnSuccessListener { deliveryDoc ->
+                                if (deliveryDoc.exists()) {
+                                    val historyId = db.collection("deliveryHistory").document().id
+                                    val historyData = hashMapOf(
+                                        "historyId" to historyId,
+                                        "deliveryId" to deliveryId,
+                                        "deliveryArrivalTime" to nowTimestamp,
+                                        "remarks" to "N/A"
+                                    )
+
+                                    db.collection("deliveryHistory").document(historyId)
+                                        .set(historyData)
+                                        .addOnSuccessListener {
+                                            // Step 4: Send notification
+                                            val title = "Delivery Completed"
+                                            val message = "A delivery has been completed and rated."
+
+                                            SendPushNotification.sendCompletedDeliveryNotification(
+                                                "businessId",
+                                                businessId,
+                                                deliveryId,
+                                                title,
+                                                message,
+                                                nowTimestamp,
+                                                requireContext()
+                                            )
+
+                                            Toast.makeText(context, "Feedback submitted!", Toast.LENGTH_SHORT).show()
+                                            dismiss()
+                                        }
+                                        .addOnFailureListener {
+                                            Toast.makeText(context, "Failed to create history.", Toast.LENGTH_SHORT).show()
+                                        }
+                                }
+                            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Failed to update validation.", Toast.LENGTH_SHORT).show()
+                        }
                 }
                 .addOnFailureListener {
                     Toast.makeText(context, "Error submitting feedback.", Toast.LENGTH_SHORT).show()
                 }
         }
 
-        closeButton.setOnClickListener {
-            dismiss()
-        }
+        closeButton.setOnClickListener { dismiss() }
     }
 
     override fun onStart() {
@@ -89,13 +133,14 @@ class RateDeliveryDialog : DialogFragment() {
 
     companion object {
         fun newInstance(deliveryId: String, businessId: String, farmerId: String): RateDeliveryDialog {
-            val dialog = RateDeliveryDialog()
-            val args = Bundle()
-            args.putString("deliveryId", deliveryId)
-            args.putString("businessId", businessId)
-            args.putString("farmerId", farmerId)
-            dialog.arguments = args
-            return dialog
+            return RateDeliveryDialog().apply {
+                arguments = Bundle().apply {
+                    putString("deliveryId", deliveryId)
+                    putString("businessId", businessId)
+                    putString("farmerId", farmerId)
+                }
+            }
         }
     }
 }
+

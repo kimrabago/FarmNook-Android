@@ -59,6 +59,7 @@ class FarmerDeliveryStatusFragment : Fragment(R.layout.fragment_farmer_delivery_
             }
         }.attach()
     }
+
 }
 
 

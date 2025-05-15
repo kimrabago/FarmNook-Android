@@ -81,7 +81,7 @@ class RecommendationActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 adapter.filterMode = position
                 when (position) {
-                    0 -> sortByLocation()
+                    0 -> sortByCombinedScore()
                     1 -> sortByEstimatedCost()
                     2 -> sortByLocation()
                     3 -> sortByRatings()
@@ -191,7 +191,8 @@ class RecommendationActivity : AppCompatActivity() {
                                 vehicleList.add(vehicleObj)
                                 originalVehicleList.clear()
                                 originalVehicleList.addAll(vehicleList)
-                                adapter.notifyDataSetChanged()
+                                checkOccupiedVehicles()
+                                sortByCombinedScore()
                             }
 
                             override fun onFailure(call: Call<CostEstimationResponse>, t: Throwable) {
@@ -203,6 +204,34 @@ class RecommendationActivity : AppCompatActivity() {
                     }
                 }
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun sortByCombinedScore() {
+        val pickupCoords = pickupLocation.split(",").mapNotNull { it.toDoubleOrNull() }
+        if (pickupCoords.size != 2) return
+
+        val pickupLat = pickupCoords[0]
+        val pickupLng = pickupCoords[1]
+
+        vehicleList.sortByDescending { vehicle ->
+            val locationCoords = vehicle.businessLocation.split(",")
+            if (locationCoords.size != 2) return@sortByDescending Double.MIN_VALUE
+
+            val businessLat = locationCoords[0].toDoubleOrNull() ?: return@sortByDescending Double.MIN_VALUE
+            val businessLng = locationCoords[1].toDoubleOrNull() ?: return@sortByDescending Double.MIN_VALUE
+
+            val distanceKm = haversine(pickupLat, pickupLng, businessLat, businessLng) / 1000.0
+            val normalizedDistance = if (distanceKm > 0) 1 / distanceKm else 1.0
+
+            val rating = vehicle.averageRating ?: 0.0
+            val normalizedRating = rating / 5.0
+
+            // Composite score: 70% weight to rating, 30% to proximity
+            (0.7 * normalizedRating) + (0.3 * normalizedDistance)
+        }
+
+        adapter.notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -288,7 +317,6 @@ class RecommendationActivity : AppCompatActivity() {
                             putExtra("estimatedTime", estimatedTime)
                             putExtra("businessId", vehicle.businessId)
                             putExtra("vehicleId", vehicle.vehicleId)
-                            Log.d("Recommendation", "vehicleId: ${vehicle.vehicleId}")
                             putExtra("businessName", vehicle.businessName)
                             putExtra("locationName", vehicle.locationName)
                             putExtra("profileImageUrl", vehicle.profileImage)
@@ -348,6 +376,21 @@ class RecommendationActivity : AppCompatActivity() {
             }
         }.addOnFailureListener {
             Toast.makeText(this, "Failed to send request.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun checkOccupiedVehicles() {
+        val deliveryRef = firestore.collection("deliveries")
+
+        deliveryRef.whereEqualTo("isDone", false).get().addOnSuccessListener { snapshot ->
+            val activeVehicleIds = snapshot.documents.mapNotNull { it.getString("vehicleId") }.toSet()
+
+            vehicleList.forEach { vehicle ->
+                vehicle.isOccupied = activeVehicleIds.contains(vehicle.vehicleId)
+            }
+
+            adapter.notifyDataSetChanged()
         }
     }
 }

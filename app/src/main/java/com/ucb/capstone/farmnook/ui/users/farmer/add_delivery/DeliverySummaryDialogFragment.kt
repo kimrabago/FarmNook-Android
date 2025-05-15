@@ -16,6 +16,7 @@ import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 import com.ucb.capstone.farmnook.ui.users.farmer.add_delivery.ScheduleBottomSheet
 import java.util.Locale
 import com.ucb.capstone.farmnook.util.getAddressFromLatLng
+import com.ucb.capstone.farmnook.utils.CombineTimeDurations
 import com.ucb.capstone.farmnook.utils.loadImage
 
 class DeliverySummaryDialogFragment : DialogFragment() {
@@ -73,9 +74,12 @@ class DeliverySummaryDialogFragment : DialogFragment() {
             .setView(view)
             .create()
 
+
         view.findViewById<View>(R.id.hireButton).setOnClickListener {
             view.post {
-                val bottomSheet = ScheduleBottomSheet { selectedTimestamp ->
+                val prepMinutes = 30
+
+                val bottomSheet = ScheduleBottomSheet(prepMinutes) { selectedTimestamp ->
                     val updatedDeliveryReq = deliveryReq.copy(scheduledTime = selectedTimestamp)
                     onHireConfirmed?.invoke(vehicleWtBusiness to updatedDeliveryReq)
                     dismiss()

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.NumberPicker
+import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.Timestamp
 import com.ucb.capstone.farmnook.R
@@ -13,7 +14,10 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class ScheduleBottomSheet(private val onScheduleSelected: (Timestamp) -> Unit) : BottomSheetDialogFragment() {
+class ScheduleBottomSheet(
+    private val prepMinutes: Int,
+    private val onScheduleSelected: (Timestamp) -> Unit
+) : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.bottom_sheet_schedule, container, false)
         val yearPicker = view.findViewById<NumberPicker>(R.id.yearPicker)
@@ -24,6 +28,7 @@ class ScheduleBottomSheet(private val onScheduleSelected: (Timestamp) -> Unit) :
         val ampmPicker = view.findViewById<NumberPicker>(R.id.ampmPicker)
 
         val now = Calendar.getInstance()
+        now.add(Calendar.MINUTE, prepMinutes)
 
         val currentYear = now.get(Calendar.YEAR)
         yearPicker.minValue = currentYear
@@ -67,12 +72,21 @@ class ScheduleBottomSheet(private val onScheduleSelected: (Timestamp) -> Unit) :
             if (hour == 12) hour = 0
             if (isPM) hour += 12
 
-            val cal = Calendar.getInstance()
-            cal.set(year, month, day, hour, minute)
+            val selectedCal = Calendar.getInstance()
+            selectedCal.set(year, month, day, hour, minute)
 
-            val scheduleTimestamp = com.google.firebase.Timestamp(cal.time)
+            // Calculate minimum allowed datetime
+            val minAllowed = Calendar.getInstance()
+            minAllowed.add(Calendar.MINUTE, prepMinutes)
+
+            // 🛑 Check if selected time is before allowed time
+            if (selectedCal.before(minAllowed)) {
+                Toast.makeText(requireContext(), "Please select a schedule beyond the preparation time.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            val scheduleTimestamp = Timestamp(selectedCal.time)
             onScheduleSelected(scheduleTimestamp)
-
             dismiss()
         }
 

@@ -52,17 +52,17 @@
         android:id="@+id/deliveryNote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="50dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="70dp"
         android:textColor="@color/black"
         android:textSize="12sp"
         android:textAllCaps="false"
         android:fontFamily="@font/dm_sans"
         android:gravity="center"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="10dp"
         android:contentDescription="@string/add_delivery" />
 
+    <!-- Bottom Sheet Layout -->
     <LinearLayout
         android:id="@+id/bottomSheet"
         android:layout_width="match_parent"

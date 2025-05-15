@@ -80,15 +80,6 @@
                     android:textSize="12sp"
                     android:fontFamily="@font/poppins"/>
             </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/messageButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_dialog_email"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="8dp"
-                app:tint="@color/dark_green"/>
         </LinearLayout>
 
         <TextView

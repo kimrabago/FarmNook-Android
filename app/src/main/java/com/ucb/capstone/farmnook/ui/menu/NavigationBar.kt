@@ -172,7 +172,7 @@ class NavigationBar : AppCompatActivity() {
 
                     // Check if fragment already exists
                     var deliveryFragment = supportFragmentManager.findFragmentByTag("Delivery")
-                    
+
                     if (deliveryFragment == null) {
                         // Create new fragment only if it doesn't exist
                         deliveryFragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
@@ -247,7 +247,7 @@ class NavigationBar : AppCompatActivity() {
                         .commit()
                 }
             }
-            
+
             val dashboardFragment = if (userType == "Hauler" || userType == "Hauler Business Admin") {
                 HaulerDashboardFragment()
             } else {
