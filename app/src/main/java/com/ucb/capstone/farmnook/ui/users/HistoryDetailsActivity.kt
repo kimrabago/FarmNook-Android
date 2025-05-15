@@ -14,6 +14,9 @@ import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import java.text.SimpleDateFormat
 import java.util.Locale
 import android.util.Log
+import android.widget.Button
+import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import com.ucb.capstone.farmnook.utils.loadImage
 
 class HistoryDetailsActivity : AppCompatActivity() {
@@ -41,7 +44,8 @@ class HistoryDetailsActivity : AppCompatActivity() {
         val receiverName = intent.getStringExtra("receiverName") ?: ""
         val receiverNum = intent.getStringExtra("receiverNum") ?: ""
 
-        val profileImageView = findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
+        val profileImageView =
+            findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
         profileImageView.post {
             profileImageView.loadImage(farmerProfileImg)
         }
@@ -64,7 +68,7 @@ class HistoryDetailsActivity : AppCompatActivity() {
         estimatedTime: String,
         farmerName: String,
 
-    ) {
+        ) {
         val historyQuery = FirebaseFirestore.getInstance().collection("deliveryHistory")
             .whereEqualTo("deliveryId", deliveryId)
             .limit(1)
@@ -80,13 +84,15 @@ class HistoryDetailsActivity : AppCompatActivity() {
 
             findViewById<TextView>(R.id.dateTime).text = formattedTime
 
-            val deliveryRef = FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId)
+            val deliveryRef =
+                FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId)
             deliveryRef.addSnapshotListener { doc, error ->
                 if (error != null || doc == null || !doc.exists()) return@addSnapshotListener
 
                 val requestId = doc.getString("requestId") ?: return@addSnapshotListener
 
-                val requestRef = FirebaseFirestore.getInstance().collection("deliveryRequests").document(requestId)
+                val requestRef = FirebaseFirestore.getInstance().collection("deliveryRequests")
+                    .document(requestId)
                 requestRef.addSnapshotListener { req, reqError ->
                     if (reqError != null || req == null || !req.exists()) return@addSnapshotListener
 
@@ -99,7 +105,8 @@ class HistoryDetailsActivity : AppCompatActivity() {
 
                     findViewById<TextView>(R.id.weightAmount).text = "$weight kg"
                     findViewById<TextView>(R.id.productType).text = "$purpose\n$productType"
-                    findViewById<TextView>(R.id.totalCost).text = "₱${kotlin.math.ceil(estimatedCost).toInt()}"
+                    findViewById<TextView>(R.id.totalCost).text =
+                        "₱${kotlin.math.ceil(estimatedCost).toInt()}"
 
                     findViewById<TextView>(R.id.farmerName).text = farmerName
                     findViewById<TextView>(R.id.estimatedTime).text = estimatedTime
@@ -110,8 +117,10 @@ class HistoryDetailsActivity : AppCompatActivity() {
                             .addSnapshotListener { vehicleDoc, _ ->
                                 if (vehicleDoc != null && vehicleDoc.exists()) {
                                     val model = vehicleDoc.getString("model") ?: "Unknown"
-                                    val vehicleType = vehicleDoc.getString("vehicleType") ?: "Unknown"
-                                    findViewById<TextView>(R.id.vehicle).text = "$model\n$vehicleType"
+                                    val vehicleType =
+                                        vehicleDoc.getString("vehicleType") ?: "Unknown"
+                                    findViewById<TextView>(R.id.vehicle).text =
+                                        "$model\n$vehicleType"
                                 }
                             }
                     }
@@ -122,4 +131,5 @@ class HistoryDetailsActivity : AppCompatActivity() {
             }
         }
     }
+
 }

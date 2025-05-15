@@ -3,6 +3,7 @@ package com.ucb.capstone.farmnook.ui.users.farmer
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
@@ -10,6 +11,7 @@ import com.ucb.capstone.farmnook.R
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import com.ucb.capstone.farmnook.utils.loadImage
 
 class DeliveryConfirmationActivity : AppCompatActivity() {
@@ -91,10 +93,38 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
                 val requestId = deliveryDoc.getString("requestId") ?: ""
                 val haulerIdFromDoc = deliveryDoc.getString("haulerAssignedId") ?: ""
 
+                val proofImageUrl = deliveryDoc.getString("proofImageUrl")
+                val viewProofImageBtn = findViewById<Button>(R.id.viewProofImageBtn)
+
+                if (!proofImageUrl.isNullOrEmpty()) {
+                    viewProofImageBtn.visibility = View.VISIBLE
+                    viewProofImageBtn.setOnClickListener {
+                        showProofImageDialog(proofImageUrl)
+                    }
+                } else {
+                    viewProofImageBtn.visibility = View.GONE
+                }
+
                 fetchRequestDetails(requestId)
                 fetchHaulerDetails(haulerIdFromDoc)
             }
     }
+
+    private fun showProofImageDialog(imageUrl: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_proof_image, null)
+        val imageView = dialogView.findViewById<ImageView>(R.id.proofImageView)
+
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+        builder.setPositiveButton("Close", null)
+
+        val dialog = builder.create()
+        dialog.show()
+
+        imageView.loadImage(imageUrl)
+    }
+
 
     @SuppressLint("SetTextI18n")
     private fun fetchRequestDetails(requestId: String) {
