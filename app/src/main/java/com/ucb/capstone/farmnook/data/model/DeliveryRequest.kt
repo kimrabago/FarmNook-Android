@@ -20,7 +20,7 @@ data class DeliveryRequest(
     val scheduledTime: Timestamp? = null,
     val farmerId: String? = null, //the userId
     val businessId: String? = null,
-    val vehicleID: String? = null,
+    val vehicleId: String? = null,
     val isAccepted: Boolean? = false,
     val requestId: String? = null,
     val businessName: String? = null,
@@ -33,5 +33,7 @@ data class DeliveryRequest(
     val receiverNumber: String? = null,
     val deliveryNote: String? = null,
     val isDone: Boolean = false,
-    val isStarted: Boolean = false
+    val isStarted: Boolean = false,
+    val isDeclined: Boolean = false,
+    val status: String? = null
 )

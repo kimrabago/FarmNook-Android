@@ -68,7 +68,27 @@ class DeliveryDetailsActivity : AppCompatActivity() {
 
 
         findViewById<TextView>(R.id.receiverInfo).text = "Recipient : $receiverName - $receiverNum"
-        findViewById<TextView>(R.id.deliveryNote).text = deliveryNote
+        val note = findViewById<TextView>(R.id.deliveryNote)
+
+        note.text = "> $deliveryNote"
+        note.setBackgroundResource(R.drawable.rounded_gray)
+        note.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+
+        var isTextVisible = true
+
+        note.setOnClickListener {
+            if (isTextVisible) {
+                note.text = ""
+                note.setBackgroundResource(0) // Remove background
+                note.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.notes, 0, 0)
+            } else {
+                note.text = "> $deliveryNote"
+                note.setBackgroundResource(R.drawable.rounded_gray)
+                note.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+            }
+            isTextVisible = !isTextVisible
+        }
+
         findViewById<TextView>(R.id.estimatedTime).text = estimatedTime
         findViewById<TextView>(R.id.totalCost).text = "₱${totalCost}"
         findViewById<TextView>(R.id.provincePickup).text = pickupAddress

@@ -109,6 +109,15 @@
             android:textSize="12sp"
             android:fontFamily="@font/poppins"/>
 
+        <TextView
+            android:id="@+id/scheduledTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            android:fontFamily="@font/poppins_bold"/>
+
         <Button
             android:id="@+id/viewSummaryButton"
             android:layout_width="match_parent"

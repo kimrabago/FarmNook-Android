@@ -77,7 +77,7 @@
                 android:background="@android:color/white"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingHorizontal="13dp">
+                android:padding="13dp">
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -101,7 +101,17 @@
                     android:text="@string/cancel_request"
                     android:fontFamily="@font/poppins_semibold"
                     android:background="@drawable/red_rounded_button"
-                    android:textColor="@color/white"/>
+                    android:textColor="@color/white" />
+
+                <Button
+                    android:id="@+id/viewSummaryButton1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="View Summary"
+                    android:background="@drawable/green_rounded_button"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/poppins_semibold"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
