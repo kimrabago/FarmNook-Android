@@ -18,6 +18,7 @@ import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
 import com.ucb.capstone.farmnook.ui.message.MessageActivity
 import com.ucb.capstone.farmnook.utils.loadImage
+import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlin.math.ceil
 
@@ -29,6 +30,9 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
     private lateinit var noActiveDeliveryLayout: View
     private lateinit var webView: WebView
     private lateinit var haulerProfileImage: CircleImageView
+    private lateinit var haulerNameTxtView: TextView
+    private lateinit var haulerLicenseNoTxtView: TextView
+    private lateinit var haulerPhoneNumTxtView: TextView
 
     private lateinit var deliveryRequestRef: DocumentReference
     private var deliveryId: String? = null
@@ -59,6 +63,9 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
         // Initialize views
         webView = findViewById(R.id.mapView)
         haulerProfileImage = findViewById(R.id.profileImage)
+        haulerNameTxtView = findViewById(R.id.haulerName)
+        haulerLicenseNoTxtView = findViewById(R.id.licenseNo)
+        haulerPhoneNumTxtView  = findViewById(R.id.phoneNumber)
         loadingLayout = findViewById(R.id.loadingLayout)
         confirmationLayout = findViewById(R.id.confirmationLayout)
         noActiveDeliveryLayout = findViewById(R.id.noActiveDeliveryLayout)
@@ -131,13 +138,20 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.cancelButton).setOnClickListener { cancelDeliveryRequest() }
 
         // Setup summary button
-        findViewById<Button>(R.id.viewSummaryButton).setOnClickListener {
+        val summaryButton1 = findViewById<Button?>(R.id.viewSummaryButton)
+        val summaryButton2 = findViewById<Button?>(R.id.viewSummaryButton1)
+
+        val clickListener = View.OnClickListener {
             if (::deliveryReq.isInitialized) {
                 showDeliverySummaryDialog()
             } else {
                 Toast.makeText(this, "Delivery details are still loading.", Toast.LENGTH_SHORT).show()
             }
         }
+
+// Attach to both if present
+        summaryButton1?.setOnClickListener(clickListener)
+        summaryButton2?.setOnClickListener(clickListener)
 
         if (requestId.isNullOrEmpty()) {
             showNoActiveDelivery()
@@ -272,6 +286,7 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
             }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun listenToDeliveryStatus(deliveryId: String) {
         val deliveryRef = FirebaseFirestore.getInstance().collection("deliveries").document(deliveryId)
         listenerRegistration = deliveryRef.addSnapshotListener { snapshot, error ->
@@ -281,6 +296,7 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
             val arrivedAtDestination = snapshot.getBoolean("arrivedAtDestination") ?: false
             val arrivedAtPickup = snapshot.getBoolean("arrivedAtPickup") ?: false
             val isStarted = snapshot.getBoolean("isStarted") ?: false
+            val isOnDelivery = snapshot.getBoolean("isOnDelivery") ?: false
 
             val statusTextView = findViewById<TextView>(R.id.status)
 
@@ -292,6 +308,10 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
                 arrivedAtDestination -> {
                     showConfirmationLayout()
                     statusTextView?.text = "🚩 Arrived at Destination"
+                }
+                isOnDelivery -> {
+                    showConfirmationLayout()
+                    statusTextView?.text = "🚚 Hauler is making the Delivery"
                 }
                 arrivedAtPickup -> {
                     showConfirmationLayout()
@@ -335,6 +355,10 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
         loadingLayout.visibility = View.VISIBLE
         confirmationLayout.visibility = View.GONE
         noActiveDeliveryLayout.visibility = View.GONE
+
+        if (::deliveryReq.isInitialized) {
+            loadMapInWebView(webView, pickup, destination)
+        }
     }
 
     private fun showConfirmationLayout() {
@@ -356,7 +380,6 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
     }
 
     private fun showCompletedMessage() {
-        Toast.makeText(this, "✅ Delivery completed!", Toast.LENGTH_LONG).show()
         loadingLayout.visibility = View.GONE
         confirmationLayout.visibility = View.VISIBLE
         noActiveDeliveryLayout.visibility = View.GONE
@@ -402,8 +425,14 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
                 val haulerName =
                     document.getString("firstName") + " " + document.getString("lastName")
                 val haulerProfileImg = document.getString("profileImageUrl")
+                val haulerPhoneNum = document.getString("phoneNum")
+                val haulerLicenseNum = document.getString("licenseNo")
 
                 haulerProfileImage.loadImage(haulerProfileImg)
+
+                haulerNameTxtView.text = haulerName
+                haulerLicenseNoTxtView.text = haulerLicenseNum
+                haulerPhoneNumTxtView.text = haulerPhoneNum
                 showConfirmationLayout()
             } else {
                 Log.w("DeliveryDetailsActivity", "Hauler not found with ID: $haulerId")

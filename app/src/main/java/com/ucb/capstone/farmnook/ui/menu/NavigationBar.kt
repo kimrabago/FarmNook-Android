@@ -116,6 +116,7 @@ class NavigationBar : AppCompatActivity() {
                     vehicleType = intent.getStringExtra("vehicleType") ?: vehicleType
                     vehicleModel = intent.getStringExtra("vehicleModel") ?: vehicleModel
                     plateNumber = intent.getStringExtra("plateNumber") ?: plateNumber
+                    Log.d("NavBarIntentData", "vehicleId: $vehicleId")
 
                     FarmerDeliveryStatusFragment().apply {
                         arguments = Bundle().apply { putString("requestId", activeRequestId)
@@ -126,6 +127,7 @@ class NavigationBar : AppCompatActivity() {
                             putString("weight", weight)
                             putDouble("estimatedCost", totalCost)
                             putString("estimatedTime", estimatedTime)
+                            putString("vehicleId", vehicleId)
                             putString("businessName", businessName)
                             putString("locationName", locationName)
                             putString("profileImageUrl", profileImage)
@@ -192,6 +194,7 @@ class NavigationBar : AppCompatActivity() {
                                     putString("businessName", businessName)
                                     putString("locationName", locationName)
                                     putString("profileImageUrl", profileImage)
+                                    putString("vehicleId", vehicleId)
                                     putString("vehicleType", vehicleType)
                                     putString("vehicleModel", vehicleModel)
                                     putString("plateNumber", plateNumber)

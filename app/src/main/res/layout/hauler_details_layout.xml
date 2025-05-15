@@ -43,13 +43,13 @@
             android:fontFamily="@font/dm_sans"/>
 
         <TextView
-            android:text="@string/plate_no_textview"
+            android:text="Phone No."
             android:textSize="14sp"
             android:textStyle="bold"
             android:fontFamily="@font/dm_sans_bold"/>
 
         <TextView
-            android:id="@+id/plateNumber"
+            android:id="@+id/phoneNumber"
             android:text="@string/plate_num"
             android:textSize="14sp"
             android:layout_marginStart="5dp"

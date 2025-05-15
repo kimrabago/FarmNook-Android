@@ -25,14 +25,29 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/deliveriesRecyclerView"
+        <!-- Status Tabs -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/statusTabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/delStatusTitle"
+            android:layout_marginTop="10dp"
+            app:tabIndicatorColor="@color/dark_green"
+            app:tabSelectedTextColor="@color/dark_green"
+            app:tabTextColor="@color/gray"
+            app:tabMode="scrollable"
+            app:tabGravity="fill"/>
+
+        <!-- ViewPager2 to show content based on tab -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/statusViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/delStatusTitle"
+            android:layout_below="@id/statusTabLayout"
             android:layout_marginTop="8dp"
             android:padding="8dp"/>
 
+        <!-- Fallback text -->
         <TextView
             android:id="@+id/noDeliveriesText"
             android:layout_width="wrap_content"
@@ -43,7 +58,5 @@
             android:fontFamily="@font/poppins"
             android:layout_centerInParent="true"
             android:visibility="gone"/>
-
     </RelativeLayout>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

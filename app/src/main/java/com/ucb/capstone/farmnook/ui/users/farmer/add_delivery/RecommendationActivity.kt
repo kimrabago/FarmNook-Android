@@ -258,7 +258,7 @@ class RecommendationActivity : AppCompatActivity() {
                 weight = weight,
                 farmerId = farmerId,
                 timestamp = Timestamp.now(),
-                vehicleID = vehicle.vehicleId,
+                vehicleId = vehicle.vehicleId,
                 businessId = vehicle.businessId,
                 isAccepted = false,
                 estimatedCost = vehicle.estimatedCost,
@@ -288,9 +288,11 @@ class RecommendationActivity : AppCompatActivity() {
                             putExtra("estimatedTime", estimatedTime)
                             putExtra("businessId", vehicle.businessId)
                             putExtra("vehicleId", vehicle.vehicleId)
+                            Log.d("Recommendation", "vehicleId: ${vehicle.vehicleId}")
                             putExtra("businessName", vehicle.businessName)
                             putExtra("locationName", vehicle.locationName)
                             putExtra("profileImageUrl", vehicle.profileImage)
+                            putExtra("vehicleID", vehicle.vehicleId)
                             putExtra("vehicleType", vehicle.vehicleType)
                             putExtra("vehicleModel", vehicle.model)
                             putExtra("plateNumber", vehicle.plateNumber)
