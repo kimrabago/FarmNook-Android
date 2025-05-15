@@ -306,11 +306,8 @@ class HaulerDeliveryStatusFragment : Fragment() {
                             progressDialog.dismiss()
                             isProofUploaded = true
                             proofImageUrl = imageUrl
-                            Toast.makeText(
-                                requireContext(),
-                                "Image uploaded successfully. You may now confirm delivery.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(requireContext(), "Proof uploaded. Completing delivery...", Toast.LENGTH_SHORT).show()
+                            handleDeliveryCompletion(currentDeliveryId)
                         }
                         .addOnFailureListener {
                             progressDialog.dismiss()
@@ -448,11 +445,8 @@ class HaulerDeliveryStatusFragment : Fragment() {
                             progressDialog.dismiss()
                             isProofUploaded = true
                             proofImageUrl = imageUrl
-                            Toast.makeText(
-                                requireContext(),
-                                "Proof uploaded successfully. You may now confirm delivery.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(requireContext(), "Image uploaded successfully. Completing delivery...", Toast.LENGTH_SHORT).show()
+                            handleDeliveryCompletion(currentDeliveryId)
                         }
                         .addOnFailureListener {
                             progressDialog.dismiss()
@@ -710,152 +704,98 @@ class HaulerDeliveryStatusFragment : Fragment() {
     private fun showCompletionConfirmation(deliveryId: String) {
         currentDeliveryId = deliveryId
 
-
         if (!isProofUploaded) {
             AlertDialog.Builder(requireContext())
                 .setTitle("Proof Required")
                 .setMessage("Please upload an image as proof before confirming the delivery.")
                 .setPositiveButton("Upload Now") { dialog, _ ->
                     dialog.dismiss()
-                   showImageSourceDialog()
+                    showImageSourceDialog()
                 }
                 .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
                 .create()
                 .show()
-        } else {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Confirm Delivery Completion")
-                .setMessage("Are you sure you've completed delivering the products?")
-                .setPositiveButton("Yes") { confirmDialog, _ ->
-                    confirmDialog.dismiss()
-                    completeDelivery(deliveryId)
-                }
-                .setNegativeButton("No") { cancelDialog, _ -> cancelDialog.dismiss() }
-                .create()
-                .show()
         }
+        // else block removed since completion is now auto-triggered after proof upload
     }
 
-
-    private fun completeDelivery(deliveryId: String) {
+    private fun handleDeliveryCompletion(deliveryId: String) {
         val firestore = FirebaseFirestore.getInstance()
         val deliveryRef = firestore.collection("deliveries").document(deliveryId)
 
         deliveryRef.update("isDone", true)
             .addOnSuccessListener {
-                val historyRef = firestore.collection("deliveryHistory").document()
-                val completedAt = Timestamp.now()
-                val history = DeliveryHistory(historyRef.id, deliveryId, completedAt, "N/A")
+                deliveryRef.get().addOnSuccessListener { deliveryDoc ->
+                    val requestId = deliveryDoc.getString("requestId") ?: return@addOnSuccessListener
+                    val haulerId = deliveryDoc.getString("haulerAssignedId") ?: return@addOnSuccessListener
 
-                historyRef.set(history).addOnSuccessListener {
-                    deliveryRef.get().addOnSuccessListener { deliveryDoc ->
-                        val requestId = deliveryDoc.getString("requestId") ?: return@addOnSuccessListener
-                        val haulerId = deliveryDoc.getString("haulerAssignedId") ?: return@addOnSuccessListener
+                    firestore.collection("deliveryRequests").document(requestId).get()
+                        .addOnSuccessListener { reqDoc ->
+                            val farmerId = reqDoc.getString("farmerId") ?: return@addOnSuccessListener
+                            val businessId = reqDoc.getString("businessId") ?: return@addOnSuccessListener
+                            val estimatedTime = reqDoc.getString("estimatedTime") ?: "N/A"
+                            val pickupAddress = reqDoc.getString("pickupName") ?: "Unknown"
+                            val destinationAddress = reqDoc.getString("destinationName") ?: "Unknown"
+                            val receiverName = reqDoc.getString("receiverName") ?: "Unknown"
+                            val receiverNum = reqDoc.getString("receiverNumber") ?: "Unknown"
 
-                        firestore.collection("deliveryRequests").document(requestId).get()
-                            .addOnSuccessListener { reqDoc ->
-                                val farmerId =
-                                    reqDoc.getString("farmerId") ?: return@addOnSuccessListener
-                                val businessId =
-                                    reqDoc.getString("businessId") ?: return@addOnSuccessListener
-                                val estimatedTime = reqDoc.getString("estimatedTime") ?: "N/A"
-                                val pickupAddress = reqDoc.getString("pickupName") ?: "Unknown"
-                                val destinationAddress = reqDoc.getString("destinationName") ?: "Unknown"
-                                val receiverName = reqDoc.getString("receiverName") ?: "Unknown"
-                                val receiverNum = reqDoc.getString("receiverNumber") ?: "Unknown"
+                            val chatId = if (haulerId < farmerId) "$haulerId-$farmerId" else "$farmerId-$haulerId"
 
-                                val chatId =
-                                    if (haulerId < farmerId) "$haulerId-$farmerId" else "$farmerId-$haulerId"
+                            firestore.collection("users").document(farmerId).get()
+                                .addOnSuccessListener { farmerDoc ->
+                                    val farmerName = "${farmerDoc.getString("firstName") ?: ""} ${farmerDoc.getString("lastName") ?: ""}".trim()
+                                    val profileImage = farmerDoc.getString("profileImageUrl") ?: "N/A"
 
-                                firestore.collection("users").document(farmerId).get()
-                                    .addOnSuccessListener { farmerDoc ->
-                                        val farmerName =
-                                            "${farmerDoc.getString("firstName") ?: ""} ${
-                                                farmerDoc.getString("lastName") ?: ""
-                                            }".trim()
-                                        val profileImage =
-                                            farmerDoc.getString("profileImageUrl") ?: "N/A"
+                                    firestore.collection("users").document(haulerId).get()
+                                        .addOnSuccessListener { haulerDoc ->
+                                            val fullName = "${haulerDoc.getString("firstName") ?: ""} ${haulerDoc.getString("lastName") ?: ""}".trim()
+                                            val title = "Delivery Completed"
+                                            val message = "Please see the attached proof image and confirm the delivery made by $fullName."
+                                            val nowMillis = Timestamp.now().toDate().time
 
-                                        firestore.collection("users").document(haulerId).get()
-                                            .addOnSuccessListener { haulerDoc ->
-                                                val fullName =
-                                                    "${haulerDoc.getString("firstName") ?: ""} ${
-                                                        haulerDoc.getString("lastName") ?: ""
-                                                    }".trim()
-                                                val title = "Delivery Completed"
-                                                val message =
-                                                    "$fullName has completed the delivery."
-                                                val nowMillis = completedAt.toDate().time
+                                            SendPushNotification.sendCompletedDeliveryNotification(
+                                                "recipientId", farmerId,
+                                                deliveryId, title, message,
+                                                Timestamp.now(), requireContext()
+                                            )
 
-                                                SendPushNotification.sendCompletedDeliveryNotification(
-                                                    "recipientId", farmerId,
-                                                    deliveryId, title, message,
-                                                    completedAt, requireContext()
-                                                )
-                                                SendPushNotification.sendCompletedDeliveryNotification(
-                                                    "businessId", businessId,
-                                                    deliveryId, title, message,
-                                                    completedAt, requireContext()
-                                                )
+                                            val chatRef = firestore.collection("chats").document(chatId)
+                                            chatRef.set(
+                                                mapOf(
+                                                    "userIds" to listOf(haulerId, farmerId),
+                                                    "lastMessage" to message,
+                                                    "timestamp" to nowMillis
+                                                ),
+                                                com.google.firebase.firestore.SetOptions.merge()
+                                            )
 
-                                                val chatRef =
-                                                    firestore.collection("chats").document(chatId)
-                                                chatRef.set(
-                                                    mapOf(
-                                                        "userIds" to listOf(haulerId, farmerId),
-                                                        "lastMessage" to message,
-                                                        "timestamp" to nowMillis
-                                                    ),
-                                                    com.google.firebase.firestore.SetOptions.merge()
-                                                )
+                                            val autoMsg = Message(
+                                                senderId = haulerId,
+                                                receiverId = farmerId,
+                                                content = message,
+                                                timestamp = nowMillis,
+                                                senderName = fullName
+                                            )
+                                            chatRef.collection("messages").add(autoMsg)
 
-                                                val autoMsg = Message(
-                                                    senderId = haulerId,
-                                                    receiverId = farmerId,
-                                                    content = message,
-                                                    timestamp = nowMillis,
-                                                    senderName = fullName
-                                                )
-                                                chatRef.collection("messages").add(autoMsg)
+                                            requireActivity().stopService(
+                                                Intent(requireContext(), DeliveryLocationService::class.java)
+                                            )
 
-                                                // Stop the location service
-                                                requireActivity().stopService(
-                                                    Intent(
-                                                        requireContext(),
-                                                        DeliveryLocationService::class.java
-                                                    )
-                                                )
+                                            Intent(requireContext(), MessageActivity::class.java).apply {
+                                                putExtra("chatId", chatId)
+                                                putExtra("recipientId", farmerId)
+                                                putExtra("receiverName", farmerName)
+                                            }.also { startActivity(it) }
 
-                                                // Navigate to history details
-                                                Intent(
-                                                    requireContext(),
-                                                    HistoryDetailsActivity::class.java
-                                                ).apply {
-                                                    putExtra("deliveryId", deliveryId)
-                                                    putExtra("pickup", pickupCoords)
-                                                    putExtra("destination", dropCoords)
-                                                    putExtra("pickupAddress", pickupAddress)
-                                                    putExtra(
-                                                        "destinationAddress",
-                                                        destinationAddress
-                                                    )
-                                                    putExtra("estimatedTime", estimatedTime)
-                                                    putExtra("farmerName", farmerName)
-                                                    putExtra("profileImg", profileImage)
-                                                }.also { startActivity(it) }
-                                                requireActivity().finish()
-                                            }
-                                    }
-                            }
-                    }
+                                            requireActivity().finish()
+                                        }
+                                }
+                        }
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to complete delivery: ${it.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Failed to complete delivery: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 

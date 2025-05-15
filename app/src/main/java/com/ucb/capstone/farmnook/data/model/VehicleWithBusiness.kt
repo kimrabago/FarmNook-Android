@@ -14,5 +14,6 @@ data class VehicleWithBusiness(
     val profileImage: String? = null,
     val averageRating: Double?,
     var estimatedCost: Double? = null,
-    val pickupDistanceKm: Double? = null
+    val pickupDistanceKm: Double? = null,
+    var isOccupied: Boolean = false
 ) : Serializable

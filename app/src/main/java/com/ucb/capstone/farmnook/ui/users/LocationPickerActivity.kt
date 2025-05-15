@@ -168,4 +168,22 @@ class LocationPickerActivity : AppCompatActivity() {
             webView.evaluateJavascript(js, null)
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cleanupWebView()
+    }
+
+    private fun cleanupWebView() {
+        try {
+            webView.apply {
+                loadUrl("https://farmnook-web.vercel.app/maps?disablePicker=true")
+                clearHistory()
+                removeAllViews()
+                destroy()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

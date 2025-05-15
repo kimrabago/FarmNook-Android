@@ -42,7 +42,9 @@ class HistoryDetailsActivity : AppCompatActivity() {
         val receiverNum = intent.getStringExtra("receiverNum") ?: ""
 
         val profileImageView = findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
-        profileImageView.loadImage(farmerProfileImg)
+        profileImageView.post {
+            profileImageView.loadImage(farmerProfileImg)
+        }
 
         findViewById<TextView>(R.id.provincePickup).text = pickupAddress
         findViewById<TextView>(R.id.provinceDestination).text = dropAddress

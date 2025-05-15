@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Schedule Delivery"
+        android:text="Schedule vehicle departure"
         android:fontFamily="@font/poppins_bold"
         android:textColor="@color/black"
         android:textSize="18sp"
@@ -78,7 +78,7 @@
         android:id="@+id/confirmButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="13dp"
         android:text="Confirm Schedule"
         android:backgroundTint="@color/dark_green"
         android:textColor="@color/white"

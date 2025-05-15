@@ -35,7 +35,6 @@ class DeliveriesAdapter(
         val vehicleInfo: TextView = view.findViewById(R.id.vehicleInfoText)
         val pickupLocation: TextView = view.findViewById(R.id.pickupLocationText)
         val destinationLocation: TextView = view.findViewById(R.id.destinationLocationText)
-        val messageButton: ImageButton = view.findViewById(R.id.messageButton)
         val viewSummaryButton: Button = view.findViewById(R.id.viewSummaryButton)
         val haulerProfileImage: CircleImageView = view.findViewById(R.id.haulerProfileImage)
         val scheduleTime: TextView  = view.findViewById(R.id.scheduledTime)
@@ -100,10 +99,6 @@ class DeliveriesAdapter(
                     setOnClickListener { onItemClick(delivery) }
                 }
             }
-        }
-
-        holder.messageButton.setOnClickListener {
-            handleMessageButtonClick(delivery, holder.itemView.context)
         }
 
         holder.deliveryStatus.text = when {

@@ -24,6 +24,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
     private lateinit var productTypeTextView: TextView
     private lateinit var capacityTextView: TextView
     private lateinit var receiverTextView: TextView
+    private lateinit var proofImageBtn: Button
     private var businessId: String? = null  // NEW
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +41,7 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         productTypeTextView = findViewById(R.id.productType)
         capacityTextView = findViewById(R.id.capacity)
         receiverTextView = findViewById(R.id.receiverInfo)
+        proofImageBtn = findViewById(R.id.viewProofImageBtn)
 
         val backButton = findViewById<ImageButton>(R.id.btn_back)
 
