@@ -22,6 +22,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -44,8 +45,10 @@ import de.hdodenhof.circleimageview.CircleImageView
 import okhttp3.*
 import org.json.JSONObject
 import org.w3c.dom.Text
+import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import kotlin.math.ceil
 
@@ -82,6 +85,10 @@ class HaulerDeliveryStatusFragment : Fragment() {
     private var proofImageUrl: String? = null
     private lateinit var currentDeliveryId: String
 
+    private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
+    private lateinit var capturedImageUri: Uri
+    private val CAMERA_PERMISSION_CODE = 1001
+
     private val firestore = FirebaseFirestore.getInstance()
     private val mapboxToken = "pk.eyJ1Ijoia2ltcmFiYWdvIiwiYSI6ImNtNnRjbm94YjAxbHAyaXNoamk4aThldnkifQ.OSRIDYIw-6ff3RNJVYwspg"
 
@@ -104,6 +111,16 @@ class HaulerDeliveryStatusFragment : Fragment() {
                     "Delivery details are still loading.",
                     Toast.LENGTH_SHORT
                 ).show()
+            }
+        }
+        takePictureLauncher = registerForActivityResult(
+            ActivityResultContracts.TakePicture()
+        ) { success ->
+            if (success) {
+                uploadImageToFirebase(capturedImageUri)
+            } else {
+                Toast.makeText(requireContext(),
+                    "Camera capture cancelled", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -223,6 +240,128 @@ class HaulerDeliveryStatusFragment : Fragment() {
         }
     }
 
+    private fun showImageSourceDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Select Image Source")
+            .setItems(arrayOf("Camera", "Gallery")) { _, which ->
+                when (which) {
+                    0 -> checkCameraPermissionAndCapture()
+                    1 -> pickImageFromGallery()
+                }
+            }
+            .show()
+    }
+
+    //Camera
+    private fun captureImageFromCamera() {
+        try {
+            val imageFile = createImageFile()
+            capturedImageUri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                imageFile
+            )
+            // ❷ Launch the camera
+            takePictureLauncher.launch(capturedImageUri)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(),
+                "Failed to create image file", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun createImageFile(): File {
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
+    }
+
+
+    //Gallery
+    private fun pickImageFromGallery() {
+        imagePickerLauncher.launch("image/*")
+    }
+
+
+    private fun uploadImageToFirebase(uri: Uri) {
+        val progressDialog = ProgressDialog(requireContext())
+        progressDialog.setTitle("Uploading image...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("proofs/${currentDeliveryId}_${System.currentTimeMillis()}.jpg")
+
+        imageRef.putFile(uri)
+            .addOnSuccessListener {
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    val imageUrl = downloadUri.toString()
+
+                    // Save image URL to Firestore
+                    FirebaseFirestore.getInstance()
+                        .collection("deliveries")
+                        .document(currentDeliveryId)
+                        .update("proofImageUrl", imageUrl)
+                        .addOnSuccessListener {
+                            progressDialog.dismiss()
+                            isProofUploaded = true
+                            proofImageUrl = imageUrl
+                            Toast.makeText(
+                                requireContext(),
+                                "Image uploaded successfully. You may now confirm delivery.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        .addOnFailureListener {
+                            progressDialog.dismiss()
+                            Toast.makeText(
+                                requireContext(),
+                                "Failed to update Firestore: ${it.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                }
+            }
+            .addOnFailureListener {
+                progressDialog.dismiss()
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to upload image: ${it.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+
+    private fun checkCameraPermissionAndCapture() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE)
+        } else {
+            captureImageFromCamera()
+        }
+    }
+
+
+
+    @Deprecated("Deprecated in Java")
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_CODE
+            && grantResults.isNotEmpty()
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            captureImageFromCamera()
+        } else {
+            Toast.makeText(requireContext(),
+                "Camera permission denied", Toast.LENGTH_SHORT).show()
+            pickImageFromGallery()   // Optional fallback
+        }
+    }
 
     @SuppressLint("SetTextI18n")
     private fun showDeliverySummaryDialog() {
@@ -282,9 +421,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
         dialog.show()
     }
-    private fun openImagePicker() {
-        imagePickerLauncher.launch("image/*")
-    }
+
     private fun uploadProofImage(uri: Uri) {
         val progressDialog = ProgressDialog(requireContext())
         progressDialog.setTitle("Uploading proof...")
@@ -580,7 +717,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
                 .setMessage("Please upload an image as proof before confirming the delivery.")
                 .setPositiveButton("Upload Now") { dialog, _ ->
                     dialog.dismiss()
-                    openImagePicker()
+                   showImageSourceDialog()
                 }
                 .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
                 .create()
