@@ -140,10 +140,12 @@
                     android:fontFamily="@font/poppins_semibold"
                     android:gravity="center"
                     android:text="@string/delivery_confirmed"
-                    android:textColor="@color/dark_green"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:layout_marginTop="7dp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:padding="8dp"
+                    android:background="@drawable/rounded_gray"
+                    android:layout_marginHorizontal="16dp" />
 
                 <TextView
                     android:id="@+id/deliveryId"
