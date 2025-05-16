@@ -77,6 +77,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
     private var haulerId: String = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     private lateinit var deliveryReq: DeliveryRequest
     private lateinit var deliveryRequestRef: DocumentReference
+    private lateinit var deliverBtn: Button
 
     private var isTextVisible = true
 
@@ -100,6 +101,12 @@ class HaulerDeliveryStatusFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        deliverBtn = view.findViewById(R.id.deliverBtn)
+        deliverBtn.setOnClickListener {
+            deliveryId?.let { id ->
+                startDelivery(id)
+            }
+        }
 
         val summaryButton = view.findViewById<ImageView>(R.id.deliverySummaryBtn)
         summaryButton.setOnClickListener {
@@ -200,8 +207,6 @@ class HaulerDeliveryStatusFragment : Fragment() {
         val status = view.findViewById<TextView>(R.id.status)
         val doneDeliveryBtn = view.findViewById<Button>(R.id.doneDeliveryBtn)
 
-
-
         doneDeliveryBtn.setOnClickListener {
             deliveryId?.let { id ->
                 showCompletionConfirmation(id)
@@ -220,8 +225,6 @@ class HaulerDeliveryStatusFragment : Fragment() {
         if (deliveryId != null) {
             fetchDeliveryData(deliveryId!!, fromAddress, toAddress, totalKilometer, durationTime, status, receiverInfo, note)
         }
-
-
 
         // Check initial delivery status
         deliveryId?.let { id ->
@@ -276,12 +279,10 @@ class HaulerDeliveryStatusFragment : Fragment() {
         return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
     }
 
-
     //Gallery
     private fun pickImageFromGallery() {
         imagePickerLauncher.launch("image/*")
     }
-
 
     private fun uploadImageToFirebase(uri: Uri) {
         val progressDialog = ProgressDialog(requireContext())
@@ -329,7 +330,6 @@ class HaulerDeliveryStatusFragment : Fragment() {
             }
     }
 
-
     private fun checkCameraPermissionAndCapture() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.CAMERA
@@ -340,8 +340,6 @@ class HaulerDeliveryStatusFragment : Fragment() {
             captureImageFromCamera()
         }
     }
-
-
 
     @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(
@@ -382,7 +380,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
             row.findViewById<TextView>(R.id.value).text = value
         }
 
-//        // Populate rows
+        // Populate rows
         setRowText(R.id.plateRow, "Plate Number", deliveryReq.plateNumber ?: "N/A")
         setRowText(R.id.pickupRow, "Pickup", deliveryReq.pickupName ?: "N/A")
         setRowText(R.id.destinationRow, "Destination", deliveryReq.destinationName ?: "N/A")
@@ -425,16 +423,13 @@ class HaulerDeliveryStatusFragment : Fragment() {
         progressDialog.setCancelable(false)
         progressDialog.show()
 
-
         val storageRef = FirebaseStorage.getInstance().reference
         val proofRef = storageRef.child("proofs/${currentDeliveryId}_${System.currentTimeMillis()}.jpg")
-
 
         proofRef.putFile(uri)
             .addOnSuccessListener {
                 proofRef.downloadUrl.addOnSuccessListener { downloadUri ->
                     val imageUrl = downloadUri.toString()
-
 
                     // Save image URL to Firestore
                     FirebaseFirestore.getInstance()
@@ -529,17 +524,19 @@ class HaulerDeliveryStatusFragment : Fragment() {
 
                 val isStarted = deliveryDoc.getBoolean("isStarted") ?: false
                 val isArrivedAtPickup = deliveryDoc.getBoolean("arrivedAtPickup") ?: false
+                val isOnDelivery = deliveryDoc.getBoolean("isOnDelivery") ?: false
                 val isArrivedAtDestination = deliveryDoc.getBoolean("arrivedAtDestination") ?: false
                 val isDone = deliveryDoc.getBoolean("isDone") ?: false
 
-                Log.d("DeliveryStatus", "Delivery state - isStarted: $isStarted, isArrivedAtPickup: $isArrivedAtPickup, isArrivedAtDestination: $isArrivedAtDestination, isDone: $isDone")
+                Log.d("DeliveryStatus", "Delivery state - isStarted: $isStarted, isArrivedAtPickup: $isArrivedAtPickup, isOnDelivery: $isOnDelivery, isArrivedAtDestination: $isArrivedAtDestination, isDone: $isDone")
 
                 currentStatus = when {
-                    !isStarted && !isArrivedAtPickup && !isArrivedAtDestination && !isDone -> "Pending"
-                    isStarted && !isArrivedAtPickup && !isArrivedAtDestination && !isDone -> "Going to Pickup"
-                    isStarted && isArrivedAtPickup && !isArrivedAtDestination && !isDone -> "On the Way"
-                    isStarted && isArrivedAtPickup && isArrivedAtDestination && !isDone -> "Arrived at Destination"
-                    isStarted && isArrivedAtPickup && isArrivedAtDestination && isDone -> "Completed"
+                    !isStarted && !isArrivedAtPickup && !isOnDelivery && !isArrivedAtDestination && !isDone -> "Pending"
+                    isStarted && !isArrivedAtPickup && !isOnDelivery && !isArrivedAtDestination && !isDone -> "Going to Pickup"
+                    isStarted && isArrivedAtPickup && !isOnDelivery && !isArrivedAtDestination && !isDone -> "Arrived at Pickup"
+                    isStarted && isArrivedAtPickup && isOnDelivery && !isArrivedAtDestination && !isDone -> "On Delivery"
+                    isStarted && isArrivedAtPickup && isOnDelivery && isArrivedAtDestination && !isDone -> "Arrived at Destination"
+                    isStarted && isArrivedAtPickup && isOnDelivery && isArrivedAtDestination && isDone -> "Completed"
                     else -> "Pending"
                 }
 
@@ -547,12 +544,18 @@ class HaulerDeliveryStatusFragment : Fragment() {
                 injectStatusToWebView()
 
                 // Update button visibility based on delivery status
-                view?.findViewById<Button>(R.id.doneDeliveryBtn)?.let { button ->
-                    if (isArrivedAtDestination && !isDone) {
-                        Log.d("DeliveryStatus", "Setting button visibility to VISIBLE in fetchDeliveryData")
+                view?.findViewById<Button>(R.id.deliverBtn)?.let { button ->
+                    if (isArrivedAtPickup && !isOnDelivery) {
                         button.visibility = View.VISIBLE
                     } else {
-                        Log.d("DeliveryStatus", "Setting button visibility to GONE in fetchDeliveryData")
+                        button.visibility = View.GONE
+                    }
+                }
+
+                view?.findViewById<Button>(R.id.doneDeliveryBtn)?.let { button ->
+                    if (isArrivedAtDestination && !isDone) {
+                        button.visibility = View.VISIBLE
+                    } else {
                         button.visibility = View.GONE
                     }
                 }
@@ -813,32 +816,30 @@ class HaulerDeliveryStatusFragment : Fragment() {
         val pickupLoc = Location("").apply { latitude = pickupLat; longitude = pickupLng }
         val dropLoc = Location("").apply { latitude = dropLat; longitude = dropLng }
         val doneDeliveryBtn = view?.findViewById<Button>(R.id.doneDeliveryBtn)
+        val deliverBtn = view?.findViewById<Button>(R.id.deliverBtn)
 
         Log.d("DeliveryStatus", "Distance to drop: ${location.distanceTo(dropLoc)} meters")
 
         deliveryRef.get().addOnSuccessListener { doc ->
             val atPickup = doc.getBoolean("arrivedAtPickup") ?: false
+            val onDelivery = doc.getBoolean("isOnDelivery") ?: false
             val atDestination = doc.getBoolean("arrivedAtDestination") ?: false
             val isDone = doc.getBoolean("isDone") ?: false
 
-            Log.d("DeliveryStatus", "Current state - atPickup: $atPickup, atDestination: $atDestination, isDone: $isDone")
-            Log.d("DeliveryStatus", "Button visibility before update: ${doneDeliveryBtn?.visibility}")
+            Log.d("DeliveryStatus", "Current state - atPickup: $atPickup, onDelivery: $onDelivery, atDestination: $atDestination, isDone: $isDone")
 
             when {
                 !atPickup && location.distanceTo(pickupLoc) <= 20 -> {
                     Log.d("DeliveryStatus", "Arrived at pickup point")
                     deliveryRef.update("arrivedAtPickup", true)
-                    currentStatus = "On the Way"
+                    currentStatus = "Arrived at Pickup"
+                    deliverBtn?.visibility = View.VISIBLE
                 }
-                atPickup && !atDestination && location.distanceTo(dropLoc) <= 20 -> {
+                atPickup && onDelivery && !atDestination && location.distanceTo(dropLoc) <= 20 -> {
                     Log.d("DeliveryStatus", "Arrived at destination point")
                     deliveryRef.update("arrivedAtDestination", true)
                     currentStatus = "Arrived at Destination"
-                    doneDeliveryBtn?.let { button ->
-                        Log.d("DeliveryStatus", "Setting button visibility to VISIBLE")
-                        button.visibility = View.VISIBLE
-                        Log.d("DeliveryStatus", "Button visibility after update: ${button.visibility}")
-                    }
+                    doneDeliveryBtn?.visibility = View.VISIBLE
                 }
             }
 
@@ -858,6 +859,18 @@ class HaulerDeliveryStatusFragment : Fragment() {
     private fun injectStatusToWebView() {
         val js = "window.updateRouteStatus('$currentStatus');"
         webView.evaluateJavascript(js) { Log.d("STATUS_INJECT", it ?: "null") }
+    }
+
+    private fun startDelivery(deliveryId: String) {
+        firestore.collection("deliveries").document(deliveryId)
+            .update("isOnDelivery", true)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Delivery started", Toast.LENGTH_SHORT).show()
+                deliverBtn.visibility = View.GONE
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to start delivery: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     override fun onDestroyView() {

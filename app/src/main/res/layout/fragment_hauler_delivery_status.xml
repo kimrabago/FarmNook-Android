@@ -258,6 +258,21 @@
             </RelativeLayout>
 
             <Button
+                android:id="@+id/deliverBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DELIVER"
+                android:visibility="gone"
+                android:textColor="@color/white"
+                android:layout_marginHorizontal="80dp"
+                android:background="@drawable/yellow_rounded_button"
+                android:fontFamily="@font/poppins_semibold"
+                android:textAllCaps="false"
+                android:textSize="17sp"
+                android:layout_marginTop="5dp"
+                android:drawableTint="@color/white"/>
+
+            <Button
                 android:id="@+id/doneDeliveryBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

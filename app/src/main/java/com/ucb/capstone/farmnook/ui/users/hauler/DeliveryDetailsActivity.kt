@@ -121,15 +121,7 @@ class DeliveryDetailsActivity : AppCompatActivity() {
 
         // ✅ 1. Initialize all flags to proper starting state
         firestore.collection("deliveries").document(deliveryId)
-            .update(
-                //pun anan an value
-                mapOf(
-                    "isStarted" to true,
-                    "arrivedAtPickup" to false,
-                    "arrivedAtDestination" to false,
-                    "isDone" to false
-                )
-            )
+            .update("isStarted", true)
 
         // ✅ 2. Notify & setup chat (same logic as before)
         firestore.collection("deliveries").document(deliveryId).get()
