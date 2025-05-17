@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.bumptech.glide.Glide
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryRequest
 import com.ucb.capstone.farmnook.data.model.VehicleWithBusiness
@@ -43,11 +44,6 @@ class DeliverySummaryDialogFragment : DialogFragment() {
         val inflater = LayoutInflater.from(requireContext())
         val view = inflater.inflate(R.layout.dialog_delivery_summary, null)
 
-//        // Convert lat/lng to readable addresses
-//        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-//        val pickupAddress = deliveryReq.pickupName
-//        val destinationAddress = deliveryReq.destinationName
-//        val businessLoc = getAddressFromLatLng(vehicleWtBusiness.businessLocation, geocoder)
         view.findViewById<TextView>(R.id.businessName).text = vehicleWtBusiness.businessName
         val profileImageUrl = vehicleWtBusiness.profileImage
         val profileImage = view.findViewById<de.hdodenhof.circleimageview.CircleImageView>(R.id.profileImage)
@@ -78,13 +74,30 @@ class DeliverySummaryDialogFragment : DialogFragment() {
         view.findViewById<View>(R.id.hireButton).setOnClickListener {
             view.post {
                 val prepMinutes = 30
+                val vehicleId = vehicleWtBusiness.vehicleId
+                Log.d("DEBUG_VEHICLE_ID", "Fetching booked times for vehicleId: $vehicleId")
 
-                val bottomSheet = ScheduleBottomSheet(prepMinutes) { selectedTimestamp ->
-                    val updatedDeliveryReq = deliveryReq.copy(scheduledTime = selectedTimestamp)
-                    onHireConfirmed?.invoke(vehicleWtBusiness to updatedDeliveryReq)
-                    dismiss()
-                }
-                bottomSheet.show(parentFragmentManager, "ScheduleBottomSheet")
+                FirebaseFirestore.getInstance()
+                    .collection("deliveries")
+                    .whereEqualTo("vehicleId", vehicleId)
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        val bookedTimes =
+                            snapshot.documents.mapNotNull { it.getTimestamp("scheduledTime") }
+
+                        val bottomSheet = ScheduleBottomSheet(
+                            prepMinutes = prepMinutes,
+                            bookedTimes = bookedTimes,
+                            vehicleId = vehicleId
+                        ) { selectedTimestamp ->
+                            val updatedDeliveryReq =
+                                deliveryReq.copy(scheduledTime = selectedTimestamp)
+                            onHireConfirmed?.invoke(vehicleWtBusiness to updatedDeliveryReq)
+                            dismiss()
+                        }
+
+                        bottomSheet.show(parentFragmentManager, "ScheduleBottomSheet")
+                    }
             }
         }
 

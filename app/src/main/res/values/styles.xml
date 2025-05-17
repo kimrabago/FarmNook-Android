@@ -8,4 +8,37 @@
     <style name="CustomDatePickerStyle" >
         <item name="android:textSize">10sp</item> <!-- Set the text size -->
     </style>
+
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here -->
+    </style>
+
+    <!-- NumberPicker Style -->
+    <style name="NumberPickerStyle">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:colorControlNormal">@color/dark_green</item>
+        <item name="android:fontFamily">@font/poppins</item>
+    </style>
+
+    <!-- Calendar Style -->
+    <style name="CalendarViewStyle">
+        <item name="android:background">@color/cream</item>
+        <item name="android:focusedMonthDateColor">@color/dark_green</item>
+        <item name="android:weekDayTextAppearance">@style/CalendarViewWeekCustomText</item>
+        <item name="android:dateTextAppearance">@style/CalendarViewDateCustomText</item>
+    </style>
+
+    <style name="CalendarViewWeekCustomText" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">@color/dark_green</item>
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="CalendarViewDateCustomText" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>

@@ -84,7 +84,7 @@ class AddDeliveryActivity : AppCompatActivity() {
             startActivityForResult(intent, DESTINATION_LOCATION_REQUEST)
         }
 
-        val options = listOf("Select Purpose", "Livestock", "Crops", "Perishable Crops")
+        val options = listOf("Select Purpose", "Livestock", "Crops", "Perishable Goods")
 
         purposeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
 

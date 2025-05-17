@@ -69,22 +69,8 @@ class RecommendationAdapter(
         else
             "Estimating..."
 
-        if (item.isOccupied) {
-            holder.availableBtn.text = "Occupied"
-            holder.availableBtn.setBackgroundResource(R.drawable.red_rounded_button)
-            holder.availableBtn.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.white))
-            holder.availableBtn.isEnabled = true
-            holder.availableBtn.setOnClickListener {
-                onAvailableClicked(item)
-            }
-        } else {
-            holder.availableBtn.text = "Available"
-            holder.availableBtn.setBackgroundResource(R.drawable.yellow_green_rounded_button)
-            holder.availableBtn.isEnabled = true
-            holder.availableBtn.setOnClickListener {
-                onAvailableClicked(item)
-            }
+        holder.availableBtn.setOnClickListener {
+            onAvailableClicked(item)
         }
-
     }
 }

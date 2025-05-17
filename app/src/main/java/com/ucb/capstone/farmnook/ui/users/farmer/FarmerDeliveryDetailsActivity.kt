@@ -304,7 +304,7 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
                 isDone -> {
                     showCompletedMessage()
                     statusTextView?.text = "✅ Delivery Completed"
-                    statusTextView?.setTextColor(resources.getColor(R.color.purple, theme))
+//                    statusTextView?.setTextColor(resources.getColor(R.color.purple, theme))
                 }
                 arrivedAtDestination -> {
                     showConfirmationLayout()
@@ -314,7 +314,7 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
                 isOnDelivery -> {
                     showConfirmationLayout()
                     statusTextView?.text = "🚚 On Delivery"
-                    statusTextView?.setTextColor(resources.getColor(R.color.light_green, theme))
+//                    statusTextView?.setTextColor(resources.getColor(R.color.light_green, theme))
                 }
                 arrivedAtPickup -> {
                     showConfirmationLayout()
@@ -324,7 +324,7 @@ class FarmerDeliveryDetailsActivity : AppCompatActivity() {
                 isStarted -> {
                     showConfirmationLayout()
                     statusTextView?.text = "🚚 Going to Pickup"
-                    statusTextView?.setTextColor(resources.getColor(R.color.orange, theme))
+//                    statusTextView?.setTextColor(resources.getColor(R.color.orange, theme))
                 }
                 else -> {
                     showConfirmationLayout()

@@ -114,7 +114,6 @@ class DeliveryConfirmationActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_proof_image, null)
         val imageView = dialogView.findViewById<ImageView>(R.id.proofImageView)
 
-
         val builder = AlertDialog.Builder(this)
         builder.setView(dialogView)
         builder.setPositiveButton("Close", null)
