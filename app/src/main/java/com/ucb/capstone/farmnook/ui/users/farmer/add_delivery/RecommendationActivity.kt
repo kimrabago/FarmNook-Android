@@ -191,7 +191,6 @@ class RecommendationActivity : AppCompatActivity() {
                                 vehicleList.add(vehicleObj)
                                 originalVehicleList.clear()
                                 originalVehicleList.addAll(vehicleList)
-                                checkOccupiedVehicles()
                                 sortByCombinedScore()
                             }
 
@@ -274,8 +273,16 @@ class RecommendationActivity : AppCompatActivity() {
             val etaToPickup = EstimateTravelTimeUtil.getEstimatedTravelTime(vehicle.businessLocation, pickupLocation)
             val etaToDestination = EstimateTravelTimeUtil.getEstimatedTravelTime(pickupLocation, destinationLocation)
 
+            val etaDropToBusinessLoc = EstimateTravelTimeUtil.getEstimatedTravelTime(destinationLocation, vehicle.businessLocation)
+
             val totalMinutes = CombineTimeDurations.parseMinutes(etaToPickup) + CombineTimeDurations.parseMinutes(etaToDestination)
             val estimatedTime = "$totalMinutes min"
+
+            val overallEstTime = CombineTimeDurations.parseMinutes(etaToPickup) +
+                    CombineTimeDurations.parseMinutes(etaToDestination) +
+                    CombineTimeDurations.parseMinutes(etaDropToBusinessLoc) +
+                    120
+
 
             val delivery = DeliveryRequest(
                 pickupLocation = pickupLocation,
@@ -296,7 +303,8 @@ class RecommendationActivity : AppCompatActivity() {
                 receiverNumber = receiverNum,
                 deliveryNote = deliveryNote,
                 etaToPickup = etaToPickup,
-                etaToDestination = etaToDestination
+                etaToDestination = etaToDestination,
+                overallEstimatedTime = overallEstTime
             )
 
             val dialog = DeliverySummaryDialogFragment.newInstance(vehicle, delivery) {
@@ -357,6 +365,7 @@ class RecommendationActivity : AppCompatActivity() {
             "estimatedTime" to delivery.estimatedTime,
             "etaToPickup" to delivery.etaToPickup,
             "etaToDestination" to delivery.etaToDestination,
+            "overallEstimatedTime" to delivery.overallEstimatedTime,
             "receiverName" to delivery.receiverName,
             "receiverNumber" to delivery.receiverNumber,
             "deliveryNote" to delivery.deliveryNote,
@@ -376,21 +385,6 @@ class RecommendationActivity : AppCompatActivity() {
             }
         }.addOnFailureListener {
             Toast.makeText(this, "Failed to send request.", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun checkOccupiedVehicles() {
-        val deliveryRef = firestore.collection("deliveries")
-
-        deliveryRef.whereEqualTo("isDone", false).get().addOnSuccessListener { snapshot ->
-            val activeVehicleIds = snapshot.documents.mapNotNull { it.getString("vehicleId") }.toSet()
-
-            vehicleList.forEach { vehicle ->
-                vehicle.isOccupied = activeVehicleIds.contains(vehicle.vehicleId)
-            }
-
-            adapter.notifyDataSetChanged()
         }
     }
 }
