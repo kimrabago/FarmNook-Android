@@ -37,7 +37,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Current Delivery"
+        android:text="Scheduled Delivery"
         android:fontFamily="@font/poppins_bold"
         android:textColor="@color/black"
         android:textSize="15sp"
@@ -48,7 +48,8 @@
         android:id="@+id/CurrentDeliveriesRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="13dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
         tools:listitem="@layout/item_delivery_card"/>
 
     <TextView
@@ -60,8 +61,17 @@
         android:textSize="14sp"
         android:textColor="@color/gray"
         android:visibility="gone"
-        android:layout_marginTop="12dp"
         android:fontFamily="@font/dm_sans"/>
+    <TextView
+        android:id="@+id/overallTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="asda"
+        android:fontFamily="@font/dm_sans"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="12dp"/>
 
     <!-- Date Time Picker Section -->
     <LinearLayout
@@ -70,7 +80,7 @@
         android:orientation="horizontal"
         android:background="@drawable/datetime_picker_background"
         android:layout_marginHorizontal="10dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="5dp"
         android:paddingVertical="16dp"
         android:weightSum="2">
 
@@ -83,14 +93,14 @@
             android:orientation="vertical"
             android:paddingHorizontal="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Date"
-                android:textColor="@color/dark_green"
-                android:fontFamily="@font/poppins_bold"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp"/>
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Date"-->
+<!--                android:textColor="@color/dark_green"-->
+<!--                android:fontFamily="@font/poppins_bold"-->
+<!--                android:textSize="14sp"-->
+<!--                android:layout_marginBottom="8dp"/>-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -131,16 +141,16 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingHorizontal="2dp">
+            android:paddingHorizontal="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Time"
-                android:textColor="@color/dark_green"
-                android:fontFamily="@font/poppins_bold"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp"/>
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Time"-->
+<!--                android:textColor="@color/dark_green"-->
+<!--                android:fontFamily="@font/poppins_bold"-->
+<!--                android:textSize="14sp"-->
+<!--                android:layout_marginBottom="8dp"/>-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -150,7 +160,7 @@
 
                 <NumberPicker
                     android:id="@+id/hourPicker"
-                    android:layout_width="wrap_content"
+                    android:layout_width="50dp"
                     android:layout_height="100dp"
                     android:theme="@style/NumberPickerStyle"/>
 
@@ -165,7 +175,7 @@
 
                 <NumberPicker
                     android:id="@+id/minutePicker"
-                    android:layout_width="wrap_content"
+                    android:layout_width="60dp"
                     android:layout_height="100dp"
                     android:theme="@style/NumberPickerStyle"/>
 
@@ -184,7 +194,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:text="It is not guaranteed. Ongoing delivery may occur due to traffic or other factors"
+        android:text="It is not guaranteed. Ongoing delivery may occur due to traffic or other factors."
         android:fontFamily="@font/dm_sans"
         android:textColor="@color/gray"
         android:textSize="13sp"
@@ -202,6 +212,7 @@
         android:textSize="15sp"
         android:layout_marginTop="5dp"
         android:layout_gravity="center"/>
+
 
     <Button
         android:id="@+id/confirmButton"
