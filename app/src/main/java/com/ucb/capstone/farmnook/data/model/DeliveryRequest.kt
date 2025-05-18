@@ -19,6 +19,7 @@ data class DeliveryRequest(
     val overallEstimatedTime: Int? = null,
     val estimatedDurationMinutes: Int? = null,
     val scheduledTime: Timestamp? = null,
+    var estimatedEndTime: Timestamp? = null,
     val farmerId: String? = null, //the userId
     val businessId: String? = null,
     val vehicleId: String? = null,

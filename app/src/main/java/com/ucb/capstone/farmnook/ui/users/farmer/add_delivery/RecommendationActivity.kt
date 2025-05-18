@@ -304,7 +304,8 @@ class RecommendationActivity : AppCompatActivity() {
                 deliveryNote = deliveryNote,
                 etaToPickup = etaToPickup,
                 etaToDestination = etaToDestination,
-                overallEstimatedTime = overallEstTime
+                overallEstimatedTime = overallEstTime,
+                estimatedEndTime = null
             )
 
             val dialog = DeliverySummaryDialogFragment.newInstance(vehicle, delivery) {
@@ -366,6 +367,7 @@ class RecommendationActivity : AppCompatActivity() {
             "etaToPickup" to delivery.etaToPickup,
             "etaToDestination" to delivery.etaToDestination,
             "overallEstimatedTime" to delivery.overallEstimatedTime,
+            "estimatedEndTime" to delivery.estimatedEndTime,
             "receiverName" to delivery.receiverName,
             "receiverNumber" to delivery.receiverNumber,
             "deliveryNote" to delivery.deliveryNote,

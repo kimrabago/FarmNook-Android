@@ -30,7 +30,8 @@ class ScheduleBottomSheet(
     private val prepMinutes: Int,
     private val bookedTimes: List<Timestamp>,
     private val vehicleId: String,
-    private val onScheduleSelected: (Timestamp) -> Unit
+    private val overallEstMinutes: Int,
+    private val onScheduleSelected: (Timestamp) -> Unit,
 ) : BottomSheetDialogFragment() {
 
     private lateinit var calendarView: CalendarView
@@ -59,6 +60,18 @@ class ScheduleBottomSheet(
         setupPickers()
         setupListeners()
         setupRecyclerView()
+
+        // Display overallEstimatedTime in the UI
+        val overallTimeText = view.findViewById<TextView>(R.id.overallTime)
+
+        val hours = overallEstMinutes / 60
+        val minutes = overallEstMinutes % 60
+        val durationFormatted = buildString {
+            if (hours > 0) append("$hours hour${if (hours > 1) "s" else ""}")
+            if (hours > 0 && minutes > 0) append(" and ")
+            if (minutes > 0) append("$minutes minute${if (minutes > 1) "s" else ""}")
+        }
+        overallTimeText.text = "Full Route Time: $durationFormatted"
 
         val today = Calendar.getInstance()
         loadScheduledDeliveriesForDate(
@@ -162,8 +175,26 @@ class ScheduleBottomSheet(
             val selectedTimestamp = buildTimestampFromPickers()
             val selectedDateTime = selectedTimestamp.toDate()
 
-            val minAllowed = Calendar.getInstance().apply {
-                add(Calendar.MINUTE, prepMinutes)
+            val minAllowed = Calendar.getInstance().apply { add(Calendar.MINUTE, prepMinutes) }
+
+            val endOfNewDelivery = Calendar.getInstance().apply {
+                time = selectedDateTime
+                add(Calendar.MINUTE, overallEstMinutes)
+            }
+
+            val conflict = deliveryList.any {
+                val start = it.scheduledTime?.toDate() ?: return@any false
+                val end = Calendar.getInstance().apply {
+                    time = start
+                    add(Calendar.MINUTE, it.overallEstimatedTime ?: 0)
+//                    add(Calendar.MINUTE, 30)
+                }
+                selectedDateTime.before(end.time) && endOfNewDelivery.time.after(start)
+            }
+
+            if (conflict) {
+                Toast.makeText(requireContext(), "This schedule overlaps with an existing delivery.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
             }
 
             val isAlreadyBooked = bookedTimes.any {
@@ -181,11 +212,7 @@ class ScheduleBottomSheet(
             }
 
             if (selectedDateTime.before(minAllowed.time)) {
-                Toast.makeText(
-                    requireContext(),
-                    "Please select a schedule beyond the preparation time.",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(requireContext(), "Please select a schedule beyond the preparation time.", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
@@ -261,7 +288,11 @@ class ScheduleBottomSheet(
                     scheduledDeliveryAdapter.notifyDataSetChanged()
                     return@addSnapshotListener
                 } else {
-                    note?.visibility = View.VISIBLE
+                    if (deliveryList.isEmpty()) {
+                        note?.visibility = View.GONE
+                    } else {
+                        note?.visibility = View.VISIBLE
+                    }
                 }
 
                 deliveryList.clear()
@@ -292,7 +323,7 @@ class ScheduleBottomSheet(
                             processedCount++
                             if (processedCount == documents.size) {
                                 emptyView?.visibility = View.GONE
-                                note?.visibility = View.GONE
+                                note?.visibility = if (deliveryList.isEmpty()) View.GONE else View.VISIBLE
                                 scheduledListRecyclerView.visibility = View.VISIBLE
                                 scheduledDeliveryAdapter.notifyDataSetChanged()
                             }
