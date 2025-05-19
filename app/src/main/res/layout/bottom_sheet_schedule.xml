@@ -222,6 +222,6 @@
         android:text="Confirm Schedule"
         android:backgroundTint="@color/dark_green"
         android:textColor="@color/white"
-        android:fontFamily="@font/poppins"/>
+        android:fontFamily="@font/dm_sans"/>
 
 </LinearLayout>

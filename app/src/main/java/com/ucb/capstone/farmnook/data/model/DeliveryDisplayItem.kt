@@ -1,5 +1,7 @@
 package com.ucb.capstone.farmnook.data.model
 
+import com.google.firebase.Timestamp
+
 data class DeliveryDisplayItem(
     val deliveryId: String,
     val pickupLocation: String,           // human-readable
@@ -12,6 +14,7 @@ data class DeliveryDisplayItem(
     val receiverName: String,
     val receiverNum: String,
     val deliveryNote: String? = null,
-    val isStarted: Boolean
+    val isStarted: Boolean,
+    val scheduledTime: Timestamp? = null
 )
 

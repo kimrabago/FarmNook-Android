@@ -52,8 +52,6 @@ class ScheduleBottomSheet(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("DEBUG_INIT_BOTTOM_SHEET", "ScheduleBottomSheet opened with vehicleId=$vehicleId")
-
         val view = inflater.inflate(R.layout.bottom_sheet_schedule, container, false)
         bindViews(view)
         setupCalendarView()
@@ -61,9 +59,7 @@ class ScheduleBottomSheet(
         setupListeners()
         setupRecyclerView()
 
-        // Display overallEstimatedTime in the UI
         val overallTimeText = view.findViewById<TextView>(R.id.overallTime)
-
         val hours = overallEstMinutes / 60
         val minutes = overallEstMinutes % 60
         val durationFormatted = buildString {
@@ -97,10 +93,8 @@ class ScheduleBottomSheet(
 
     private fun setupCalendarView() {
         calendarView.setFocusedMonthDateColor(ContextCompat.getColor(requireContext(), R.color.dark_green))
-
         val minCal = Calendar.getInstance().apply { set(2025, Calendar.JANUARY, 1) }
         val maxCal = Calendar.getInstance().apply { set(2026, Calendar.DECEMBER, 31) }
-
         calendarView.minDate = minCal.timeInMillis
         calendarView.maxDate = maxCal.timeInMillis
 
@@ -110,16 +104,11 @@ class ScheduleBottomSheet(
             updateDays(year, month, dayPicker)
             dayPicker.value = dayOfMonth
             loadScheduledDeliveriesForDate(year, month, dayOfMonth)
-            Log.d("DEBUG_CALENDAR_CLICK", "Calendar date selected: $year-${month + 1}-$dayOfMonth")
-
         }
     }
 
     private fun setupPickers() {
-        val now = Calendar.getInstance().apply {
-            add(Calendar.MINUTE, prepMinutes)
-        }
-
+        val now = Calendar.getInstance().apply { add(Calendar.MINUTE, prepMinutes) }
         val currentYear = now.get(Calendar.YEAR)
         yearPicker.minValue = currentYear
         yearPicker.maxValue = currentYear + 1
@@ -136,14 +125,11 @@ class ScheduleBottomSheet(
 
         hourPicker.minValue = 1
         hourPicker.maxValue = 12
-        hourPicker.value = when (val hour = now.get(Calendar.HOUR)) {
-            0 -> 12
-            else -> hour
-        }
+        hourPicker.value = if (now.get(Calendar.HOUR) == 0) 12 else now.get(Calendar.HOUR)
 
         val minuteOptions = arrayOf("00", "30")
         minutePicker.minValue = 0
-        minutePicker.maxValue = minuteOptions.lastIndex
+        minutePicker.maxValue = 1
         minutePicker.displayedValues = minuteOptions
         minutePicker.value = if (now.get(Calendar.MINUTE) >= 30) 1 else 0
 
@@ -164,7 +150,6 @@ class ScheduleBottomSheet(
     private fun setupListeners() {
         calendarToggle.setOnClickListener {
             calendarView.visibility = if (calendarView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
             val selectedCal = Calendar.getInstance().apply {
                 set(yearPicker.value, monthPicker.value, dayPicker.value)
             }
@@ -174,7 +159,6 @@ class ScheduleBottomSheet(
         confirmButton.setOnClickListener {
             val selectedTimestamp = buildTimestampFromPickers()
             val selectedDateTime = selectedTimestamp.toDate()
-
             val minAllowed = Calendar.getInstance().apply { add(Calendar.MINUTE, prepMinutes) }
 
             val endOfNewDelivery = Calendar.getInstance().apply {
@@ -187,7 +171,7 @@ class ScheduleBottomSheet(
                 val end = Calendar.getInstance().apply {
                     time = start
                     add(Calendar.MINUTE, it.overallEstimatedTime ?: 0)
-//                    add(Calendar.MINUTE, 30)
+                    //                    add(Calendar.MINUTE, 30)
                 }
                 selectedDateTime.before(end.time) && endOfNewDelivery.time.after(start)
             }
@@ -228,10 +212,8 @@ class ScheduleBottomSheet(
         var hour = hourPicker.value
         val minute = if (minutePicker.value == 0) 0 else 30
         val isPM = ampmPicker.value == 1
-
         if (hour == 12) hour = 0
         if (isPM) hour += 12
-
         val selectedCal = Calendar.getInstance()
         selectedCal.set(year, month, day, hour, minute)
         return Timestamp(selectedCal.time)
@@ -263,9 +245,6 @@ class ScheduleBottomSheet(
             set(Calendar.MILLISECOND, 999)
         }
 
-        Log.d("DEBUG_FETCH_DATE", "Loading deliveries for vehicleId=$vehicleId on $year-${month + 1}-$day")
-        Log.d("DEBUG_FETCH_DATE", "Start=${Timestamp(calendarStart.time)}, End=${Timestamp(calendarEnd.time)}")
-
         val emptyView = view?.findViewById<TextView>(R.id.emptyView)
         val note = view?.findViewById<TextView>(R.id.note)
 
@@ -280,26 +259,30 @@ class ScheduleBottomSheet(
                     return@addSnapshotListener
                 }
 
+                deliveryList.clear()
+
                 if (snapshot == null || snapshot.isEmpty) {
-                    deliveryList.clear()
+                    scheduledDeliveryAdapter.notifyDataSetChanged()
                     emptyView?.visibility = View.VISIBLE
                     note?.visibility = View.GONE
                     scheduledListRecyclerView.visibility = View.GONE
-                    scheduledDeliveryAdapter.notifyDataSetChanged()
                     return@addSnapshotListener
-                } else {
-                    if (deliveryList.isEmpty()) {
-                        note?.visibility = View.GONE
-                    } else {
-                        note?.visibility = View.VISIBLE
-                    }
                 }
 
-                deliveryList.clear()
+                val tempList = mutableListOf<ScheduledDelivery>()
                 var processedCount = 0
                 val documents = snapshot.documents
 
                 for (doc in documents) {
+                    val isValidated = doc.getBoolean("isValidated") ?: false
+                    if (isValidated) {
+                        processedCount++
+                        if (processedCount == documents.size) {
+                            finalizeDeliveryList(tempList, emptyView, note)
+                        }
+                        continue
+                    }
+
                     val requestId = doc.getString("requestId") ?: continue
                     val scheduledTime = doc.getTimestamp("scheduledTime") ?: continue
 
@@ -309,26 +292,29 @@ class ScheduleBottomSheet(
                         .get()
                         .addOnSuccessListener { requestDoc ->
                             val overallEst = requestDoc.getLong("overallEstimatedTime")?.toInt() ?: 0
-                            Log.d("DEBUG_CALENDAR_CLICK", "overallEstimatedTime: $overallEst")
-
-                            deliveryList.add(
-                                ScheduledDelivery(
-                                    scheduledTime = scheduledTime,
-                                    overallEstimatedTime = overallEst
-                                )
-                            )
-                            Log.d("DEBUG_CALENDAR_CLICK", "Added to deliveryList: scheduledTime=$scheduledTime, overallEstimatedTime=$overallEst")
+                            tempList.add(ScheduledDelivery(scheduledTime = scheduledTime, overallEstimatedTime = overallEst))
                         }
                         .addOnCompleteListener {
                             processedCount++
                             if (processedCount == documents.size) {
-                                emptyView?.visibility = View.GONE
-                                note?.visibility = if (deliveryList.isEmpty()) View.GONE else View.VISIBLE
-                                scheduledListRecyclerView.visibility = View.VISIBLE
-                                scheduledDeliveryAdapter.notifyDataSetChanged()
+                                finalizeDeliveryList(tempList, emptyView, note)
                             }
                         }
                 }
             }
+    }
+
+    private fun finalizeDeliveryList(
+        items: List<ScheduledDelivery>,
+        emptyView: TextView?,
+        note: TextView?
+    ) {
+        deliveryList.clear()
+        deliveryList.addAll(items)
+        val isEmpty = deliveryList.isEmpty()
+        emptyView?.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        note?.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        scheduledListRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        scheduledDeliveryAdapter.notifyDataSetChanged()
     }
 }

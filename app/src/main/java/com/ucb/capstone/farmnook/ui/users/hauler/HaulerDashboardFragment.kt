@@ -21,6 +21,8 @@ import com.ucb.capstone.farmnook.ui.menu.NavigationBar
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class HaulerDashboardFragment : Fragment() {
 
@@ -56,6 +58,11 @@ class HaulerDashboardFragment : Fragment() {
         val recyclerView: RecyclerView = rootView.findViewById(R.id.deliveries_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         assignedDeliveryAdapter = AssignedDeliveryAdapter(deliveryList, false) { delivery ->
+
+            val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+            val scheduleTimeStr = delivery.scheduledTime?.toDate()?.let { formatter.format(it) } ?: ""
+            Log.d("INTENT_DEBUG", "Putting scheduleTime: $scheduleTimeStr")
+
             val intent = Intent(requireContext(), DeliveryDetailsActivity::class.java).apply {
                 putExtra("deliveryId", delivery.deliveryId)
                 putExtra("pickupAddress", delivery.pickupLocation)
@@ -69,6 +76,7 @@ class HaulerDashboardFragment : Fragment() {
                 putExtra("receiverName", delivery.receiverName)
                 putExtra("receiverNum", delivery.receiverNum)
                 putExtra("deliveryNote", delivery.deliveryNote)
+                putExtra("scheduleTime", scheduleTimeStr)
             }
             startActivity(intent)
         }
@@ -97,6 +105,7 @@ class HaulerDashboardFragment : Fragment() {
                             val requestId = doc.getString("requestId") ?: return@async null
                             val isStarted = doc.getBoolean("isStarted") ?: false
                             val isDone = doc.getBoolean("isDone") ?: false
+                            val scheduledTime = doc.getTimestamp("scheduledTime") ?: return@async null
                             if (isDone) return@async null
 
                             val requestDoc = firestore.collection("deliveryRequests").document(requestId).get().await()
@@ -110,7 +119,7 @@ class HaulerDashboardFragment : Fragment() {
                             val receiverNum = requestDoc.getString("receiverNumber") ?: ""
                             val deliveryNote = requestDoc.getString("deliveryNote") ?: ""
 
-                            DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId, receiverName, receiverNum, deliveryNote, isStarted)
+                            DeliveryDisplayItem(deliveryId, pickupAddress, dropAddress, pickup, drop, estimatedTime, totalCost, requestId, receiverName, receiverNum, deliveryNote, isStarted, scheduledTime)
                         }
                     }
 
