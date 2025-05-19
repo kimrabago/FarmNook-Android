@@ -7,8 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Timestamp
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryDisplayItem
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class AssignedDeliveryAdapter(
     private var deliveries: List<DeliveryDisplayItem>,
@@ -29,6 +32,7 @@ class AssignedDeliveryAdapter(
         val provinceDestination: TextView = view.findViewById(R.id.provinceDestination)
         val estimatedTime: TextView = view.findViewById(R.id.estimatedTime)
         val totalCost: TextView = view.findViewById(R.id.totalCost)
+        val schedTime: TextView = view.findViewById(R.id.deliverySchedTime)
         val viewBtn: View = view.findViewById(R.id.viewDeliverBtn)
     }
 
@@ -45,7 +49,12 @@ class AssignedDeliveryAdapter(
         holder.estimatedTime.text = delivery.estimatedTime
         holder.totalCost.text = "₱${delivery.totalCost}"
 
-        // Hide ALL view buttons if any delivery has started
+        val timestamp: Timestamp? = delivery.scheduledTime
+        val startDate = timestamp?.toDate()
+
+        val sdf = SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault())
+        holder.schedTime.text = "Schedule: ${startDate?.let { sdf.format(it) }}"
+
         holder.viewBtn.visibility = if (anyDeliveryStarted) View.GONE else View.VISIBLE
 
         holder.viewBtn.setOnClickListener {

@@ -12,6 +12,9 @@ import com.bumptech.glide.Glide
 import com.ucb.capstone.farmnook.R
 import com.ucb.capstone.farmnook.data.model.DeliveryItem
 import com.ucb.capstone.farmnook.ui.users.hauler.DeliveryDetailsActivity
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 ///WAY GAMIT
 class DeliveryAdapter(private val deliveryList: List<DeliveryItem>) :
     RecyclerView.Adapter<DeliveryAdapter.DeliveryViewHolder>() {
@@ -54,6 +57,7 @@ class DeliveryAdapter(private val deliveryList: List<DeliveryItem>) :
         } else {
             holder.profileImage.setImageResource(R.drawable.profile_circle) // Set default if no image
         }
+
 
         // Handle button click properly
         holder.viewDeliverBtn.setOnClickListener {

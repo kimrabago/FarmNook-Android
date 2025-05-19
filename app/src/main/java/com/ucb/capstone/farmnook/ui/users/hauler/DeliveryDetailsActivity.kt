@@ -24,6 +24,7 @@ import com.ucb.capstone.farmnook.utils.loadImage
 import com.ucb.capstone.farmnook.utils.loadMapInWebView
 import de.hdodenhof.circleimageview.CircleImageView
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 @Suppress("LABEL_NAME_CLASH")
@@ -47,12 +48,14 @@ class DeliveryDetailsActivity : AppCompatActivity() {
             state = BottomSheetBehavior.STATE_EXPANDED
         }
 
+        val startButton = findViewById<Button>(R.id.startDeliveryBtn)
         val farmerNameTextView = findViewById<TextView>(R.id.farmerName)
         val profileImageView = findViewById<CircleImageView>(R.id.profileImage)
         productTypeTextView = findViewById(R.id.productType)
         weightTextView = findViewById(R.id.weightAmount)
         requestDateTextView = findViewById(R.id.dateTime)
         vehicleTypeTextView = findViewById(R.id.vehicle)
+
 
         val pickupAddress = intent.getStringExtra("pickupAddress")
         val destinationAddress = intent.getStringExtra("destinationAddress")
@@ -65,6 +68,15 @@ class DeliveryDetailsActivity : AppCompatActivity() {
         val receiverName = intent.getStringExtra("receiverName") ?: ""
         val receiverNum = intent.getStringExtra("receiverNum") ?: ""
         val deliveryNote = intent.getStringExtra("deliveryNote") ?: ""
+        val schedTime = intent.getStringExtra("scheduleTime") ?: ""
+        val scheduledTime: Timestamp? = try {
+            val format = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+            val date = format.parse(schedTime)
+            date?.let { Timestamp(it) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
 
 
         findViewById<TextView>(R.id.receiverInfo).text = "Recipient : $receiverName - $receiverNum"
@@ -98,8 +110,51 @@ class DeliveryDetailsActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 
-        findViewById<Button>(R.id.startDeliveryBtn).setOnClickListener {
-            startDelivery(deliveryId, pickup, destination, pickupAddress, destinationAddress, receiverName, receiverNum, deliveryNote)
+        scheduledTime?.let {
+            val now = java.util.Calendar.getInstance()
+            val sched = java.util.Calendar.getInstance().apply { time = it.toDate() }
+
+            val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("MMM dd", Locale.getDefault())
+            val timeString = timeFormat.format(sched.time)
+
+            val isToday = now.get(Calendar.YEAR) == sched.get(Calendar.YEAR) &&
+                    now.get(Calendar.DAY_OF_YEAR) == sched.get(Calendar.DAY_OF_YEAR)
+
+            val displayText = if (isToday) {
+                "Start delivery today at $timeString"
+            } else {
+                "Start delivery on ${dateFormat.format(sched.time)} at $timeString"
+            }
+
+            Log.d("SCHEDULE_TEXT", "Setting button text: $displayText")
+            startButton.text = displayText
+        } ?: run {
+            startButton.text = "Start delivery"
+        }
+
+        startButton.setOnClickListener {
+            if (scheduledTime == null) {
+                Toast.makeText(this, "Invalid schedule time.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val currentTimeMillis = System.currentTimeMillis()
+            val scheduledMillis = scheduledTime.toDate().time
+
+            if (currentTimeMillis >= scheduledMillis) {
+                // ✅ It's time to start the delivery
+                startDelivery(
+                    deliveryId, pickup, destination,
+                    pickupAddress, destinationAddress,
+                    receiverName, receiverNum, deliveryNote
+                )
+            } else {
+                // ❌ Not yet time
+                val formatter = SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault())
+                val readableTime = formatter.format(scheduledTime.toDate())
+                Toast.makeText(this, "⏳ You can start the delivery at $readableTime", Toast.LENGTH_LONG).show()
+            }
         }
 
         webView = findViewById(R.id.mapView)

@@ -573,6 +573,7 @@ class HaulerDeliveryStatusFragment : Fragment() {
                         farmerId = req.getString("farmerId") ?: "Unknown"
                         vehicleId = req.getString("vehicleId") ?: "Unknown"
 
+
                         firestore.collection("users").document(farmerId!!)
                             .get()
                             .addOnSuccessListener { businessDoc ->
